@@ -1,5 +1,5 @@
 import os
-from setuptools import setup, find_packages
+from setuptools import setup
 
 with open(f"README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
@@ -15,7 +15,6 @@ try:
         def finalize_options(self):
             _bdist_wheel.finalize_options(self)
             self.root_is_pure = False
-
 except ImportError:
     bdist_wheel = None
 
@@ -40,8 +39,7 @@ setup(
     ],
     setup_requires=install_requires,
     install_requires=install_requires,
-    packages=find_packages(where='tonpy'),
-    package_dir={"": "tonpy"},
+    package_dir={'': 'tonpy'},
     python_requires=">3.8,<3.12",
     cmdclass={'bdist_wheel': bdist_wheel},
     include_package_data=True
