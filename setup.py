@@ -40,7 +40,6 @@ setup(
     ],
     setup_requires=install_requires,
     install_requires=install_requires,
-    packages=['tonpy'],
     python_requires=">3.8,<3.12",
     cmdclass={'bdist_wheel': bdist_wheel},
     include_package_data=True
