@@ -63,7 +63,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python }}
         env:
@@ -78,7 +78,6 @@ jobs:
 
       - name: Build wheel
         run: |
-          rm -rf build dist *.egg-info
           python -m build --wheel --outdir dist/ .
           ls -lhta ./dist
           python rename_linux_dist.py
