@@ -52,19 +52,14 @@ jobs:
       - name: Install cibuildwheel
         run: python -m pip install cibuildwheel==2.13.1
 
-      - name: Build wheels linux
-        run: python -m cibuildwheel --output-dir wheelhouse
-        env:
-          CIBW_ARCHS_LINUX: ${{ matrix.arch }}
-          CIBW_PLATFORM: linux
-          CIBW_BUILD: ${{ matrix.cibw }}
-          CIBW_BUILD_VERBOSITY: 2
-        if: matrix.os == 'Linux'
-
-      - name: Show wheels
+      - name: Download prebuilt
         run: |
-          ls -lart ./wheelhouse
+          wget ${{ matrix.link }}${{ matrix.file }} && mv ${{ matrix.file }} ./tonpy/libs/
+
+      - name: Build wheel
+        run: |
+          python -m build && ls -lhta ./dist
 
       - uses: actions/upload-artifact@v3
         with:
-          path: ./wheelhouse/*.whl
+          path: ./dist/*.whl

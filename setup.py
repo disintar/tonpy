@@ -27,7 +27,6 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/disintar/tonpy",
-    include_package_data=True,
     project_urls={
         "Bug Tracker": "https://github.com/disintar/tonpy/issues",
     },
@@ -43,5 +42,8 @@ setup(
     package_dir={'': 'tonpy'},
     python_requires=">3.8,<3.12",
     cmdclass={'bdist_wheel': bdist_wheel},
-    package_data={'tonpy': ['*.so']},
+    package_data={
+        # If any package contains *.txt or *.rst files, include them:
+        '': ['*.txt', '*.xml', '*.special', '*.huh'],
+    },
 )
