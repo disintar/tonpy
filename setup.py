@@ -41,7 +41,7 @@ setup(
     setup_requires=install_requires,
     install_requires=install_requires,
     package_dir={'': 'tonpy'},
-    python_requires=">=3.9,<=3.11",
+    python_requires=">=3.8,<3.12",
     cmdclass={'bdist_wheel': bdist_wheel},
     package_data={'tonpy': ['*.so']},
 )
