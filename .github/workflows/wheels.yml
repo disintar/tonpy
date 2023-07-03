@@ -1,6 +1,12 @@
 name: Wheel builder
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+      branches: [ master ]
+  workflow_dispatch:
+  workflow_call:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -16,8 +22,15 @@ jobs:
     strategy:
       matrix:
         arch: [x86_64, aarch64]
-        os: [macos-12]
+        os: [Linux, macOS]
         python: [39, 310, 311]
+        exclude:
+            os: Linux
+            arch: x86_64
+        include:
+          - os: Linux
+            nix-extra: |
+              extra-platforms = x86_64-linux aarch64-linux
 
     steps:
       - uses: actions/checkout@v3
