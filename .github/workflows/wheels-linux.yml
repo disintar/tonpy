@@ -24,24 +24,23 @@ jobs:
             os: Linux
             python: "3.9"
             link: https://github.com/disintar/ton/releases/download/ton-x86_64-linux-python-39/python_ton.cpython-39-x86_64-linux-gnu.so
+            cibw: cp39-manylinux_x86_64
 
           - arch: x86_64
             os: Linux
             python: "3.10"
             link: https://github.com/disintar/ton/releases/download/ton-x86_64-linux-python-310/python_ton.cpython-310-x86_64-linux-gnu.so
+            cibw: cp310-manylinux_x86_64
 
           - arch: x86_64
             os: Linux
             python: "3.11"
             link: https://github.com/disintar/ton/releases/download/ton-x86_64-linux-python-311/python_ton.cpython-311-x86_64-linux-gnu.so
+            cibw: cp311-manylinux_x86_64
 
     runs-on: ${{ matrix.os }}
 
     steps:
-      - name: Install QEMU
-        uses: docker/setup-qemu-action@v2
-        if: matrix.os == 'Linux' && matrix.arch == 'aarch64'
-
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v3
         with:
@@ -55,16 +54,12 @@ jobs:
           wget ${{ matrix.link }}
 
       - name: Build wheels linux
-        run: python -m cibuildwheel --platform linux --output-dir wheelhouse
+        run: python -m cibuildwheel --output-dir wheelhouse
         env:
           CIBW_ARCHS_LINUX: ${{ matrix.arch }}
+          CIBW_PLATFORM: linux
+          CIBW_BUILD: ${{ matrix.cibw }}
         if: matrix.os == 'Linux'
-
-      - name: Build wheels mac
-        run: python -m cibuildwheel --platform macos --output-dir wheelhouse
-        env:
-          CIBW_ARCHS_LINUX: ${{ matrix.arch }}
-        if: matrix.os == 'macOS'
 
       - name: Show wheels
         run: |
