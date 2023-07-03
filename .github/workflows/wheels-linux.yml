@@ -58,9 +58,15 @@ jobs:
 
       - name: Build wheel
         run: |
-          python -m build && ls -lhta ./dist
+          python -m build --sdist --wheel --outdir dist/ . && ls -lhta ./dist
 
-      - name: Publish distribution 📦 to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+      - name: Store the binary wheel
+        uses: actions/upload-artifact@v2
         with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
+          name: python-package-distributions
+          path: dist
+
+#    - name: Publish distribution 📦 to PyPI
+#      uses: pypa/gh-action-pypi-publish@release/v1
+#      with:
+#        password: ${{ secrets.PYPI_API_TOKEN }}
