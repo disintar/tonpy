@@ -54,7 +54,7 @@ jobs:
 
       - name: Download prebuilt
         run: |
-          wget ${{ matrix.link }} && mv ${{ matrix.file }} ./tonpy/
+          wget ${{ matrix.link }}${{ matrix.file }} && mv ${{ matrix.file }} ./tonpy/
 
       - name: Build wheels linux
         run: python -m cibuildwheel --output-dir wheelhouse
