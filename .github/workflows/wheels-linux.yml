@@ -60,6 +60,7 @@ jobs:
         run: |
           python -m build --wheel --outdir dist/ .
           ls -lhta ./dist
+          python rename_linux_dist.py
 
       - name: Store the binary wheel
         uses: actions/upload-artifact@v2
