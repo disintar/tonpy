@@ -56,9 +56,8 @@ jobs:
         run: |
           wget ${{ matrix.link }}${{ matrix.file }} && mv ${{ matrix.file }} ./tonpy/libs/
 
-      - name: Build wheel
-        run: |
-          python -m build --wheel --outdir dist/ . && ls -lhta ./dist
+      - name: Build manylinux Python wheels
+        uses: RalfG/python-wheels-manylinux-build@v0.7.1-manylinux2014_x86_64
 
       - name: Store the binary wheel
         uses: actions/upload-artifact@v2
@@ -66,24 +65,19 @@ jobs:
           name: python-package-distributions
           path: dist
 
-  deploy:
-    name: Publish 🐍📦 to PyPI
-    runs-on: Linux
-    needs:
-      - build
-
-    steps:
-      - name: Download all the dists
-        uses: actions/download-artifact@v2
-        with:
-          name: python-package-distributions
-          path: dist/
-      - name: Publish distribution 📦 to PyPi
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
-
-#    - name: Publish distribution 📦 to PyPI
-#      uses: pypa/gh-action-pypi-publish@release/v1
-#      with:
-#        password: ${{ secrets.PYPI_API_TOKEN }}
+#  deploy:
+#    name: Publish 🐍📦 to PyPI
+#    runs-on: Linux
+#    needs:
+#      - build
+#
+#    steps:
+#      - name: Download all the dists
+#        uses: actions/download-artifact@v2
+#        with:
+#          name: python-package-distributions
+#          path: dist/
+#      - name: Publish distribution 📦 to PyPi
+#        uses: pypa/gh-action-pypi-publish@release/v1
+#        with:
+#          password: ${{ secrets.PYPI_API_TOKEN }}
