@@ -25,34 +25,45 @@ jobs:
             python: "3.9"
             link: https://github.com/disintar/ton/releases/download/ton-x86_64-linux-python-39/
             file: python_ton.cpython-39-x86_64-linux-gnu.so
-            cibw: cp39
+            cibw: cp39-manylinux_x86_64
 
           - arch: x86_64
             os: Linux
             python: "3.10"
             link: https://github.com/disintar/ton/releases/download/ton-x86_64-linux-python-310/
             file: python_ton.cpython-310-x86_64-linux-gnu.so
-            cibw: cp310
+            cibw: cp310-manylinux_x86_64
 
           - arch: x86_64
             os: Linux
             python: "3.11"
             link: https://github.com/disintar/ton/releases/download/ton-x86_64-linux-python-311/
             file: python_ton.cpython-311-x86_64-linux-gnu.so
-            cibw: cp311
+            cibw: cp311-manylinux_x86_64
 
     runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install deps
+        run: python -m pip install build auditwheel
+
       - name: Download prebuilt
         run: |
           wget ${{ matrix.link }}${{ matrix.file }} && mv ${{ matrix.file }} ./tonpy/libs/
 
-      - name: Build manylinux Python wheels
-        uses: RalfG/python-wheels-manylinux-build@v0.7.1-manylinux2014_x86_64
-        with:
-          python-versions: '${{ matrix.cibw }}-${{ matrix.cibw }}'
+      - name: Build wheel
+        run: |
+          python -m build --wheel --outdir dist/ .
+          ls -lhta ./dist
+          echo " - Auditwheel show"
+          auditwheel show dist/*.whl
+          echo " - Repairing..."
+          auditwheel -v repair dist/*.whl
 
       - name: Store the binary wheel
         uses: actions/upload-artifact@v2
@@ -76,3 +87,8 @@ jobs:
 #        uses: pypa/gh-action-pypi-publish@release/v1
 #        with:
 #          password: ${{ secrets.PYPI_API_TOKEN }}
+
+#    - name: Publish distribution 📦 to PyPI
+#      uses: pypa/gh-action-pypi-publish@release/v1
+#      with:
+#        password: ${{ secrets.PYPI_API_TOKEN }}
