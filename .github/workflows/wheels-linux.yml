@@ -56,11 +56,12 @@ jobs:
             link: https://github.com/disintar/ton/releases/download/ton-x86_64-darwin-python-311/
             file: python_ton.cpython-311-darwin.so
 
-          - arch: aarch64
-            os: macOS
-            python: "3.9"
-            link: https://github.com/disintar/ton/releases/download/ton-cpython-39-aarch64-darwin/
-            file: python_ton.cpython-39-darwin.so
+#          https://github.com/actions/setup-python/issues/696
+#          - arch: aarch64
+#            os: macOS
+#            python: "3.9"
+#            link: https://github.com/disintar/ton/releases/download/ton-cpython-39-aarch64-darwin/
+#            file: python_ton.cpython-39-darwin.so
 
           - arch: aarch64
             os: macOS
