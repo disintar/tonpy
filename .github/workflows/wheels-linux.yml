@@ -21,7 +21,7 @@ jobs:
       matrix:
         arch: [ x86_64, aarch64 ]
         os: [ Linux, macOS ]
-        python: [ 3.9, 3.10, 3.11 ]
+        python: [ 39, 310, 311 ]
     runs-on: ${{ matrix.os }}
 
     steps:
