@@ -60,6 +60,7 @@ jobs:
         run: |
           python -m build && ls -lhta ./dist
 
-      - uses: actions/upload-artifact@v3
+      - name: Publish distribution 📦 to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          path: ./dist/*.whl
+          password: ${{ secrets.PYPI_API_TOKEN }}
