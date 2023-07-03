@@ -22,17 +22,17 @@ jobs:
         include:
           - arch: x86_64
             os: Linux
-            python: 3.9
+            python: "3.9"
             link: https://github.com/disintar/ton/releases/download/ton-x86_64-linux-python-39/python_ton.cpython-39-x86_64-linux-gnu.so
 
           - arch: x86_64
             os: Linux
-            python: 3.10
+            python: "3.10"
             link: https://github.com/disintar/ton/releases/download/ton-x86_64-linux-python-310/python_ton.cpython-310-x86_64-linux-gnu.so
 
           - arch: x86_64
             os: Linux
-            python: 3.11
+            python: "3.11"
             link: https://github.com/disintar/ton/releases/download/ton-x86_64-linux-python-311/python_ton.cpython-311-x86_64-linux-gnu.so
 
     runs-on: ${{ matrix.os }}
