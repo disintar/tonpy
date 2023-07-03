@@ -1,5 +1,5 @@
 import os
-from setuptools import setup
+from setuptools import setup, find_packages
 
 with open(f"README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
@@ -42,8 +42,9 @@ setup(
     setup_requires=install_requires,
     install_requires=install_requires,
     package_dir={'': 'tonpy'},
+    packages=find_packages(),
     python_requires=">3.8,<3.12",
     cmdclass={'bdist_wheel': bdist_wheel},
     include_package_data=True,
-    package_data={'tonpy': [f"libs/{i}" for i in os.listdir('tonpy/libs')]},
+    package_data={'': [f"tonpy/libs/{i}" for i in os.listdir('tonpy/libs')]},
 )
