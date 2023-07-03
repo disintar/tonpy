@@ -12,17 +12,16 @@ try:
 
 
     class bdist_wheel(_bdist_wheel):
-        plat_name = 'manylinux2014_x86_64'
-
         def finalize_options(self):
             _bdist_wheel.finalize_options(self)
             self.root_is_pure = False
+
 except ImportError:
     bdist_wheel = None
 
 setup(
     name="tonpy",
-    version="0.0.1b",
+    version="0.0.1",
     author="Disintar LLP",
     author_email="andrey@head-labs.com",
     description="Types / API for TON blockchain",
@@ -41,9 +40,7 @@ setup(
     ],
     setup_requires=install_requires,
     install_requires=install_requires,
-    package_dir={
-        'tonpy': '.',
-    },
+    packages=['tonpy'],
     python_requires=">3.8,<3.12",
     cmdclass={'bdist_wheel': bdist_wheel},
     include_package_data=True
