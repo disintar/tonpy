@@ -78,6 +78,8 @@ jobs:
 
       - name: Build wheel
         run: |
+          rm -rf build
+          rm -rf dist
           python -m build --wheel --outdir dist/ .
           ls -lhta ./dist
           python rename_linux_dist.py

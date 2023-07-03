@@ -1,2 +1,2 @@
 include requirements.txt
-recursive-include tonpy/tonbind *.so
+recursive-include tonpy/libs *.so
