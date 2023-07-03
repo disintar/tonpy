@@ -12,6 +12,8 @@ try:
 
 
     class bdist_wheel(_bdist_wheel):
+        plat_name = 'manylinux2014_x86_64'
+
         def finalize_options(self):
             _bdist_wheel.finalize_options(self)
             self.root_is_pure = False

@@ -58,7 +58,7 @@ jobs:
 
       - name: Build wheel
         run: |
-          python setup.py bdist_wheel --plat-name=manylinux1_x86_64
+          python -m build --wheel --outdir dist/ .
           ls -lhta ./dist
 
       - name: Store the binary wheel
