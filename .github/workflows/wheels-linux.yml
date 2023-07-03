@@ -90,7 +90,7 @@ jobs:
 
       - name: Download prebuilt
         run: |
-          wget ${{ matrix.link }}${{ matrix.file }} && mv ${{ matrix.file }} ./tonpy/libs/
+          curl -O ${{ matrix.link }}${{ matrix.file }} && mv ${{ matrix.file }} ./tonpy/libs/
 
       - name: Build wheel
         run: |
