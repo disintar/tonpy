@@ -62,6 +62,7 @@ jobs:
           CIBW_ARCHS_LINUX: ${{ matrix.arch }}
           CIBW_PLATFORM: linux
           CIBW_BUILD: ${{ matrix.cibw }}
+          CIBW_BUILD_VERBOSITY: 2
         if: matrix.os == 'Linux'
 
       - name: Show wheels
