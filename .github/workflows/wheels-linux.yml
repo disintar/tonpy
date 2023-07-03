@@ -58,12 +58,8 @@ jobs:
 
       - name: Build wheel
         run: |
-          python -m build --wheel --outdir dist/ .
+          python setup.py bdist_wheel --plat-name=manylinux1_x86_64
           ls -lhta ./dist
-          echo " - Auditwheel show"
-          auditwheel show dist/*.whl
-          echo " - Repairing..."
-          auditwheel -v repair dist/*.whl
 
       - name: Store the binary wheel
         uses: actions/upload-artifact@v2
