@@ -78,8 +78,7 @@ jobs:
 
       - name: Build wheel
         run: |
-          rm -rf build
-          rm -rf dist
+          rm -rf build dist *.egg-info
           python -m build --wheel --outdir dist/ .
           ls -lhta ./dist
           python rename_linux_dist.py

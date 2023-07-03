@@ -44,5 +44,6 @@ setup(
     package_dir={'': 'tonpy'},
     python_requires=">3.8,<3.12",
     cmdclass={'bdist_wheel': bdist_wheel},
-    include_package_data=True
+    include_package_data=True,
+    package_data={'tonpy': [f"libs/{i}" for i in os.listdir('tonpy/libs')]},
 )
