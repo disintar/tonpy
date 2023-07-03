@@ -51,7 +51,6 @@ jobs:
       - name: Build wheels linux
         run: python -m cibuildwheel --platform linux --output-dir wheelhouse
         env:
-          CIBW_BUILD: "cp${{ matrix.python }}-*"
         if: matrix.os == 'Linux'
 
       - name: Build wheels mac
