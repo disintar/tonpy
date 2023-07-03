@@ -1,9 +1,10 @@
-from setuptools import setup, find_packages
+import os
+from setuptools import setup
 
-with open("README.md", "r", encoding="utf-8") as fh:
+with open(f"README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
-with open("requirements.txt", encoding="utf-8") as fh:
+with open(f"requirements.txt", encoding="utf-8") as fh:
     install_requires = fh.read().split('\n')
 
 setup(
@@ -26,7 +27,8 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: Implementation :: PyPy',
     ],
+    setup_requires=install_requires,
     install_requires=install_requires,
-    packages=['tonpy'],
-    python_requires=">=3.9,<=3.11",
+    package_dir={'': 'tonpy'},
+    python_requires=">=3.9,<=3.11"
 )
