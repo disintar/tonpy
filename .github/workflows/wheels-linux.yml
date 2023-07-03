@@ -23,19 +23,22 @@ jobs:
           - arch: x86_64
             os: Linux
             python: "3.9"
-            link: https://github.com/disintar/ton/releases/download/ton-x86_64-linux-python-39/python_ton.cpython-39-x86_64-linux-gnu.so
+            link: https://github.com/disintar/ton/releases/download/ton-x86_64-linux-python-39/
+            file: python_ton.cpython-39-x86_64-linux-gnu.so
             cibw: cp39-manylinux_x86_64
 
           - arch: x86_64
             os: Linux
             python: "3.10"
-            link: https://github.com/disintar/ton/releases/download/ton-x86_64-linux-python-310/python_ton.cpython-310-x86_64-linux-gnu.so
+            link: https://github.com/disintar/ton/releases/download/ton-x86_64-linux-python-310/
+            file: python_ton.cpython-310-x86_64-linux-gnu.so
             cibw: cp310-manylinux_x86_64
 
           - arch: x86_64
             os: Linux
             python: "3.11"
-            link: https://github.com/disintar/ton/releases/download/ton-x86_64-linux-python-311/python_ton.cpython-311-x86_64-linux-gnu.so
+            link: https://github.com/disintar/ton/releases/download/ton-x86_64-linux-python-311/
+            file: python_ton.cpython-311-x86_64-linux-gnu.so
             cibw: cp311-manylinux_x86_64
 
     runs-on: ${{ matrix.os }}
@@ -51,7 +54,7 @@ jobs:
 
       - name: Download prebuilt
         run: |
-          wget ${{ matrix.link }}
+          wget ${{ matrix.link }} && mv ${{ matrix.file }} ./tonpy/
 
       - name: Build wheels linux
         run: python -m cibuildwheel --output-dir wheelhouse
