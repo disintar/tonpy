@@ -74,7 +74,7 @@ jobs:
 
       - name: Download prebuilt
         run: |
-          curl -O ${{ matrix.link }}${{ matrix.file }} && mv ${{ matrix.file }} ./tonpy/libs/
+          curl -O ${{ matrix.link }}${{ matrix.file }} && mv ${{ matrix.file }} ./tonpy/tonbind/
 
       - name: Build wheel
         run: |
