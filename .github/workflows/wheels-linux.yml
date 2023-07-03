@@ -67,7 +67,7 @@ jobs:
           path: dist
 
   deploy:
-    name: Publish 🐍📦 to (Test)PyPI
+    name: Publish 🐍📦 to PyPI
     runs-on: Linux
     needs:
       - build

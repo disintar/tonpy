@@ -42,8 +42,5 @@ setup(
     package_dir={'': 'tonpy'},
     python_requires=">3.8,<3.12",
     cmdclass={'bdist_wheel': bdist_wheel},
-    package_data={
-        # If any package contains *.txt or *.rst files, include them:
-        '': ['*.txt', '*.xml', '*.special', '*.huh'],
-    },
+    include_package_data=True
 )
