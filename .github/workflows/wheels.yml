@@ -16,21 +16,21 @@ permissions:
   contents: read
 
 jobs:
-  build_wheels:
-    name: Build wheels on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+  build:
     strategy:
       matrix:
-        arch: [x86_64, aarch64]
-        os: [Linux, macOS]
-        python: [39, 310, 311]
+        arch: [ x86_64, aarch64 ]
+        os: [ Linux, macOS ]
+        python: [ 39, 310, 311 ]
         exclude:
+          - # covered by ton-x86_64-linux-python.yml
             os: Linux
             arch: x86_64
         include:
           - os: Linux
             nix-extra: |
               extra-platforms = x86_64-linux aarch64-linux
+    runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v3
