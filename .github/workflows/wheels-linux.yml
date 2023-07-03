@@ -66,6 +66,23 @@ jobs:
           name: python-package-distributions
           path: dist
 
+  deploy:
+    name: Publish 🐍📦 to (Test)PyPI
+    runs-on: Linux
+    needs:
+      - build
+
+    steps:
+      - name: Download all the dists
+        uses: actions/download-artifact@v2
+        with:
+          name: python-package-distributions
+          path: dist/
+      - name: Publish distribution 📦 to PyPi
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+
 #    - name: Publish distribution 📦 to PyPI
 #      uses: pypa/gh-action-pypi-publish@release/v1
 #      with:
