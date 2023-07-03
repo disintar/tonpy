@@ -52,10 +52,6 @@ jobs:
       - name: Install cibuildwheel
         run: python -m pip install cibuildwheel==2.13.1
 
-      - name: Download prebuilt
-        run: |
-          wget ${{ matrix.link }}${{ matrix.file }} && mv ${{ matrix.file }} ./tonpy/
-
       - name: Build wheels linux
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
