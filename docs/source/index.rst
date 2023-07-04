@@ -11,4 +11,4 @@ Welcome to tonpy's documentation!
    :caption: Contents:
 
    installation
-   modules
+   tonpy
