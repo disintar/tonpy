@@ -7,6 +7,9 @@ with open(f"README.md", "r", encoding="utf-8") as fh:
 with open(f"requirements.txt", encoding="utf-8") as fh:
     install_requires = fh.read().split('\n')
 
+with open(f"docs_requirements.txt", encoding="utf-8") as fh:
+    docs_extras = fh.read().split('\n')
+
 try:
     from wheel.bdist_wheel import bdist_wheel as _bdist_wheel
 
@@ -19,15 +22,6 @@ try:
             self.root_is_pure = False
 except ImportError:
     bdist_wheel = None
-
-docs_extras = [
-    'Sphinx >= 3.0.0',  # Force RTD to use >= 3.0.0
-    'docutils',
-    'pylons-sphinx-themes >= 1.0.8',  # Ethical Ads
-    'pylons_sphinx_latesturl',
-    'repoze.sphinx.autointerface',
-    'sphinxcontrib-autoprogram',
-]
 
 setup(
     name="tonpy",
