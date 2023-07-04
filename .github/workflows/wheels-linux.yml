@@ -25,18 +25,21 @@ jobs:
             python: "3.9"
             link: https://github.com/disintar/ton/releases/download/ton-cpython-39--linux/
             file: python_ton.cpython-39-x86_64-linux-gnu.so
+            fix_tag: manylinux2014_x86_64
 
           - arch: x86_64
             os: Linux
             python: "3.10"
             link: https://github.com/disintar/ton/releases/download/ton-cpython-310--linux/
             file: python_ton.cpython-310-x86_64-linux-gnu.so
+            fix_tag: manylinux2014_x86_64
 
           - arch: x86_64
             os: Linux
             python: "3.11"
             link: https://github.com/disintar/ton/releases/download/ton-cpython-311--linux/
             file: python_ton.cpython-311-x86_64-linux-gnu.so
+            fix_tag: manylinux2014_x86_64
 
 #          - arch: aarch64
 #            os: macOS
@@ -51,6 +54,7 @@ jobs:
             link: https://github.com/disintar/ton/releases/download/ton-cpython-310-aarch64-darwin/
 #            link: https://github.com/disintar/ton/releases/download/ton-x86_64-darwin-python-310/
             file: python_ton.cpython-310-darwin.so
+            fix_tag: arm64
 
           - arch: aarch64
             os: macOS
@@ -58,6 +62,7 @@ jobs:
             link: https://github.com/disintar/ton/releases/download/ton-cpython-311-aarch64-darwin/
 #           link: https://github.com/disintar/ton/releases/download/ton-x86_64-darwin-python-311/
             file: python_ton.cpython-311-darwin.so
+            fix_tag: arm64
 
     runs-on: ${{ matrix.os }}
 
@@ -80,8 +85,9 @@ jobs:
         run: |
           python -m build --wheel --outdir dist/ .
           ls -lhta ./dist
-          python rename_linux_dist.py
-
+          python fix_whl_name.py
+        env:
+          TAG_FIX: ${{ matrix.fix_tag }}
       - name: Store the binary wheel
         uses: actions/upload-artifact@v2
         with:
