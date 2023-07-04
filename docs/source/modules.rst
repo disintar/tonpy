@@ -4,4 +4,4 @@ tonpy
 .. toctree::
    :maxdepth: 4
 
-   main
+   tonpy

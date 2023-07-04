@@ -39,3 +39,6 @@ If you want to support our work, send any coins to:
 
 `EQDfmsDtWQP5D_YkXX-XlULvs4HivRaKY38ftT2hS5yAANRf`
 
+## License 
+
+Copyright (c) 2023 Disintar LLP Licensed under the Apache License

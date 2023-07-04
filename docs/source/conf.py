@@ -13,9 +13,12 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath('../../tonpy'))
+sys.path.insert(0, os.path.abspath('../../src/'))
+sys.path.insert(0, os.path.abspath('../../src/tonpy'))
+sys.path.insert(0, os.path.abspath('../../src/tonpy/types'))
 
-# -- Project information -----------------------------------------------------
+# -- Project informa
+# tion -----------------------------------------------------
 
 project = 'tonpy'
 copyright = '2023, Disintar team'

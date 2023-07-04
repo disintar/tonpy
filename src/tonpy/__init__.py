@@ -1,3 +1,1 @@
-import os
-
-from .main import *
+from tonpy.types import *
