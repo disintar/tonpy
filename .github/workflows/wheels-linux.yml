@@ -70,7 +70,7 @@ jobs:
           USER: tvorogme
 
       - name: Install deps
-        run: python -m pip install build auditwheel
+        run: python -m pip install setuptools==68.0.0 build==0.10.0
 
       - name: Download prebuilt
         run: |
