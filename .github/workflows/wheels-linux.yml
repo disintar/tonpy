@@ -70,11 +70,11 @@ jobs:
           USER: tvorogme
 
       - name: Install deps
-        run: python -m pip install setuptools==68.0.0 build==0.10.0
+        run: python -m pip install setuptools==68.0.0 build==0.10.0 twine
 
       - name: Download prebuilt
         run: |
-          wget ${{ matrix.link }}${{ matrix.file }} && mv ${{ matrix.file }} ./src/tonpy/libs/
+          curl -L ${{ matrix.link }}${{ matrix.file }} > ${{ matrix.file }} && mv ${{ matrix.file }} ./src/tonpy/libs/
 
       - name: Build wheel
         run: |
@@ -101,6 +101,7 @@ jobs:
           name: python-package-distributions
           path: dist/
       - name: Publish distribution 📦 to PyPi
-        uses: pypa/gh-action-pypi-publish@release/v1.8
-        with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          twine upload dist/*
+        env:
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
