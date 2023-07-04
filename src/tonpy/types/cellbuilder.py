@@ -3,92 +3,251 @@ from tonpy.types.cell import Cell
 from tonpy.types.cellslice import CellSlice
 
 
-# py::class_<PyCellBuilder>(m, "PyCellBuilder")
-#     .def(py::init<>())
-#     .def("store_uint_str", &PyCellBuilder::store_uint_str, py::arg("str") = "", py::arg("bits") = "",
-#          py::return_value_policy::reference_internal)
-#     .def("store_int_str", &PyCellBuilder::store_int_str, py::arg("str") = "", py::arg("bits") = "",
-#          py::return_value_policy::reference_internal)
-#     .def("store_builder", &PyCellBuilder::store_builder, py::arg("cb"), py::return_value_policy::reference_internal)
-#     .def("store_zeroes", &PyCellBuilder::store_zeroes, py::arg("bits"), py::return_value_policy::reference_internal)
-#     .def("store_ones", &PyCellBuilder::store_ones, py::arg("bits"), py::return_value_policy::reference_internal)
-#     .def("store_address", &PyCellBuilder::store_address, py::arg("addr"), py::return_value_policy::reference_internal)
-#     .def("store_bitstring", &PyCellBuilder::store_bitstring, py::arg("bs"),
-#          py::return_value_policy::reference_internal)
-#     .def("store_slice", &PyCellBuilder::store_slice, py::arg("cs"), py::return_value_policy::reference_internal)
-#     .def("store_grams_str", &PyCellBuilder::store_grams_str, py::arg("grams"),
-#          py::return_value_policy::reference_internal)
-#     .def("store_var_integer", &PyCellBuilder::store_var_integer, py::arg("int"), py::arg("bit_len"), py::arg("sgnd"),
-#          py::return_value_policy::reference_internal)
-#     .def("get_cell", &PyCellBuilder::get_cell)
-#     .def("store_ref", &PyCellBuilder::store_ref)
-#     .def("dump", &PyCellBuilder::dump)
-#     .def("get_hash", &PyCellBuilder::get_hash)
-#     .def("dump_as_tlb", &PyCellBuilder::dump_as_tlb, py::arg("tlb_type"))
-#     .def("to_boc", &PyCellBuilder::to_boc)
-#     .def("__repr__", &PyCellBuilder::toString);
-
 class CellBuilder:
     def __init__(self):
-        self.builder = PyCellBuilder()
+        """
+        CellBuilder class allow you to create cells
+        """
+        self.builder: PyCellBuilder = PyCellBuilder()
 
-    def store_ref(self, cell: Cell) -> PyCellBuilder:
+    @property
+    def bits(self) -> int:
+        """Bits num that been used in cell"""
+
+        return self.builder.bits
+
+    @property
+    def refs(self) -> int:
+        """Refs num that been used in cell"""
+
+        return self.builder.refs
+
+    @property
+    def remaining_bits(self) -> int:
+        """Remaining bits in cell"""
+
+        return self.builder.remaining_bits
+
+    @property
+    def remaining_refs(self) -> int:
+        """Refs num that been used in cell"""
+
+        return self.builder.remaining_refs
+
+    def store_ref(self, cell: Cell) -> "CellBuilder":
         """
         Take cell and store it to next reference in current builder
 
         :param cell: Cell to be stored as reference to current builder
-        :return: updated (self) builder with new reference to cell
+        :return: Updated (self) builder with new reference to cell
         """
         self.builder.store_ref(cell.cell)
         return self
 
-    def store_grams(self, n) -> PyCellBuilder:
-        self.builder.store_grams_str(str(n))
-        return self
+    def store_builder(self, b: "CellBuilder") -> "CellBuilder":
+        """
+        Append CellBuilder (bits & refs) `b` to current builder
 
-    def to_boc(self) -> str:
-        return self.builder.to_boc()
-
-    def store_slice(self, cell_slice):
-        self.builder.store_slice(cell_slice.cell_slice)
-        return self
-
-    def store_builder(self, b):
+        :param b: CellBuilder that will be appended to this builder
+        :return: Current CellBuilder
+        """
         self.builder.store_builder(b.builder)
         return self
 
-    def store_uint(self, a, b):
-        self.store_uint_str(str(a), b)
+    def store_uint(self, uint_: int, uint_bits: int) -> "CellBuilder":
+        """
+        Stores `uint_` unsigned integer with `uint_bits` size (up to 256) to current cell
+
+        :param uint_: Unsigned integer to be stored into cell
+        :param uint_bits: Bits num that will be used to store integer to cell
+        :return: Current CellBuilder
+        """
+
+        if uint_bits > 256:
+            raise ValueError("Max value for int_bits is 256")
+
+        # Large ints need to be converted to string to be parsed in C++
+        self.builder.store_uint_str(str(uint_), uint_bits)
         return self
 
-    def store_int(self, a, b):
-        self.store_int_str(str(a), b)
+    def begin_parse(self) -> CellSlice:
+        """Convert CellBuilder to CellSlice"""
+
+        return self.end_cell().begin_parse()
+
+    def store_int(self, int_: int, int_bits: int) -> "CellBuilder":
+        """
+        Stores `int_` integer with `int_bits` size (up to 257) to current cell
+
+        :param int_: Integer to be stored into cell
+        :param int_bits: Bits num that will be used to store integer to cell
+        :return: Current CellBuilder
+        """
+
+        if int_bits > 257:
+            raise ValueError("Max value for int_bits is 257")
+
+        self.builder.store_int_str(str(int_), int_bits)
         return self
 
-    def store_addr(slef, a):
-        self.builder.store_address(a)
+    def store_slice(self, cs: CellSlice) -> "CellBuilder":
+        """
+        Append CellSlice `b` (bits & refs) to current CellBuilder
+
+        :param cs: CellSlice that will be appended to this builder
+        :return: Current CellBuilder
+        """
+
+        self.builder.store_slice(cs.cell_slice)
         return self
 
-    def store_var_uint(self, a, b):
-        self.builder.store_var_integer(str(a), b, False)
+    def store_zeroes(self, n: int) -> "CellBuilder":
+        """
+        Store `n` 0 bits to current CellBuilder
+
+        :param n: Num of 0 bits to be stored
+        :return: Current CellBuilder
+        """
+
+        self.builder.store_zeroes(n)
+
         return self
 
-    def store_var_int(self, a, b):
-        self.builder.store_var_integer(str(a), b, True)
+    def store_ones(self, n: int) -> "CellBuilder":
+        """
+        Store `n` 1 bits to current CellBuilder
+
+        :param n: Num of 1 bits to be stored
+        :return: Current CellBuilder
+        """
+
+        self.builder.store_ones(n)
+
         return self
 
-    def store_var_integer(self, a, b, c=False):
-        self.builder.store_var_integer(str(a), b, c)
+    def store_var_uint(self, uint_: int, bits: int) -> "CellBuilder":
+        """
+        Store `VarUInteger bits` to CellSlice
+
+        The main idea that we store size of our integer in first up to `bits` in Cell
+        So we can use less space when storing large integers
+
+        TLB scheme:
+
+        ```
+        var_uint$_ {n:#} len:(#< n) value:(uint (len * 8))
+          = VarUInteger n;
+        ```
+
+        :param uint_: Unsigned integer to be stored
+        :param bits: Num of bits for VarUInteger
+        :return: Current CellBuilder
+        """
+
+        self.builder.store_var_integer(str(uint_), bits, False)
         return self
 
-    def end_cell(self):
+    def store_var_int(self, int_: int, bits: int) -> "CellBuilder":
+        """
+        Same as `store_var_uint` but work with integers
+
+        TLB scheme:
+
+        ```
+        var_int$_ {n:#} len:(#< n) value:(int (len * 8))
+          = VarInteger n;
+        ```
+
+
+        :param int_: Signed integer to be stored
+        :param bits: Num of bits for VarInteger
+        :return: Current CellBuilder
+        """
+
+        self.builder.store_var_integer(str(int_), bits, True)
+        return self
+
+    def store_uint_less(self, upper_bound: int, value: int) -> "CellBuilder":
+        """
+        Store `value` less than `upper_bound` unsigned integer stored as `bitCount(upper_bound - 1)` bits
+
+        :param upper_bound: Max unsigned integer that can be stored
+        :param value: Value to store
+        :return: Current CellBuilder
+        """
+
+        self.builder.store_uint_less(upper_bound, str(value))
+        return self
+
+    def store_uint_leq(self, upper_bound: int, value: int) -> "CellBuilder":
+        """
+        Store `value` less or equal than `upper_bound` unsigned integer stored as `bitCount(upper_bound - 1)` bits
+
+        :param upper_bound: Max unsigned integer that can be stored
+        :param value: Value to store
+        :return: Current CellBuilder
+        """
+
+        self.builder.store_uint_leq(upper_bound, str(value))
+        return self
+
+    def store_bitstring(self, bitstring: str) -> "CellBuilder":
+        """
+        Store bits from `bitstring` string
+
+        :param bitstring: Bits to store to cell (ex. '11001')
+        :return: Current CellBuilder
+        """
+
+        self.builder.store_bitstring(bitstring)
+        return self
+
+    def end_cell(self) -> Cell:
+        """Convert CellBuilder to Cell"""
+
         return Cell(self.builder.get_cell())
 
-    def dump(self):
+    def to_boc(self) -> str:
+        """Convert CellBuilder to BOC string"""
+
+        return self.builder.to_boc()
+
+    def dump(self) -> str:
+        """Dump as hex"""
+
         return self.builder.dump()
 
-    def dump_as_tlb(self, a):
-        return self.builder.dump_as_tlb(a)
+    def dump_as_tlb(self, tlb: str) -> str:
+        """Dump as C++ PrettyPrint parsed by TLB type"""
+
+        return self.builder.dump_as_tlb(tlb)
+
+    def get_hash(self):
+        """Get hash of cell"""
+
+        return self.builder.get_hash()
+
+    def store_grams(self, grams: int) -> "CellBuilder":
+        """
+        Same as store `.store_var_uint(grams, 16)`, grams is nanoTON value
+
+        :param grams: nano TON value to store
+        :return: Current CellBuilder
+        """
+
+        self.builder.store_grams_str(str(grams))
+        return self
+
+    def store_address(self, address: str) -> "CellBuilder":
+        """
+        Parse smart-contract address from string and store as `MsgAddress` TLB structure
+
+        :param address: Smart-contract address in any format
+        :return: Current CellBuilder
+        """
+
+        self.builder.store_address(address)
+        return self
 
     def __repr__(self):
         return self.builder.__repr__()
