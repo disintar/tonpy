@@ -9,6 +9,7 @@
 ![Supported arch](https://img.shields.io/badge/arch-arm64%20%7C%20x86_64-purple)
 [![Telegram Community Chat][telegram-tondev-badge]][telegram-tondev-url]
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![PyPI version](https://badge.fury.io/py/tonpy.svg)](https://pypi.org/project/tonpy/)
 
 # tonpy: powerful Python TON toolkit
 
