@@ -27,7 +27,7 @@ some python code on top of C++ bindings.
 
 One command: `pip install tonpy`
 
-Complex installation for not supported systems and python versions are described in [documentation](https://tonpy.dton.io/en/latest/installation.html#development-setup-compile-from-sources)
+Complex installation for not supported systems and python versions are described in [documentation](https://tonpy.dton.io/installation.html#development-setup-compile-from-sources)
 
 ## Documentation
 
