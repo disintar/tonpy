@@ -11,10 +11,4 @@ Welcome to tonpy's documentation!
    :caption: Contents:
 
    installation
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   modules
