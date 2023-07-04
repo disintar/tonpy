@@ -20,6 +20,15 @@ try:
 except ImportError:
     bdist_wheel = None
 
+docs_extras = [
+    'Sphinx >= 3.0.0',  # Force RTD to use >= 3.0.0
+    'docutils',
+    'pylons-sphinx-themes >= 1.0.8',  # Ethical Ads
+    'pylons_sphinx_latesturl',
+    'repoze.sphinx.autointerface',
+    'sphinxcontrib-autoprogram',
+]
+
 setup(
     name="tonpy",
     version="0.0.0.0.3a0",
@@ -48,6 +57,7 @@ setup(
     package_dir={
         "": "src",
     },
+    extras_require={'docs': docs_extras},
     cmdclass={'bdist_wheel': bdist_wheel},
     include_package_data=True
 )
