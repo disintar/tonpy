@@ -1,5 +1,5 @@
 import os
-from setuptools import setup
+from setuptools import setup, find_packages
 
 with open(f"README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
@@ -22,7 +22,7 @@ except ImportError:
 
 setup(
     name="tonpy",
-    version="0.0.1",
+    version="0.0.0.0.1b0",
     author="Disintar LLP",
     author_email="andrey@head-labs.com",
     description="Types / API for TON blockchain",
@@ -41,8 +41,13 @@ setup(
     ],
     setup_requires=install_requires,
     install_requires=install_requires,
-    package_dir={'': 'tonpy'},
     python_requires=">3.8,<3.12",
+    packages=find_packages(
+        where='src',  # '.' by default
+    ),
+    package_dir={
+        "": "src",
+    },
     cmdclass={'bdist_wheel': bdist_wheel},
     include_package_data=True
 )
