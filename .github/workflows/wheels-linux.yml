@@ -64,26 +64,26 @@ jobs:
             file: python_ton.cpython-311-darwin.so
             fix_tag: arm64
 
-          - arch: x86_64
-            os: windows-2019
-            python: "3.9"
-            link:
-            file:
-            fix_tag:
-
-          - arch: x86_64
-            os: windows-2019
-            python: "3.10"
-            link:
-            file:
-            fix_tag:
-
-          - arch: x86_64
-            os: windows-2019
-            python: "3.11"
-            link:
-            file:
-            fix_tag:
+#          - arch: x86_64
+#            os: windows-2019
+#            python: "3.9"
+#            link:
+#            file:
+#            fix_tag:
+#
+#          - arch: x86_64
+#            os: windows-2019
+#            python: "3.10"
+#            link:
+#            file:
+#            fix_tag:
+#
+#          - arch: x86_64
+#            os: windows-2019
+#            python: "3.11"
+#            link:
+#            file:
+#            fix_tag:
 
 
 
