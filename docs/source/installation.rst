@@ -1,6 +1,8 @@
-Setup from pypi
+Module setup
 ===============
 
+Setup from PyPi
+---------------
 
 ``pip install tonpy``
 
@@ -25,13 +27,10 @@ Supported arch:
 For each ``OS`` / ``Python`` / ``arch`` it's separated ``.whl`` distribution in pypi: https://pypi.org/project/tonpy/#files
 
 
-
-
-
 Also you can compile lib from sources for your os or for local development.
 
 Development setup (pre-built)
-=============================
+-----------------------------
 
 1. Find you ``OS`` / ``Python`` / ``arch`` in `releases`_
 2. Download ``so`` or ``dll`` from release and put it into ``src/tonpy/libs/`` folder
@@ -40,7 +39,7 @@ Development setup (pre-built)
 
 
 Development setup (compile from sources)
-========================================
+----------------------------------------
 
 If you want to setup ``tonpy`` package for local development (including C++ code) you need to:
 
