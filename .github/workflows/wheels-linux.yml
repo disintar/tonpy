@@ -74,7 +74,7 @@ jobs:
 
       - name: Download prebuilt
         run: |
-          curl -L ${{ matrix.link }}${{ matrix.file }} > ${{ matrix.file }} && mv ${{ matrix.file }} ./src/tonpy/libs/
+          curl -L ${{ matrix.link }}${{ matrix.file }} ./src/tonpy/libs/${{ matrix.file }}
 
       - name: Build wheel
         run: |
@@ -106,4 +106,5 @@ jobs:
         run: |
           twine upload dist/*
         env:
+          TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
