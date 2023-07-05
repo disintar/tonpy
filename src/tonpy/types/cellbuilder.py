@@ -136,6 +136,7 @@ class CellBuilder:
         TLB scheme:
 
         .. code-block::
+
             var_uint$_ {n:#} len:(#< n) value:(uint (len * 8))
               = VarUInteger n;
 
@@ -155,6 +156,7 @@ class CellBuilder:
         TLB Scheme:
 
         .. code-block::
+
             var_int$_ {n:#} len:(#< n) value:(int (len * 8))
               = VarInteger n;
 
