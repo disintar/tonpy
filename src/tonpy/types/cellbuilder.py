@@ -1,6 +1,7 @@
 from tonpy.libs.python_ton import PyCellBuilder
 from tonpy.types.cell import Cell
 from tonpy.types.cellslice import CellSlice
+from bitstring import BitArray
 
 
 class CellBuilder:
@@ -134,10 +135,10 @@ class CellBuilder:
 
         TLB scheme:
 
-        ```
-        var_uint$_ {n:#} len:(#< n) value:(uint (len * 8))
-          = VarUInteger n;
-        ```
+        .. code-block::
+            var_uint$_ {n:#} len:(#< n) value:(uint (len * 8))
+              = VarUInteger n;
+
 
         :param uint_: Unsigned integer to be stored
         :param bits: Num of bits for VarUInteger
@@ -151,12 +152,11 @@ class CellBuilder:
         """
         Same as `store_var_uint` but work with integers
 
-        TLB scheme:
+        TLB Scheme:
 
-        ```
-        var_int$_ {n:#} len:(#< n) value:(int (len * 8))
-          = VarInteger n;
-        ```
+        .. code-block::
+            var_int$_ {n:#} len:(#< n) value:(int (len * 8))
+              = VarInteger n;
 
 
         :param int_: Signed integer to be stored
@@ -213,7 +213,7 @@ class CellBuilder:
         return self.builder.to_boc()
 
     def dump(self) -> str:
-        """Dump as hex"""
+        """Recursively dump all cells as hex"""
 
         return self.builder.dump()
 
@@ -222,7 +222,7 @@ class CellBuilder:
 
         return self.builder.dump_as_tlb(tlb)
 
-    def get_hash(self):
+    def get_hash(self) -> str:
         """Get hash of cell"""
 
         return self.builder.get_hash()
@@ -248,6 +248,46 @@ class CellBuilder:
 
         self.builder.store_address(address)
         return self
+
+    def _store_string_rec(self, binstrint_to_store: str) -> Cell:
+        """Store bitsring as chain of cells"""
+
+        bits_in_bitstring = len(binstrint_to_store)
+        cb = CellBuilder()
+        reamining = cb.remaining_bits
+
+        if reamining > bits_in_bitstring:
+            cb.store_bitstring(binstrint_to_store)
+            return cb.end_cell()
+        else:
+            body = binstrint_to_store[:reamining]
+            tail = binstrint_to_store[reamining:]
+            cb.store_bitstring(body)
+            return cb.store_ref(self._store_string_rec(tail)).end_cell()
+
+    def store_string(self, string_to_store: str) -> "CellBuilder":
+        """
+        Convert string ``string_to_store`` to bitstring and store it in chain of cells
+
+        :param string_to_store: string to be stored
+        :return: current CellBuilder
+        """
+        string_as_bitstring = ''.join(format(byte, '08b') for byte in string_to_store.encode('utf-8'))
+
+        reamining = self.builder.remaining_bits
+
+        if reamining > len(string_as_bitstring):
+            self.builder.store_bitstring(string_as_bitstring)
+        else:
+            body = string_as_bitstring[:reamining]
+            tail = string_as_bitstring[reamining:]
+
+            self.builder.store_bitstring(body)
+            tail_cell = self._store_string_rec(tail)
+            self.store_ref(tail_cell)
+
+        return self
+
 
     def __repr__(self):
         return self.builder.__repr__()

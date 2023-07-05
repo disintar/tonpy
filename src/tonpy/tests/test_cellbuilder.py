@@ -169,11 +169,11 @@ def test_store_bitstring():
     cs = cb.begin_parse()
     assert cs.bits == 1023
 
-    bits = bin(567)[2:]
+    bits = bin(2268)[2:]
     cb = CellBuilder()
     cb.store_bitstring(bits)
     cs = cb.begin_parse()
-    assert cs.load_uint(len(bits)) == 567
+    assert cs.load_uint(len(bits)) == 2268
 
 
 def test_get_cell():
@@ -323,3 +323,28 @@ def test_store_address():
     assert cb.bits == 267
     cs = cb.begin_parse()
     assert cs.load_address() == "EQDrLq-X6jKZNHAScgghh0h1iog3StK71zn8dcmrOj8jPWRA"
+
+
+def test_store_string():
+    s_to_store = "Hello world!"
+    cb = CellBuilder()
+    cb.store_string(s_to_store)
+    cs = cb.begin_parse()
+    my_string = cs.load_string()
+    assert my_string == s_to_store
+
+    cb = CellBuilder()
+    large_text = "Test string goes here it will be vey long! " * 2000
+    cb.store_string(large_text)
+    cs = cb.begin_parse()
+
+    text_parsed = cs.load_string()
+    assert text_parsed == large_text
+
+    cb = CellBuilder()
+    text = "Allow to fetch by size: [will not be loaded]"
+    cb.store_string(text)
+    cs = cb.begin_parse()
+    assert cs.load_string(23 * 8) == text[:23]
+
+    # TODO: test not strict load
