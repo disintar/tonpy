@@ -12,3 +12,31 @@ Welcome to tonpy's documentation!
 
    installation
    tonpy
+
+
+What is supported?
+------------------
+
+- Basic types:
+   - `Cell`_
+   - `CellSlice`_
+   - `CellBuilder`_
+
+- TVM
+   - Raw TVM
+   - Transaction Emulator
+
+- TLB
+   - Python codegen
+
+
+.. _Cell: https://tonpy.dton.io/tonpy.types.html#module-tonpy.types.cell
+.. _CellSlice: https://tonpy.dton.io/tonpy.types.html#module-tonpy.types.cellslice
+.. _CellBuilder: https://tonpy.dton.io/tonpy.types.html#module-tonpy.types.cellbuilder
+
+Tests
+-----
+
+We try to provide 100% test coverage on all functions, feel free to `check tests examples out`_
+
+.. _check tests examples out: https://github.com/disintar/tonpy/tree/main/src/tonpy/tests

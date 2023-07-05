@@ -24,8 +24,9 @@ Supported arch:
 - aarch64 (include Mac M1)
 - x86_64
 
-For each ``OS`` / ``Python`` / ``arch`` it's separated ``.whl`` distribution in pypi: https://pypi.org/project/tonpy/#files
+For each ``OS`` / ``Python`` / ``arch`` it's separated ``.whl`` distribution in `pypi`_
 
+.. _pypi: https://pypi.org/project/tonpy/#files
 
 Also you can compile lib from sources for your os or for local development.
 
