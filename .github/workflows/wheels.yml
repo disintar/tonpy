@@ -164,6 +164,8 @@ jobs:
             docker_python_tag: 3.11.4-bookworm
 
     runs-on: ${{ matrix.os }}
+    needs:
+      - build
 
     steps:
       - uses: actions/checkout@v3
