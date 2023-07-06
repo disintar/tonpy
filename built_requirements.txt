@@ -1,4 +1,4 @@
-setuptools==68.0.0
-build==0.10.0
+setuptools
+build
 twine
 pytest
