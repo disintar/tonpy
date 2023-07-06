@@ -179,12 +179,12 @@ jobs:
 
       - name: Save download prebuilt
         run: |
-          echo "#!/bin/bash\ncurl -Lo /tmp/tonpy/src/tonpy/libs/${{ matrix.file }} ${{ matrix.link }}${{ matrix.file }}" >> install_prebuilt.sh
-          chmod +x install_prebuilt.sh
+          echo "#!/bin/bash\ncurl -Lo /tmp/tonpy/src/tonpy/libs/${{ matrix.file }} ${{ matrix.link }}${{ matrix.file }}" >> ${PWD}/install_prebuilt.sh
+          chmod +x ${PWD}/install_prebuilt.sh
 
       - name: Run tests in virtual
         run: |
-          docker run --platform linux/aarch64 --rm --volume "${PWD}:/tmp/tonpy" -t arm64v8/python:${{ matrix.docker_python_tag }} /tmp/tonpy/run_test_in_quemu_docker.sh
+          docker run --platform linux/aarch64 --rm --volume "${PWD}:/tmp/tonpy" -t arm64v8/python:${{ matrix.docker_python_tag }} /tmp/tonpy/install_prebuilt.sh && /tmp/tonpy/run_test_in_quemu_docker.sh
         if: (matrix.os == 'Linux' && matrix.arch == 'aarch64')
 
       - name: Show wheel
