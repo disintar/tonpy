@@ -167,19 +167,14 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - name: Install QEMU
-        uses: docker/setup-qemu-action@v2
-        if: (matrix.os == 'Linux' && matrix.arch == 'aarch64')
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-        if: (matrix.os == 'Linux' && matrix.arch == 'aarch64')
-
       - uses: actions/checkout@v3
 
       - name: Save download prebuilt
         run: |
-          echo "curl -Lo /tmp/tonpy/src/tonpy/libs/${{ matrix.file }} ${{ matrix.link }}${{ matrix.file }}" >> ${PWD}/install_prebuilt.sh
+          cat >> ${PWD}/install_prebuilt.sh <<EOF
+          #!/bin/bash
+          curl -Lo /tmp/tonpy/src/tonpy/libs/${{ matrix.file }} ${{ matrix.link }}${{ matrix.file }}
+          EOF
           chmod +x ${PWD}/install_prebuilt.sh
 
       - name: Run tests in virtual
