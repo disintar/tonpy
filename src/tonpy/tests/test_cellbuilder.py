@@ -345,6 +345,6 @@ def test_store_string():
     text = "Allow to fetch by size: [will not be loaded]"
     cb.store_string(text)
     cs = cb.begin_parse()
-    assert cs.load_string(23 * 8) == text[:23]
+    assert text[:23] == cs.load_string(23 * 8)
 
     # TODO: test not strict load

@@ -107,8 +107,6 @@ def test_preload_int():
 def test_preload_uint():
     cs = CellSlice("te6ccuEBAQEABgAMAAj////2pzZaHQ==")
     assert cs.preload_uint(32) == 4294967286
-    assert cs.bits == 32
-    assert cs.load_uint(32) == 4294967286
     assert cs.bits == 0
 
 

@@ -153,10 +153,11 @@ class CellSlice:
                 if bit_size >= self.bits:
                     bit_size -= self.bits
                 else:
+                    text = self.to_bitstring()[:bit_size]
                     self.skip_bits(bit_size)
 
                     # reach end of bit_size
-                    return self.to_bitstring()[:bit_size]
+                    return text
 
             body = self.to_bitstring()
             return body + self._load_string_cell_chain(bit_size)
@@ -164,11 +165,14 @@ class CellSlice:
         if bit_size > self.bits:
             raise ValueError("Not enough bits to upack")
 
-        self.skip_bits(bit_size)
         if bit_size > 0:
-            return self.to_bitstring()[:bit_size]
+            text = self.to_bitstring()[:bit_size]
         else:
-            return self.to_bitstring()
+            text = self.to_bitstring()
+
+        self.skip_bits(bit_size)
+
+        return text
 
     def skip_bits(self, bits: int, last: bool = False) -> True:
         """
@@ -214,8 +218,9 @@ class CellSlice:
             body = self.to_bitstring()
         else:
             if bit_size <= self.bits:
+                text = self.to_bitstring()[:bit_size]
                 self.skip_bits(bit_size)
-                return bitstring_to_utf8(self.to_bitstring()[:bit_size], strict)
+                return bitstring_to_utf8(text, strict)
             else:
                 bit_size -= self.bits
                 body = self.to_bitstring()
