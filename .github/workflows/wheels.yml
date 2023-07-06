@@ -20,12 +20,12 @@ jobs:
     strategy:
       matrix:
         include:
-          - arch: x86_64
-            os: macos-latest
-            python: "3.9"
-            link: https://github.com/disintar/ton/releases/download/ton-x86_64-darwin-python-39/
-            file: python_ton.cpython-39-darwin.so
-            fix_tag: x86_64
+#          - arch: x86_64
+#            os: macos-latest
+#            python: "3.9"
+#            link: https://github.com/disintar/ton/releases/download/ton-x86_64-darwin-python-39/
+#            file: python_ton.cpython-39-darwin.so
+#            fix_tag: x86_64
 
           - arch: x86_64
             os: macos-latest
