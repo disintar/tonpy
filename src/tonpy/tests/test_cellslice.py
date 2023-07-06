@@ -161,7 +161,8 @@ def test_skip_bits():
     cs.skip_bits(2, True)
     assert cs.bits == 10
     assert cs.to_bitstring() == "1111111111"
-    cs.skip_bits(32)
+    cs.skip_bits(10)
+    assert cs.bits == 0
 
 
 def test_skip_refs():
