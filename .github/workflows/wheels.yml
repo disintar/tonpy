@@ -159,8 +159,8 @@ jobs:
           - arch: aarch64
             os: Linux
             python: "3.11"
-            link: https://github.com/disintar/ton/releases/download/ton-cpython-311--linux/
-            file: python_ton.cpython-311-x86_64-linux-gnu.so
+            link: https://github.com/disintar/ton/releases/download/ton-cpython-311-aarch64-linux/
+            file: python_ton.cpython-311-aarch64-linux-gnu.so
             fix_tag: manylinux2014_aarch64
             docker_python_tag: 3.11.4-bookworm
 
