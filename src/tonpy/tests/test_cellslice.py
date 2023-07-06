@@ -262,14 +262,34 @@ def test_dump_as_tlb():
 
 
 def test_load_tlb():
-    # TODO: more tests
     cs = CellSlice("te6ccuEBAQEABQAKAAVBX/xo8FXp")
     assert cs.bits == 21
 
     parsed_cs = cs.load_tlb("MsgAddressExt")
+    assert isinstance(parsed_cs, CellSlice)
     assert parsed_cs.bits == 21
-
     assert cs.bits == 0
+
+    cs = CellSlice(
+        'te6ccuECCAEAAQQAAIQAjgEqAXYBwAHaAfQCCAR3z/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAhCBfsAAAAAAAAAAAAA9CRYRWORgkrp4QDPAAQIDBAIBIAUGAJj/ACDdIIIBTJe6lzDtRNDXCx/gpPJggQIA1xgg1wsf7UTQ0x/T/9FRErryoSL5AVQQRPkQ8qL4AAHTHzHTB9TRAfsApMjLH8v/ye1UAEgAAAAAInD34ELxa10vhOqvdN1yb+DzIU+uDbmPyYEcko17en0BQ6ABou71BWd19blXL/OtY90qcdH7KByhd6Xhx0cw7MsuUTgHABW+AAADvLNnDcFVUAAVv////7y9GpSiABAAD6usq62rrKuobhGMyA==')
+    cs.skip_bits(1, False)  # account$1
+
+    assert cs.bits == 472
+    address = cs.load_tlb("MsgAddressInt")
+    assert address.bits == 267
+    assert cs.bits == 205
+
+    storage_info = cs.load_tlb("StorageInfo")
+    assert storage_info.bits == 66
+    assert cs.bits == 139
+
+    account_storage = cs.load_tlb("AccountStorage")
+    assert account_storage.bits == 139
+    assert cs.bits == 0
+
+    account_storage.skip_bits(64, False)
+    account_storage.load_tlb("CurrencyCollection")
+    assert account_storage.bits == 6
 
 
 def test_repr():

@@ -47,7 +47,7 @@ class CellBuilder:
 
     def store_builder(self, b: "CellBuilder") -> "CellBuilder":
         """
-        Append CellBuilder (bits & refs) `b` to current builder
+        Append CellBuilder (bits & refs) ``b`` to current builder
 
         :param b: CellBuilder that will be appended to this builder
         :return: Current CellBuilder
@@ -57,7 +57,7 @@ class CellBuilder:
 
     def store_uint(self, uint_: int, uint_bits: int) -> "CellBuilder":
         """
-        Stores `uint_` unsigned integer with `uint_bits` size (up to 256) to current cell
+        Stores ``uint_`` unsigned integer with ``uint_bits`` size (up to 256) to current cell
 
         :param uint_: Unsigned integer to be stored into cell
         :param uint_bits: Bits num that will be used to store integer to cell
@@ -78,7 +78,7 @@ class CellBuilder:
 
     def store_int(self, int_: int, int_bits: int) -> "CellBuilder":
         """
-        Stores `int_` integer with `int_bits` size (up to 257) to current cell
+        Stores ``int_`` integer with ``int_bits`` size (up to 257) to current cell
 
         :param int_: Integer to be stored into cell
         :param int_bits: Bits num that will be used to store integer to cell
@@ -93,7 +93,7 @@ class CellBuilder:
 
     def store_slice(self, cs: CellSlice) -> "CellBuilder":
         """
-        Append CellSlice `b` (bits & refs) to current CellBuilder
+        Append CellSlice ``b`` (bits & refs) to current CellBuilder
 
         :param cs: CellSlice that will be appended to this builder
         :return: Current CellBuilder
@@ -104,7 +104,7 @@ class CellBuilder:
 
     def store_zeroes(self, n: int) -> "CellBuilder":
         """
-        Store `n` 0 bits to current CellBuilder
+        Store ``n`` 0 bits to current CellBuilder
 
         :param n: Num of 0 bits to be stored
         :return: Current CellBuilder
@@ -116,7 +116,7 @@ class CellBuilder:
 
     def store_ones(self, n: int) -> "CellBuilder":
         """
-        Store `n` 1 bits to current CellBuilder
+        Store ``n`` 1 bits to current CellBuilder
 
         :param n: Num of 1 bits to be stored
         :return: Current CellBuilder
@@ -128,9 +128,9 @@ class CellBuilder:
 
     def store_var_uint(self, uint_: int, bits: int) -> "CellBuilder":
         """
-        Store `VarUInteger bits` to CellSlice
+        Store ``VarUInteger bits`` to CellSlice
 
-        The main idea that we store size of our integer in first up to `bits` in Cell
+        The main idea that we store size of our integer in first up to ``bits`` in Cell
         So we can use less space when storing large integers
 
         TLB scheme:
@@ -151,7 +151,7 @@ class CellBuilder:
 
     def store_var_int(self, int_: int, bits: int) -> "CellBuilder":
         """
-        Same as `store_var_uint` but work with integers
+        Same as ``store_var_uint`` but work with integers
 
         TLB Scheme:
 
@@ -171,7 +171,7 @@ class CellBuilder:
 
     def store_uint_less(self, upper_bound: int, value: int) -> "CellBuilder":
         """
-        Store `value` less than `upper_bound` unsigned integer stored as `bitCount(upper_bound - 1)` bits
+        Store ``value`` less than ``upper_bound`` unsigned integer stored as ``bitCount(upper_bound - 1)`` bits
 
         :param upper_bound: Max unsigned integer that can be stored
         :param value: Value to store
@@ -183,7 +183,7 @@ class CellBuilder:
 
     def store_uint_leq(self, upper_bound: int, value: int) -> "CellBuilder":
         """
-        Store `value` less or equal than `upper_bound` unsigned integer stored as `bitCount(upper_bound - 1)` bits
+        Store ``value`` less or equal than ``upper_bound`` unsigned integer stored as ``bitCount(upper_bound - 1)`` bits
 
         :param upper_bound: Max unsigned integer that can be stored
         :param value: Value to store
@@ -195,7 +195,7 @@ class CellBuilder:
 
     def store_bitstring(self, bitstring: str) -> "CellBuilder":
         """
-        Store bits from `bitstring` string
+        Store bits from ``bitstring`` string
 
         :param bitstring: Bits to store to cell (ex. '11001')
         :return: Current CellBuilder
@@ -231,7 +231,7 @@ class CellBuilder:
 
     def store_grams(self, grams: int) -> "CellBuilder":
         """
-        Same as store `.store_var_uint(grams, 16)`, grams is nanoTON value
+        Same as store ``.store_var_uint(grams, 16)``, grams is nanoTON value
 
         :param grams: nano TON value to store
         :return: Current CellBuilder
@@ -242,7 +242,7 @@ class CellBuilder:
 
     def store_address(self, address: str) -> "CellBuilder":
         """
-        Parse smart-contract address from string and store as `MsgAddress` TLB structure
+        Parse smart-contract address from string and store as ``MsgAddress`` TLB structure
 
         :param address: Smart-contract address in any format
         :return: Current CellBuilder

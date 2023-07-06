@@ -41,67 +41,67 @@ class CellSlice:
 
     def load_uint(self, n: int) -> int:
         """
-        Load unsigned integer in `n` bits (up to 256) and move cursor to `n` bits
+        Load unsigned integer in ``n`` bits (up to 256) and move cursor to ``n`` bits
 
         :param n: Num of bits to load from CellSlice
-        :return: Unsigned integer which was stored in `n` bits
+        :return: Unsigned integer which was stored in ``n`` bits
         """
 
         return int(self.cell_slice.load_uint(n))
 
     def preload_uint(self, n: int) -> int:
         """
-        Preload unsigned integer in `n` bits (up to 256) and don't change cursor position
+        Preload unsigned integer in ``n`` bits (up to 256) and don't change cursor position
 
         :param n: Num of bits to load from CellSlice
-        :return: Unsigned integer which was stored in `n` bits
+        :return: Unsigned integer which was stored in ``n`` bits
         """
 
         return int(self.cell_slice.preload_uint(n))
 
     def load_int(self, n: int) -> int:
         """
-        Load signed integer in `n` bits (up to 256) and move cursor to `n` bits
+        Load signed integer in ``n`` bits (up to 256) and move cursor to ``n`` bits
 
         :param n: Num of bits to load from CellSlice
-        :return: Integer which was stored in `n` bits
+        :return: Integer which was stored in ``n`` bits
         """
 
         return int(self.cell_slice.load_int(n))
 
     def preload_int(self, n: int) -> int:
         """
-        Load signed integer in `n` bits (up to 256) and don't change cursor position
+        Load signed integer in ``n`` bits (up to 256) and don't change cursor position
 
         :param n: Num of bits to load from CellSlice
-        :return: Integer which was stored in `n` bits
+        :return: Integer which was stored in ``n`` bits
         """
 
         return int(self.cell_slice.preload_int(n))
 
     def load_var_uint(self, bits: int) -> int:
         """
-        Load `VarUInteger bits`, more information can be found in CellBuilder `load_ver_uint` method
+        Load ``VarUInteger bits``, more information can be found in CellBuilder ``load_ver_uint`` method
 
         :param bits: Up to what bitsize unsigned integer will be loaded
-        :return: Load integer stored in `VarUInteger bits`
+        :return: Load integer stored in ``VarUInteger bits``
         """
 
         return int(self.cell_slice.load_var_integer_str(bits, False))
 
     def load_var_int(self, bits: int) -> int:
         """
-        Same as `load_var_uint`, but signed
+        Same as ``load_var_uint``, but signed
 
         :param bits: Up to what bitsize integer will be loaded
-        :return: Load integer stored in `VarInteger bits`
+        :return: Load integer stored in ``VarInteger bits``
         """
 
         return int(self.cell_slice.load_var_integer_str(bits, True))
 
     def load_address(self) -> str:
         """
-        Parse address by `MsgAddress` TLB structure and dump as string
+        Parse address by ``MsgAddress`` TLB structure and dump as string
 
         :return: Loaded address dumped as string
         """
@@ -129,7 +129,7 @@ class CellSlice:
     def bit_at(self, position: int) -> int:
         """
         :param position: Bit position to fetch from
-        :return: Bit at position `position` of current CellSlice
+        :return: Bit at position ``position`` of current CellSlice
         """
 
         if position < 0 or position > self.bits:
@@ -237,7 +237,7 @@ class CellSlice:
         """
         Fetches cell on next reference and return it, move refs cursor position by 1
 
-        :param offset: Skip first `offset` refs
+        :param offset: Skip first ``offset`` refs
         :return: New CellSlice from cell stored in next ref
         """
 
@@ -250,7 +250,7 @@ class CellSlice:
         """
         Fetches cell on next reference and return it, don't change refs cursor position
 
-        :param offset: Skip first `offset` refs
+        :param offset: Skip first ``offset`` refs
         :return: New CellSlice from cell stored in next ref
         """
 
@@ -258,12 +258,14 @@ class CellSlice:
 
     def advance_ext(self, bits_refs: int) -> True:
         """
-        Try to skip `bits` and `refs`, return False if `(refs > self.refs) or (bits > self.bits)`
+        Try to skip ``bits`` and ``refs``, return False if ``(refs > self.refs) or (bits > self.bits)``
 
-        refs = bits_refs % (2 ** 16)
-        bits = bits_refs / (2 ** 16)
+        .. code-block::
 
-        :param bits_refs: `num_bits` * (2**16) + `num_refs`
+            refs = bits_refs % (2 ** 16)
+            bits = bits_refs / (2 ** 16)
+
+        :param bits_refs: ``num_bits * (2**16) + num_refs``
         :return: Is operation is success
         """
 
@@ -271,7 +273,7 @@ class CellSlice:
 
     def advance(self, bits: int) -> bool:
         """
-        Try to skip `bits`, return False if `bits` >= `self.bits`
+        Try to skip ``bits``, return False if ``bits >= self.bits``
 
         :param bits: Num of bits to try to skip
         :return: Is skip was success
@@ -281,7 +283,7 @@ class CellSlice:
 
     def advance_refs(self, refs: int) -> bool:
         """
-        Try to skip `refs`, return False if `refs` >= `self.refs`
+        Try to skip ``refs``, return False if ``refs >= self.refs``
 
         :param refs: Num of refs to try to skip
         :return: Is skip was success
@@ -291,7 +293,7 @@ class CellSlice:
 
     def advance_bits_refs(self, bits: int, refs: int) -> bool:
         """
-        Try to skip `bits` and `refs`, return False if `(refs > self.refs) or (bits > self.bits)`
+        Try to skip ``bits`` and ``refs``, return False if ``(refs > self.refs) or (bits > self.bits)``
 
         :param bits: Num bits of try to skip
         :param refs: Num refs of try to skip
@@ -313,7 +315,7 @@ class CellSlice:
         :return: New cell slice contains TLB structure
         """
 
-        return self.cell_slice.load_tlb(tlb_structure)
+        return CellSlice(self.cell_slice.load_tlb(tlb_structure))
 
     def dump(self):
         """Recursively dump all cells as hex"""
@@ -322,7 +324,8 @@ class CellSlice:
 
     def bselect(self, bits: int, mask: int) -> int:
         """
-        Unsigned integer coded by `bits`: 0b111
+        Unsigned integer coded by ``bits``: 0b111
+        Unsigned integer coded by ``bits``: 0b111
         Mask: 0b11111111 (up to 8 variants)
         Result: 7
 
@@ -335,7 +338,7 @@ class CellSlice:
 
     def bselect_ext(self, bits: int, mask: int) -> int:
         """
-        Same as bselect, but allow to < then `bits` (they will be padded)
+        Same as bselect, but allow to < then ``bits`` (they will be padded)
 
         :param bits: Num bits (up to 6) to load unsigned integer (X)
         :param mask: Mask that will be applied to ones bitstring length of X+1
