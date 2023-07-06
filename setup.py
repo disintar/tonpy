@@ -10,6 +10,9 @@ with open(f"requirements.txt", encoding="utf-8") as fh:
 with open(f"docs_requirements.txt", encoding="utf-8") as fh:
     docs_extras = fh.read().split('\n')
 
+with open(f"built_requirements.txt", encoding="utf-8") as fh:
+    built_extras = fh.read().split('\n')
+
 try:
     from wheel.bdist_wheel import bdist_wheel as _bdist_wheel
 
@@ -51,7 +54,7 @@ setup(
     package_dir={
         "": "src",
     },
-    extras_require={'docs': docs_extras},
+    extras_require={'docs': docs_extras, 'built': built_extras},
     cmdclass={'bdist_wheel': bdist_wheel},
     include_package_data=True
 )
