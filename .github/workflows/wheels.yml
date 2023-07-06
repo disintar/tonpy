@@ -61,7 +61,7 @@ jobs:
             link: https://github.com/disintar/ton/releases/download/ton-cpython-311--linux/
             file: python_ton.cpython-311-x86_64-linux-gnu.so
             fix_tag: manylinux2014_aarch64
-
+            docker_python_tag: 3.11.4-bookworm
           #          - arch: aarch64
           #            os: macOS
           #            python: "3.9"
@@ -152,7 +152,7 @@ jobs:
 
       - name: Run tests in virtual
         run: |
-          docker run --rm -t arm64v8/python:${{ matrix.python }} -v ${PWD}:/tmp/tonpy /tmp/tonpy/run_test_in_quemu_docker.sh
+          docker run --rm -t arm64v8/python:${{ matrix.docker_python_tag }} -v ${PWD}:/tmp/tonpy /tmp/tonpy/run_test_in_quemu_docker.sh
         if: (matrix.os == 'Linux' && matrix.arch == 'aarch64')
 
       - name: Run tests
