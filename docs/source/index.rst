@@ -14,8 +14,12 @@ Welcome to tonpy's documentation!
    tonpy
 
 
+.. role:: raw-html(raw)
+    :format: html
+
 What is supported?
 ------------------
+:raw-html:`<br />`
 
 - Basic types:
    - `Cell`_
@@ -33,6 +37,8 @@ What is supported?
 .. _Cell: https://tonpy.dton.io/tonpy.types.html#module-tonpy.types.cell
 .. _CellSlice: https://tonpy.dton.io/tonpy.types.html#module-tonpy.types.cellslice
 .. _CellBuilder: https://tonpy.dton.io/tonpy.types.html#module-tonpy.types.cellbuilder
+
+:raw-html:`<br />`
 
 Tests
 -----
