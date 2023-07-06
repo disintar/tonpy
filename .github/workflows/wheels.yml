@@ -62,18 +62,18 @@ jobs:
             file: python_ton.cpython-311-x86_64-linux-gnu.so
             fix_tag: manylinux2014_aarch64
 
-#          - arch: aarch64
-#            os: macOS
-#            python: "3.9"
-#            link: https://github.com/disintar/ton/releases/download/ton-cpython-39-aarch64-darwin/
-##            link: https://github.com/disintar/ton/releases/download/ton-x86_64-darwin-python-39/
-#            file: python_ton.cpython-39-darwin.so
+          #          - arch: aarch64
+          #            os: macOS
+          #            python: "3.9"
+          #            link: https://github.com/disintar/ton/releases/download/ton-cpython-39-aarch64-darwin/
+          ##            link: https://github.com/disintar/ton/releases/download/ton-x86_64-darwin-python-39/
+          #            file: python_ton.cpython-39-darwin.so
 
           - arch: aarch64
             os: macOS
             python: "3.10"
             link: https://github.com/disintar/ton/releases/download/ton-cpython-310-aarch64-darwin/
-#            link: https://github.com/disintar/ton/releases/download/ton-x86_64-darwin-python-310/
+            #            link: https://github.com/disintar/ton/releases/download/ton-x86_64-darwin-python-310/
             file: python_ton.cpython-310-darwin.so
             fix_tag: arm64
 
@@ -98,26 +98,26 @@ jobs:
             file: python_ton.cpython-311-darwin.so
             fix_tag: x86_64
 
-#          - arch: x86_64
-#            os: windows-2019
-#            python: "3.9"
-#            link:
-#            file:
-#            fix_tag:
-#
-#          - arch: x86_64
-#            os: windows-2019
-#            python: "3.10"
-#            link:
-#            file:
-#            fix_tag:
-#
-#          - arch: x86_64
-#            os: windows-2019
-#            python: "3.11"
-#            link:
-#            file:
-#            fix_tag:
+    #          - arch: x86_64
+    #            os: windows-2019
+    #            python: "3.9"
+    #            link:
+    #            file:
+    #            fix_tag:
+    #
+    #          - arch: x86_64
+    #            os: windows-2019
+    #            python: "3.10"
+    #            link:
+    #            file:
+    #            fix_tag:
+    #
+    #          - arch: x86_64
+    #            os: windows-2019
+    #            python: "3.11"
+    #            link:
+    #            file:
+    #            fix_tag:
 
 
 
@@ -145,9 +145,15 @@ jobs:
         run: |
           curl -Lo ./src/tonpy/libs/${{ matrix.file }} ${{ matrix.link }}${{ matrix.file }}
 
+      - name: Run tests in virtual
+        run: |
+          docker run --rm -t arm64v8/python:${{ matrix.python }} -v ${PWD}:/tmp/tonpy /tmp/tonpy/run_test_in_quemu_docker.sh
+        if: (matrix.os == 'Linux' && matrix.arch == 'aarch64')
+
       - name: Run tests
         run: |
           pytest
+        if: !((matrix.os == 'Linux' && matrix.arch == 'aarch64') || (matrix.os == 'macOS' && matrix.arch == 'x86_64'))
 
       - name: Build wheel
         run: |
