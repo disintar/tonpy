@@ -126,7 +126,7 @@ jobs:
     steps:
       - name: Install QEMU
         uses: docker/setup-qemu-action@v2
-        if: (matrix.os == 'Linux' && matrix.arch == 'aarch64') || (matrix.os == 'macOS' && matrix.arch == 'x86_64')
+        if: (matrix.os == 'Linux' && matrix.arch == 'aarch64')
 
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v3
