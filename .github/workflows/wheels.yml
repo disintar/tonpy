@@ -124,6 +124,11 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
+
+      - name: testPWD
+        run: |
+          echo ${PWD##*/}
+
       - name: Install QEMU
         uses: docker/setup-qemu-action@v2
         if: (matrix.os == 'Linux' && matrix.arch == 'aarch64')
@@ -151,7 +156,7 @@ jobs:
 
       - name: Run tests in virtual
         run: |
-          docker run --platform linux/aarch64 --rm -t arm64v8/python:${{ matrix.docker_python_tag }} -v ${pwd}:/tmp/tonpy /tmp/tonpy/run_test_in_quemu_docker.sh
+          docker run --platform linux/aarch64 --rm -t arm64v8/python:${{ matrix.docker_python_tag }} -v "${PWD##*/}:/tmp/tonpy" /tmp/tonpy/run_test_in_quemu_docker.sh
         if: (matrix.os == 'Linux' && matrix.arch == 'aarch64')
 
       - name: Run tests
