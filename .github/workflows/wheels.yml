@@ -179,7 +179,7 @@ jobs:
 
       - name: Save download prebuilt
         run: |
-          echo "curl -Lo /tmp/tonpy/src/tonpy/libs/${{ matrix.file }} ${{ matrix.link }}${{ matrix.file }}" >> install_prebuilt.sh
+          echo "#!/bin/bash\ncurl -Lo /tmp/tonpy/src/tonpy/libs/${{ matrix.file }} ${{ matrix.link }}${{ matrix.file }}" >> install_prebuilt.sh
           chmod +x install_prebuilt.sh
 
       - name: Run tests in virtual
