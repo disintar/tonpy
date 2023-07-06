@@ -199,7 +199,6 @@ jobs:
     runs-on: Linux
     needs:
       - buildVirtualLinux
-      - buildMacGhHosted
 
     steps:
       - uses: actions/checkout@v3
