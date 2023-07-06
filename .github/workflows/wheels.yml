@@ -62,20 +62,6 @@ jobs:
             file: python_ton.cpython-311-darwin.so
             fix_tag: arm64
 
-          - arch: x86_64
-            os: macOS
-            python: "3.10"
-            link: https://github.com/disintar/ton/releases/download/ton-x86_64-darwin-python-310/
-            file: python_ton.cpython-310-darwin.so
-            fix_tag: x86_64
-
-          - arch: x86_64
-            os: macOS
-            python: "3.11"
-            link: https://github.com/disintar/ton/releases/download/ton-x86_64-darwin-python-311/
-            file: python_ton.cpython-311-darwin.so
-            fix_tag: x86_64
-
     #          - arch: x86_64
     #            os: windows-2019
     #            python: "3.9"
@@ -121,8 +107,6 @@ jobs:
       - name: Run tests
         run: |
           pytest
-        # todo: add tests for macOS_x86_64
-        if: (matrix.os == 'macOS' && matrix.arch == 'x86_64') == false
 
       - name: Build wheel
         run: |
@@ -191,26 +175,85 @@ jobs:
           name: python-package-distributions
           path: dist
 
+  buildMacGhHosted:
+    strategy:
+      matrix:
+        include:
+          - arch: x86_64
+            os: macOS
+            python: "3.9"
+            link: https://github.com/disintar/ton/releases/download/ton-x86_64-darwin-python-39/
+            file: python_ton.cpython-39-darwin.so
+            fix_tag: x86_64
+
+          - arch: x86_64
+            os: macOS
+            python: "3.10"
+            link: https://github.com/disintar/ton/releases/download/ton-x86_64-darwin-python-310/
+            file: python_ton.cpython-310-darwin.so
+            fix_tag: x86_64
+
+          - arch: x86_64
+            os: macOS
+            python: "3.11"
+            link: https://github.com/disintar/ton/releases/download/ton-x86_64-darwin-python-311/
+            file: python_ton.cpython-311-darwin.so
+            fix_tag: x86_64
+
+    name: Build for mac x86_64
+    tuns-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python }}
+        env:
+          USER: tvorogme
+
+      - name: Install deps
+        run: |
+          python -m pip install -r built_requirements.txt
+          python -m pip install -r requirements.txt
+
+      - name: Download prebuilt
+        run: |
+          curl -Lo ./src/tonpy/libs/${{ matrix.file }} ${{ matrix.link }}${{ matrix.file }}
+
+      - name: Run tests
+        run: |
+          pytest
+
+      - name: Build wheel
+        run: |
+          python -m build --wheel --outdir dist/ .
+          python fix_whl_name.py
+          ls -lhta ./dist
+        env:
+          TAG_FIX: ${{ matrix.fix_tag }}
+      - name: Store the binary wheel
+        uses: actions/upload-artifact@v2
+        with:
+          name: python-package-distributions
+          path: dist
+
   deploy:
     name: Publish 🐍📦 to PyPI
     runs-on: Linux
     needs:
       - buildVirtualLinux
+      - buildMacGhHosted
 
     steps:
       - uses: actions/checkout@v3
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
 
       - name: Download all the dists
         uses: actions/download-artifact@v2
         with:
           name: python-package-distributions
           path: dist/
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
 
       - name: Install deps
         run: python -m pip install setuptools==68.0.0 build==0.10.0 twine
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
 
       - name: Publish distribution 📦 to PyPi
         run: |
@@ -218,4 +261,3 @@ jobs:
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
