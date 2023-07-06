@@ -20,40 +20,40 @@ jobs:
     strategy:
       matrix:
         include:
-          - arch: x86_64
-            os: Linux
-            python: "3.9"
-            link: https://github.com/disintar/ton/releases/download/ton-cpython-39--linux/
-            file: python_ton.cpython-39-x86_64-linux-gnu.so
-            fix_tag: manylinux2014_x86_64
-
-          - arch: x86_64
-            os: Linux
-            python: "3.10"
-            link: https://github.com/disintar/ton/releases/download/ton-cpython-310--linux/
-            file: python_ton.cpython-310-x86_64-linux-gnu.so
-            fix_tag: manylinux2014_x86_64
-
-          - arch: x86_64
-            os: Linux
-            python: "3.11"
-            link: https://github.com/disintar/ton/releases/download/ton-cpython-311--linux/
-            file: python_ton.cpython-311-x86_64-linux-gnu.so
-            fix_tag: manylinux2014_x86_64
-
-          - arch: aarch64
-            os: Linux
-            python: "3.9"
-            link: https://github.com/disintar/ton/releases/download/ton-cpython-39-aarch64-linux/
-            file: python_ton.cpython-39-aarch64-linux-gnu.so
-            fix_tag: manylinux2014_aarch64
-
-          - arch: aarch64
-            os: Linux
-            python: "3.10"
-            link: https://github.com/disintar/ton/releases/download/ton-cpython-311-aarch64-linux/
-            file: python_ton.cpython-311-aarch64-linux-gnu.so
-            fix_tag: manylinux2014_aarch64
+#          - arch: x86_64
+#            os: Linux
+#            python: "3.9"
+#            link: https://github.com/disintar/ton/releases/download/ton-cpython-39--linux/
+#            file: python_ton.cpython-39-x86_64-linux-gnu.so
+#            fix_tag: manylinux2014_x86_64
+#
+#          - arch: x86_64
+#            os: Linux
+#            python: "3.10"
+#            link: https://github.com/disintar/ton/releases/download/ton-cpython-310--linux/
+#            file: python_ton.cpython-310-x86_64-linux-gnu.so
+#            fix_tag: manylinux2014_x86_64
+#
+#          - arch: x86_64
+#            os: Linux
+#            python: "3.11"
+#            link: https://github.com/disintar/ton/releases/download/ton-cpython-311--linux/
+#            file: python_ton.cpython-311-x86_64-linux-gnu.so
+#            fix_tag: manylinux2014_x86_64
+#
+#          - arch: aarch64
+#            os: Linux
+#            python: "3.9"
+#            link: https://github.com/disintar/ton/releases/download/ton-cpython-39-aarch64-linux/
+#            file: python_ton.cpython-39-aarch64-linux-gnu.so
+#            fix_tag: manylinux2014_aarch64
+#
+#          - arch: aarch64
+#            os: Linux
+#            python: "3.10"
+#            link: https://github.com/disintar/ton/releases/download/ton-cpython-311-aarch64-linux/
+#            file: python_ton.cpython-311-aarch64-linux-gnu.so
+#            fix_tag: manylinux2014_aarch64
 
           - arch: aarch64
             os: Linux
@@ -68,35 +68,35 @@ jobs:
           #            link: https://github.com/disintar/ton/releases/download/ton-cpython-39-aarch64-darwin/
           ##            link: https://github.com/disintar/ton/releases/download/ton-x86_64-darwin-python-39/
           #            file: python_ton.cpython-39-darwin.so
-
-          - arch: aarch64
-            os: macOS
-            python: "3.10"
-            link: https://github.com/disintar/ton/releases/download/ton-cpython-310-aarch64-darwin/
-            #            link: https://github.com/disintar/ton/releases/download/ton-x86_64-darwin-python-310/
-            file: python_ton.cpython-310-darwin.so
-            fix_tag: arm64
-
-          - arch: aarch64
-            os: macOS
-            python: "3.11"
-            link: https://github.com/disintar/ton/releases/download/ton-cpython-311-aarch64-darwin/
-            file: python_ton.cpython-311-darwin.so
-            fix_tag: arm64
-
-          - arch: x86_64
-            os: macOS
-            python: "3.10"
-            link: https://github.com/disintar/ton/releases/download/ton-x86_64-darwin-python-310/
-            file: python_ton.cpython-310-darwin.so
-            fix_tag: x86_64
-
-          - arch: x86_64
-            os: macOS
-            python: "3.11"
-            link: https://github.com/disintar/ton/releases/download/ton-x86_64-darwin-python-311/
-            file: python_ton.cpython-311-darwin.so
-            fix_tag: x86_64
+#
+#          - arch: aarch64
+#            os: macOS
+#            python: "3.10"
+#            link: https://github.com/disintar/ton/releases/download/ton-cpython-310-aarch64-darwin/
+#            #            link: https://github.com/disintar/ton/releases/download/ton-x86_64-darwin-python-310/
+#            file: python_ton.cpython-310-darwin.so
+#            fix_tag: arm64
+#
+#          - arch: aarch64
+#            os: macOS
+#            python: "3.11"
+#            link: https://github.com/disintar/ton/releases/download/ton-cpython-311-aarch64-darwin/
+#            file: python_ton.cpython-311-darwin.so
+#            fix_tag: arm64
+#
+#          - arch: x86_64
+#            os: macOS
+#            python: "3.10"
+#            link: https://github.com/disintar/ton/releases/download/ton-x86_64-darwin-python-310/
+#            file: python_ton.cpython-310-darwin.so
+#            fix_tag: x86_64
+#
+#          - arch: x86_64
+#            os: macOS
+#            python: "3.11"
+#            link: https://github.com/disintar/ton/releases/download/ton-x86_64-darwin-python-311/
+#            file: python_ton.cpython-311-darwin.so
+#            fix_tag: x86_64
 
     #          - arch: x86_64
     #            os: windows-2019
@@ -127,6 +127,11 @@ jobs:
       - name: Install QEMU
         uses: docker/setup-qemu-action@v2
         if: (matrix.os == 'Linux' && matrix.arch == 'aarch64')
+
+      - name: QEMU test
+        run: |
+          docker run --rm -t arm64v8/ubuntu uname -m
+
 
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v3
