@@ -120,7 +120,7 @@ class VmDict:
         return Cell(self.dict.get_pycell())
 
     def lookup_nearest_key(self, key: int, fetch_next: bool = True, allow_eq: bool = False,
-                           invert_first: bool = True, signed: bool = None) -> tuple[int, CellSlice]:
+                           invert_first: bool = False, signed: bool = None) -> tuple[int, CellSlice]:
         """
         Compute the nearest key to ``key``
 
@@ -137,7 +137,7 @@ class VmDict:
         key, value = self.dict.lookup_nearest_key(str(key), fetch_next, allow_eq, invert_first, 0, signed)
         return int(key), CellSlice(value)
 
-    def get_minmax_key(self, fetch_max: bool = True, invert_first: bool = True, signed: bool = None) -> tuple[
+    def get_minmax_key(self, fetch_max: bool = True, invert_first: bool = False, signed: bool = None) -> tuple[
         int, CellSlice]:
         """
         Fetch max / min ``key, value``
