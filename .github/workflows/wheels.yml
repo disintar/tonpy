@@ -176,14 +176,13 @@ jobs:
 
       - name: Run tests in virtual
         run: |
-          docker run --network host --platform linux/aarch64 --rm --volume "${PWD}:/tmp/tonpy" -t arm64v8/python:${{ matrix.docker_python_tag }} /tmp/tonpy/run_test_in_docker.sh
+          docker run --network host --platform linux/aarch64 -e TAG_FIX=${{ matrix.fix_tag }} --rm --volume "${PWD}:/tmp/tonpy" -t arm64v8/python:${{ matrix.docker_python_tag }} /tmp/tonpy/run_test_in_docker.sh
         if: (matrix.os == 'Linux' && matrix.arch == 'aarch64')
 
       - name: Show wheel
         run: |
           ls -lhta ./dist
-        env:
-          TAG_FIX: ${{ matrix.fix_tag }}
+
       - name: Store the binary wheel
         uses: actions/upload-artifact@v2
         with:
