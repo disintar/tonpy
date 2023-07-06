@@ -61,20 +61,20 @@ jobs:
             link: https://github.com/disintar/ton/releases/download/ton-cpython-311-aarch64-darwin/
             file: python_ton.cpython-311-darwin.so
             fix_tag: arm64
-    #
-    #          - arch: x86_64
-    #            os: macOS
-    #            python: "3.10"
-    #            link: https://github.com/disintar/ton/releases/download/ton-x86_64-darwin-python-310/
-    #            file: python_ton.cpython-310-darwin.so
-    #            fix_tag: x86_64
-    #
-    #          - arch: x86_64
-    #            os: macOS
-    #            python: "3.11"
-    #            link: https://github.com/disintar/ton/releases/download/ton-x86_64-darwin-python-311/
-    #            file: python_ton.cpython-311-darwin.so
-    #            fix_tag: x86_64
+
+          - arch: x86_64
+            os: macOS
+            python: "3.10"
+            link: https://github.com/disintar/ton/releases/download/ton-x86_64-darwin-python-310/
+            file: python_ton.cpython-310-darwin.so
+            fix_tag: x86_64
+
+          - arch: x86_64
+            os: macOS
+            python: "3.11"
+            link: https://github.com/disintar/ton/releases/download/ton-x86_64-darwin-python-311/
+            file: python_ton.cpython-311-darwin.so
+            fix_tag: x86_64
 
     #          - arch: x86_64
     #            os: windows-2019
@@ -121,6 +121,8 @@ jobs:
       - name: Run tests
         run: |
           pytest
+        # todo: add tests for macOS_x86_64
+        if: (matrix.os == 'macOS' && matrix.arch == 'x86_64') == false
 
       - name: Build wheel
         run: |
