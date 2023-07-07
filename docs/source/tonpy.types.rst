@@ -28,6 +28,14 @@ tonpy.types.cellslice module
    :undoc-members:
    :show-inheritance:
 
+tonpy.types.vmdict module
+----------------------------
+
+.. automodule:: tonpy.types.vmdict
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 
