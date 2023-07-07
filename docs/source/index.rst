@@ -37,7 +37,7 @@ What is supported?
 .. _Cell: https://tonpy.dton.io/tonpy.types.html#module-tonpy.types.cell
 .. _CellSlice: https://tonpy.dton.io/tonpy.types.html#module-tonpy.types.cellslice
 .. _CellBuilder: https://tonpy.dton.io/tonpy.types.html#module-tonpy.types.cellbuilder
-.. _VmDict:
+.. _VmDict: https://tonpy.dton.io/tonpy.types.html#module-tonpy.types.vmdict
 
 |
 
