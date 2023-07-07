@@ -5,6 +5,7 @@ from tonpy.libs.python_ton import PyDict
 from tonpy.types.cell import Cell
 from tonpy.types.cellslice import CellSlice
 from tonpy.types.cellbuilder import CellBuilder
+from tonpy.utils.bit_int import test_value_len
 
 
 #       .def("set_ref_str", &PyDict::set_ref, py::arg("key"), py::arg("value"), py::arg("mode") = "set",
@@ -19,11 +20,6 @@ from tonpy.types.cellbuilder import CellBuilder
 #       .def("lookup_delete_ref_str", &PyDict::lookup_delete_ref, py::arg("key"), py::arg("key_len") = 0,
 #            py::arg("signed") = false)
 #       .def("__repr__", &PyDict::toString);
-
-def test_key_len(key: int, key_len: int):
-    if key < 0:
-        key *= -1
-    assert len(bin(key)[2:]) <= key_len, f"Key is bigger than {key_len} bits"
 
 
 class VmDict:
@@ -76,7 +72,7 @@ class VmDict:
 
         self.dict = PyDict(key_len, signed, cell_root)
 
-    def _process_sgnd(self, key: int = None, signed: bool = None):
+    def _process_sgnd(self, key: int = None, signed: bool = None) -> bool:
         """Check ``key`` to be ``signed`` or if ``signed`` is None will use current dict ``self.signed``"""
         if signed is None:
             signed = self.signed
@@ -102,7 +98,7 @@ class VmDict:
         :param signed: Signed
         :return: Updated self
         """
-        test_key_len(key, self.key_len)
+        test_value_len(key, self.key_len)
         signed = self._process_sgnd(key, signed)
 
         if not isinstance(value, CellSlice):
@@ -120,7 +116,7 @@ class VmDict:
         return Cell(self.dict.get_pycell())
 
     def lookup_nearest_key(self, key: int, fetch_next: bool = True, allow_eq: bool = False,
-                           invert_first: bool = False, signed: bool = None) -> tuple[int, CellSlice]:
+                           invert_first: bool = True, signed: bool = None) -> tuple[int, CellSlice]:
         """
         Compute the nearest key to ``key``
 
@@ -131,13 +127,13 @@ class VmDict:
         :param signed: Fetch keys as signed or not
         :return: Founded key and value
         """
-        test_key_len(key, self.key_len)
+        test_value_len(key, self.key_len)
         signed = self._process_sgnd(key, signed)
 
         key, value = self.dict.lookup_nearest_key(str(key), fetch_next, allow_eq, invert_first, 0, signed)
         return int(key), CellSlice(value)
 
-    def get_minmax_key(self, fetch_max: bool = True, invert_first: bool = False, signed: bool = None) -> tuple[
+    def get_minmax_key(self, fetch_max: bool = True, invert_first: bool = True, signed: bool = None) -> tuple[
         int, CellSlice]:
         """
         Fetch max / min ``key, value``
@@ -145,29 +141,65 @@ class VmDict:
         :param fetch_max: If ``True`` will fetch max key, else will fetch min key in dict
         :param invert_first: If ``True`` will respect ``signed`` in operations
         :param signed: Fetch keys as signed or not
-        :return:
+        :return: Key and CellSlice that stored in key
         """
         signed = self._process_sgnd(signed=signed)
 
         key, value = self.dict.get_minmax_key(fetch_max, invert_first, 0, signed)
         return int(key), CellSlice(value)
 
-    def get_minmax_key_ref(self, fetch_max=True, inver_first=False, signed=-1):
-        key, value = self.dict.get_minmax_key_ref(fetch_max, inver_first, 0, signed)
-        return int(key), value
+    def get_minmax_key_ref(self, fetch_max: bool = True, inver_first: bool = False, signed: bool = None) -> tuple[
+        int, Cell]:
+        """
+        Same as get_minmax, but fetch Cell by key (stored in ref)
 
-    def set_ref(self, key, value, mode="set", signed=-1):
+        :param fetch_max: If ``True`` will fetch max key, else will fetch min key in dict
+        :param invert_first: If ``True`` will respect ``signed`` in operations
+        :param signed: Fetch keys as signed or not
+        :return: Key and Cell that stored in key
+        """
+
+        key, value = self.dict.get_minmax_key_ref(fetch_max, inver_first, 0, signed)
+        return int(key), Cell(value)
+
+    def set_ref(self, key: int, value: Cell, mode: str = "set", signed: bool = None) -> "VmDict":
+        """
+        Same as set, but store Cell to ref (by key)
+
+        :param key: Integer to be stored as key
+        :param value: CellSlice to be stored
+        :param mode: "set" / "replace" / "add"
+        :param signed: Signed
+        :return: Updated self
+        """
+
+        test_value_len(key, self.key_len)
+        signed = self._process_sgnd(key, signed)
+
         if not isinstance(value, Cell):
-            raise ValueError(f"Cell needed")
+            raise ValueError(f"Only Cell accepted as value")
 
         self.dict.set_ref_str(str(key), value.cell, mode, 0, signed)
         return self
 
-    def set_builder(self, key, value, mode="set", key_len=0, signed=-1):
+    def set_builder(self, key: int, value: CellBuilder, mode: str = "set", signed: bool = None) -> "VmDict":
+        """
+        Set cell builder stored to ``key``, you can load it by ``lookup`` method
+
+        :param key: Integer to be stored as key
+        :param value: CellSlice to be stored
+        :param mode: "set" / "replace" / "add"
+        :param signed: Signed
+        :return: Updated self
+        """
+
+        test_value_len(key, self.key_len)
+        signed = self._process_sgnd(key, signed)
+
         if not isinstance(value, CellBuilder):
             raise ValueError(f"CellBuilder needed")
 
-        self.dict.set_builder_str(str(key), value.builder, mode, key_len, signed)
+        self.dict.set_builder_str(str(key), value.builder, mode, 0, signed)
         return self
 
     def lookup(self, key, key_len=0, signed=-1):

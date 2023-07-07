@@ -3,6 +3,8 @@ from tonpy.types.cell import Cell
 from tonpy.types.cellslice import CellSlice
 from bitstring import BitArray
 
+from tonpy.utils.bit_int import test_value_len
+
 
 class CellBuilder:
     def __init__(self):
@@ -64,8 +66,13 @@ class CellBuilder:
         :return: Current CellBuilder
         """
 
+        if uint_ < 0:
+            raise ValueError("Only unsigned integers supported")
+
         if uint_bits > 256:
             raise ValueError("Max value for int_bits is 256")
+
+        test_value_len(uint_, uint_bits)
 
         # Large ints need to be converted to string to be parsed in C++
         self.builder.store_uint_str(str(uint_), uint_bits)
@@ -88,6 +95,8 @@ class CellBuilder:
         if int_bits > 257:
             raise ValueError("Max value for int_bits is 257")
 
+        test_value_len(int_, int_bits)
+
         self.builder.store_int_str(str(int_), int_bits)
         return self
 
@@ -98,6 +107,8 @@ class CellBuilder:
         :param cs: CellSlice that will be appended to this builder
         :return: Current CellBuilder
         """
+
+        assert isinstance(cs, CellSlice), "Only CellSlice supported"
 
         self.builder.store_slice(cs.cell_slice)
         return self
@@ -110,6 +121,9 @@ class CellBuilder:
         :return: Current CellBuilder
         """
 
+        if n < 0:
+            raise ValueError("Only unsigned integer supported")
+
         self.builder.store_zeroes(n)
 
         return self
@@ -121,6 +135,9 @@ class CellBuilder:
         :param n: Num of 1 bits to be stored
         :return: Current CellBuilder
         """
+
+        if n < 0:
+            raise ValueError("Only unsigned integer supported")
 
         self.builder.store_ones(n)
 
@@ -145,6 +162,9 @@ class CellBuilder:
         :param bits: Num of bits for VarUInteger
         :return: Current CellBuilder
         """
+
+        if uint_ < 0:
+            raise ValueError("Only unsigned integers supported")
 
         self.builder.store_var_integer(str(uint_), bits, False)
         return self
@@ -178,6 +198,15 @@ class CellBuilder:
         :return: Current CellBuilder
         """
 
+        if value > upper_bound - 1:
+            raise ValueError("Value can't be upper than upper_bound - 1")
+
+        if upper_bound < 0:
+            raise ValueError("Upper bound can't be less then zero in unsigned int")
+
+        if value < 0:
+            raise ValueError("Only unsigned integer supported")
+
         self.builder.store_uint_less(upper_bound, str(value))
         return self
 
@@ -189,6 +218,15 @@ class CellBuilder:
         :param value: Value to store
         :return: Current CellBuilder
         """
+
+        if value > upper_bound:
+            raise ValueError("Value can't be upper than upper_bound")
+
+        if upper_bound < 0:
+            raise ValueError("Upper bound can't be less then zero in unsigned int")
+
+        if value < 0:
+            raise ValueError("Only unsigned integer supported")
 
         self.builder.store_uint_leq(upper_bound, str(value))
         return self
@@ -290,6 +328,22 @@ class CellBuilder:
 
         return self
 
+    # def store_builder(self, b: "CellBuilder", as_ref: bool = False) -> "CellBuilder":
+    #     """
+    #     Append builder ``b`` to current CellBuilder
+    #
+    #     :param b: ``CellBuilder`` that will be appended to current builder
+    #     :param as_ref: If ``True`` will be stored as next ref
+    #     :return:
+    #     """
+    #
+    #     if as_ref:
+    #         self.store_ref(b.end_cell())
+    #     else:
+    #         self.store_bitstring(b.begin_parse().to_bitstring())
+    #
+    #         while b.refs > 0:
+    #             self.store_ref(b.begin_parse().load_ref())
 
     def __repr__(self):
         return self.builder.__repr__()

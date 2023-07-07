@@ -1,4 +1,4 @@
-from tonpy.libs.python_ton import PyCellSlice, parseStringToCell
+from tonpy.libs.python_ton import PyCellSlice, parseStringToCell, load_as_cell_slice
 from typing import Union
 
 from typing import TYPE_CHECKING
@@ -21,7 +21,7 @@ class CellSlice:
         """
 
         if isinstance(cs, str):
-            self.cell_slice: PyCellSlice = parseStringToCell(cs).begin_parse()
+            self.cell_slice: PyCellSlice = load_as_cell_slice(parseStringToCell(cs))
         elif isinstance(cs, PyCellSlice):
             self.cell_slice: PyCellSlice = cs
         else:
@@ -145,7 +145,7 @@ class CellSlice:
     def _load_string_cell_chain(self, bit_size=0):
         """Recursively load string from CellChain"""
 
-        cs = self.load_ref()
+        cs = self.load_ref(as_cs=True)
         self.cell_slice = cs.cell_slice
 
         if self.refs > 0:
@@ -233,28 +233,42 @@ class CellSlice:
 
             return bitstring_to_utf8(body, strict)
 
-    def load_ref(self, offset: int = 0) -> "CellSlice":
+    def load_ref(self, offset: int = 0, as_cs: bool = False) -> Union["Cell", "CellSlice"]:
         """
         Fetches cell on next reference and return it, move refs cursor position by 1
 
         :param offset: Skip first ``offset`` refs
+        :param as_cs: If ``True`` will convert loaded Cell to CellSlice
         :return: New CellSlice from cell stored in next ref
         """
+        from tonpy.types import Cell
 
         if offset > 0:
             self.skip_refs(offset)
 
-        return CellSlice(self.cell_slice.fetch_ref())
+        val = Cell(self.cell_slice.fetch_ref())
 
-    def preload_ref(self, offset: int = 0) -> "CellSlice":
+        if as_cs:
+            val = val.begin_parse()
+
+        return val
+
+    def preload_ref(self, offset: int = 0, as_cs: bool = False) -> Union["Cell", "CellSlice"]:
         """
         Fetches cell on next reference and return it, don't change refs cursor position
 
-        :param offset: Skip first ``offset`` refs
+        :param offset: Skip first ``offset`` refs (but don't move pointer position)
+        :param as_cs: If ``True`` will convert loaded Cell to CellSlice
         :return: New CellSlice from cell stored in next ref
         """
+        from tonpy.types import Cell
 
-        return CellSlice(self.cell_slice.prefetch_ref(offset))
+        val = Cell(self.cell_slice.prefetch_ref(offset))
+
+        if as_cs:
+            val = val.begin_parse()
+
+        return val
 
     def advance_ext(self, bits_refs: int) -> True:
         """

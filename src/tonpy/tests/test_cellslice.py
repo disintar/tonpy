@@ -174,14 +174,14 @@ def test_skip_refs():
 
     assert cs.refs == 4
     cs.skip_refs(1)
-    assert cs.preload_ref(1).load_uint(32) == 3
+    assert cs.preload_ref(1, as_cs=True).load_uint(32) == 3
     assert cs.refs == 3
     cs.skip_refs(1, True)
-    assert cs.preload_ref(1).load_uint(32) == 3
+    assert cs.preload_ref(1, as_cs=True).load_uint(32) == 3
     assert cs.refs == 2
     cs.load_ref()
     assert cs.refs == 1
-    assert cs.load_ref().load_uint(32) == 3
+    assert cs.load_ref(as_cs=True).load_uint(32) == 3
 
 
 def get_test_cell_slice():

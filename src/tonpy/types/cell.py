@@ -1,4 +1,4 @@
-from tonpy.libs.python_ton import PyCell, parseStringToCell
+from tonpy.libs.python_ton import PyCell, parseStringToCell, load_as_cell_slice
 from typing import Union
 
 from tonpy.types.cellslice import CellSlice
@@ -43,7 +43,7 @@ class Cell:
     def begin_parse(self) -> CellSlice:
         """Convert cell to CellSlice"""
 
-        return CellSlice(self.cell.begin_parse())
+        return CellSlice(load_as_cell_slice(self.cell))
 
     def is_null(self) -> bool:
         """Some cells are nulls, you can't operate with such ones"""

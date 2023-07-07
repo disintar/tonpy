@@ -300,6 +300,55 @@ def test_get_minmax():
     d.set(-3, CellBuilder().begin_parse())
 
     assert d.get_minmax_key()[0] == 8 and isinstance(d.get_minmax_key()[1], CellSlice)
-    # assert d.get_minmax_key(invert_first=False)[0] == -1 and isinstance(d.get_minmax_key(invert_first=False)[1], CellSlice)
+    assert d.get_minmax_key(invert_first=False)[0] == -1 and isinstance(d.get_minmax_key(invert_first=False)[1],
+                                                                        CellSlice)
     assert d.get_minmax_key(False)[0] == -3 and isinstance(d.get_minmax_key(False)[1], CellSlice)
-    # assert d.get_minmax_key(False, False)[0] == 6 and isinstance(d.get_minmax_key(False, False)[1], CellSlice)
+    assert d.get_minmax_key(False, False)[0] == 6 and isinstance(d.get_minmax_key(False, False)[1], CellSlice)
+
+
+def test_set_ref():
+    d = VmDict(64)
+
+    for i in range(1000):
+        d.set_ref(i, CellBuilder().store_uint(i, 64).end_cell())
+
+    for i in range(1000):
+        c = d.lookup_ref(i)
+        assert isinstance(c, Cell)
+        assert c.begin_parse().load_uint(64) == i
+
+    d = VmDict(64, True)
+
+    for i in range(-1000, 1000):
+        d.set_ref(i, CellBuilder().store_int(i, 64).end_cell())
+
+    for i in range(-1000, 1000):
+        c = d.lookup_ref(i)
+        assert isinstance(c, Cell)
+        assert c.begin_parse().load_int(64) == i
+
+
+def test_set_builder():
+    d = VmDict(64)
+
+    for i in range(1000):
+        d.set_builder(i, CellBuilder().store_uint(i, 64) \
+                      .store_ref(CellBuilder().store_uint(i, 64).end_cell()))
+
+    for i in range(1000):
+        c = d.lookup(i)
+        assert isinstance(c, CellSlice)
+        assert c.load_uint(64) == i
+        assert c.refs == 1
+
+    d = VmDict(64, True)
+
+    for i in range(-1000, 1000):
+        d.set_builder(i, CellBuilder().store_int(i, 64) \
+                      .store_ref(CellBuilder().store_int(i, 64).end_cell()))
+
+    for i in range(-1000, 1000):
+        c = d.lookup(i)
+        assert isinstance(c, CellSlice)
+        assert c.load_int(64) == i
+        assert c.refs == 1
