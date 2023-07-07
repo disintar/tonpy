@@ -16,25 +16,6 @@ class VmDict:
 
         Key are represented as ``key_len`` bits. They can be loaded as ``signed`` or not.
 
-        .. code-block::
-
-            hm_edge#_ {n:#} {X:Type} {l:#} {m:#} label:(HmLabel ~l n)
-                {n = (~m) + l} node:(HashmapNode m X) = Hashmap n X;
-
-            hmn_leaf#_ {X:Type} value:X = HashmapNode 0 X;
-            hmn_fork#_ {n:#} {X:Type} left:^(Hashmap n X)
-                       right:^(Hashmap n X) = HashmapNode (n + 1) X;
-
-            hml_short$0 {m:#} {n:#} len:(Unary ~n) {n <= m} s:(n * Bit) = HmLabel ~n m;
-            hml_long$10 {m:#} n:(#<= m) s:(n * Bit) = HmLabel ~n m;
-            hml_same$11 {m:#} v:Bit n:(#<= m) = HmLabel ~n m;
-
-            unary_zero$0 = Unary ~0;
-            unary_succ$1 {n:#} x:(Unary ~n) = Unary ~(n + 1);
-
-            hme_empty$0 {n:#} {X:Type} = HashmapE n X;
-            hme_root$1 {n:#} {X:Type} root:^(Hashmap n X) = HashmapE n X;
-
         :param key_len: Size of keys in bits (up to 257 with ``signed`` or 256)
         :param signed: Load keys as signed integers or not
         :param cell_root: Root of HashmapE, can be BOC string, CellSlice or Cell

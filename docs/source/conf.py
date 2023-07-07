@@ -21,8 +21,8 @@ sys.path.insert(0, os.path.abspath('../../src/tonpy/types'))
 # tion -----------------------------------------------------
 
 project = 'tonpy'
-copyright = '2023, Disintar team'
-author = 'Disintar team'
+copyright = '2023, Disintar LLP'
+author = 'Disintar LLP'
 
 # -- General configuration ---------------------------------------------------
 

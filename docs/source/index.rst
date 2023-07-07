@@ -1,19 +1,19 @@
-.. tonpy documentation master file, created by
-sphinx-quickstart on Mon Jul  3 13:48:41 2023.
-You can adapt this file completely to your liking, but it should at least
-contain the root `toctree` directive.
-
 tonpy: powerful Python TON toolkit
 ==================================
 
 **tonpy** is a Python package that provides data structures and API to interact
-with [TON blockchain](https://github.com/ton-blockchain/ton). Tonpy is separate for two
-packages: [C++ bindings](https://github.com/disintar/ton/tree/master/tvm-python)
-and [main package](https://github.com/disintar/tonpy)
-that [takes](https://github.com/disintar/tonpy/tree/main/.github/workflows) pre-built binaries compiled
-by [workflow](https://github.com/disintar/ton/tree/master/.github/workflows) and creates complete python package with
+with `TON blockchain`_. Tonpy is separate for two
+packages: `C++ bindings`_
+and `main package`_
+that `takes`_ pre-built binaries compiled
+by `workflow`_ and creates complete python package with
 some python code on top of C++ bindings.
 
+.. _TON blockchain: https://github.com/ton-blockchain/ton
+.. _C++ bindings: https://github.com/disintar/ton/tree/master/tvm-python
+.. _main package: https://github.com/disintar/tonpy
+.. _takes: https://github.com/disintar/tonpy/tree/main/.github/workflows
+.. _workflow: https://github.com/disintar/ton/tree/master/.github/workflows
 
 What is supported?
 ------------------
