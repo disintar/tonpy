@@ -17,13 +17,14 @@ some python code on top of C++ bindings.
 
 What is supported?
 ------------------
-:raw-html:`<br />`
+
+|
 
 - Basic types:
    - `Cell`_
    - `CellSlice`_
    - `CellBuilder`_
-   - VmDict
+   - `VmDict`_
 
 - TVM
    - Raw TVM
@@ -36,8 +37,9 @@ What is supported?
 .. _Cell: https://tonpy.dton.io/tonpy.types.html#module-tonpy.types.cell
 .. _CellSlice: https://tonpy.dton.io/tonpy.types.html#module-tonpy.types.cellslice
 .. _CellBuilder: https://tonpy.dton.io/tonpy.types.html#module-tonpy.types.cellbuilder
+.. _VmDict:
 
-:raw-html:`<br />`
+|
 
 .. _check tests examples out: https://github.com/disintar/tonpy/tree/main/src/tonpy/tests
 
