@@ -5,21 +5,8 @@ from tonpy.libs.python_ton import PyDict
 from tonpy.types.cell import Cell
 from tonpy.types.cellslice import CellSlice
 from tonpy.types.cellbuilder import CellBuilder
+from tonpy.utils.bit_converter import convert_str_to_int
 from tonpy.utils.bit_int import test_value_len
-
-
-#       .def("set_ref_str", &PyDict::set_ref, py::arg("key"), py::arg("value"), py::arg("mode") = "set",
-#            py::arg("key_len") = 0, py::arg("signed") = false)
-#       .def("set_builder_str", &PyDict::set_builder, py::arg("key"), py::arg("value"), py::arg("mode") = "set",
-#            py::arg("key_len") = 0, py::arg("signed") = false)
-#       .def("get_minmax_key_ref", &PyDict::get_minmax_key_ref, py::arg("fetch_max") = false,
-#            py::arg("inver_first") = false, py::arg("key_len") = 0, py::arg("signed") = false)
-#       .def("lookup_delete_str", &PyDict::lookup_delete, py::arg("key"), py::arg("key_len") = 0,
-#            py::arg("signed") = false)
-#       .def("lookup_ref_str", &PyDict::lookup_ref, py::arg("key"), py::arg("key_len") = 0, py::arg("signed") = false)
-#       .def("lookup_delete_ref_str", &PyDict::lookup_delete_ref, py::arg("key"), py::arg("key_len") = 0,
-#            py::arg("signed") = false)
-#       .def("__repr__", &PyDict::toString);
 
 
 class VmDict:
@@ -202,19 +189,61 @@ class VmDict:
         self.dict.set_builder_str(str(key), value.builder, mode, 0, signed)
         return self
 
-    def lookup(self, key, key_len=0, signed=-1):
+    def lookup(self, key: int, signed: bool = None) -> CellSlice:
+        """
+        Fetch CellSlice stored in ``key``
+
+        :param key: Integer to be loaded as ``self.key_len`` bit and used as key to search
+        :param signed: Signed
+        :return: CellSlice that stored by key
+        """
+        test_value_len(key, self.key_len)
+        signed = self._process_sgnd(key, signed)
+
         return CellSlice(self.dict.lookup_str(str(key), 0, signed))
 
-    def lookup_delete(self, key, key_len=0, signed=-1):
+    def lookup_delete(self, key: int, signed: bool = None) -> CellSlice:
+        """
+        Same as lookup, but delete ``(key, value)`` from VmDict
+
+        :param key: Integer to be loaded as ``self.key_len`` bit and used as key to search
+        :param signed: Signed
+        :return: CellSlice that stored by key
+        """
+        test_value_len(key, self.key_len)
+        signed = self._process_sgnd(key, signed)
+
         return CellSlice(self.dict.lookup_delete_str(str(key), 0, signed))
 
-    def lookup_ref(self, key, key_len=0, signed=-1):
+    def lookup_ref(self, key, signed: bool = None) -> Cell:
+        """
+        Same as lookup, but fetch ref stored by ``set_ref``
+
+        :param key:  Integer to be loaded as ``self.key_len`` bit and used as key to search
+        :param signed: Signed
+        :return: Cell that stored by key
+        """
+        test_value_len(key, self.key_len)
+        signed = self._process_sgnd(key, signed)
+
         return Cell(self.dict.lookup_ref_str(str(key), 0, signed))
 
-    def lookup_delete_ref(self, key, key_len=0, signed=-1):
+    def lookup_delete_ref(self, key: int, signed: bool = None) -> Cell:
+        """
+        Same as ```lookup_delete`` but delete the ref stored by ``set_ref``
+
+        :param key:  Integer to be loaded as ``self.key_len`` bit and used as key to search
+        :param signed: Signed
+        :return: Cell that stored by key
+        """
+        test_value_len(key, self.key_len)
+        signed = self._process_sgnd(key, signed)
+
         return Cell(self.dict.lookup_delete_ref_str(str(key), 0, signed))
 
     def get_iter(self, direction=False) -> Iterable[tuple[int, CellSlice]]:
+        """Simple dict iterator"""
+
         key, value = self.get_minmax_key(direction)
         yield key, value
 
@@ -224,6 +253,31 @@ class VmDict:
                 yield key, value
             except RuntimeError:
                 return
+
+    def __setitem__(self, key: Union[int, str], value: Union[Union[Union[str, CellSlice], Cell], CellBuilder]):
+        if isinstance(key, str):
+            key = convert_str_to_int(key)
+
+        test_value_len(key, self.key_len)
+        self._process_sgnd(key, None)
+
+        if isinstance(value, str):
+            self.set(key, CellSlice(value))
+        elif isinstance(value, CellSlice):
+            self.set(key, value)
+        elif isinstance(value, Cell):
+            self.set_ref(key, value)
+        elif isinstance(value, CellBuilder):
+            self.set_builder(key, value)
+
+    def __getitem__(self, key: Union[int, str]):
+        if isinstance(key, str):
+            key = convert_str_to_int(key)
+
+        test_value_len(key, self.key_len)
+        self._process_sgnd(key, None)
+
+        return self.lookup(key)
 
     def __repr__(self):
         return self.dict.__repr__()

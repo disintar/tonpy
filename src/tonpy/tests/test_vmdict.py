@@ -352,3 +352,125 @@ def test_set_builder():
         assert isinstance(c, CellSlice)
         assert c.load_int(64) == i
         assert c.refs == 1
+
+
+def test_lookup_delete():
+    d = VmDict(64)
+
+    for i in range(5000):
+        d.set_builder(i, CellBuilder().store_uint(i, 64))
+
+    total = 0
+    for _ in d:
+        total += 1
+
+    assert total == 5000
+
+    for i in range(4999):
+        cs = d.lookup_delete(i)
+        assert cs.load_uint(64) == i
+
+    total = 0
+    for _ in d:
+        total += 1
+
+    assert total == 1
+
+    d = VmDict(64, True)
+
+    for i in range(-5000, 5000):
+        d.set_builder(i, CellBuilder().store_int(i, 64))
+
+    total = 0
+    for _ in d:
+        total += 1
+
+    assert total == 10000
+
+    for i in range(-4999, 4999):
+        cs = d.lookup_delete(i)
+        assert cs.load_int(64) == i
+
+    total = 0
+    for _ in d:
+        total += 1
+
+    assert total == 2
+
+
+def test_lookup_ref():
+    d = VmDict(64)
+
+    for i in range(5000):
+        d.set_ref(i, CellBuilder().store_uint(i, 64).end_cell())
+
+    total = 0
+    for _ in d:
+        total += 1
+
+    assert total == 5000
+
+    for i in range(5000):
+        c = d.lookup_ref(i).begin_parse()
+        assert c.load_uint(64) == i
+
+    for i in range(4999):
+        cs = d.lookup_delete_ref(i).begin_parse()
+        assert cs.load_uint(64) == i
+
+    total = 0
+    for _ in d:
+        total += 1
+
+    assert total == 1
+
+    d = VmDict(64, True)
+
+    for i in range(-5000, 5000):
+        d.set_ref(i, CellBuilder().store_int(i, 64).end_cell())
+
+    total = 0
+    for _ in d:
+        total += 1
+
+    assert total == 10000
+
+    for i in range(-5000, 5000):
+        cs = d.lookup_ref(i).begin_parse()
+        assert cs.load_int(64) == i
+
+    for i in range(-4999, 4999):
+        cs = d.lookup_delete_ref(i).begin_parse()
+        assert cs.load_int(64) == i
+
+    total = 0
+    for _ in d:
+        total += 1
+
+    assert total == 2
+
+
+def test_set_get_item():
+    d = VmDict(256)
+
+    test_builder = CellBuilder().store_uint(0, 64).store_ref(CellBuilder().store_uint(1, 64).end_cell())
+    d[1] = test_builder
+    d["test"] = test_builder
+    d["oh my god"] = CellBuilder().begin_parse()
+    d["test2"] = test_builder.end_cell()
+
+    cs = d[1]
+    assert cs.load_uint(64) == 0
+    assert cs.load_ref(as_cs=True).load_uint(64) == 1
+
+    cs = d["test"]
+    assert cs.load_uint(64) == 0
+    assert cs.load_ref(as_cs=True).load_uint(64) == 1
+
+    cs = d["oh my god"]
+    assert cs.bits == 0
+    assert cs.refs == 0
+
+    cs = d["test2"].load_ref(as_cs=True)
+    assert cs.load_uint(64) == 0
+    assert cs.load_ref(as_cs=True).load_uint(64) == 1

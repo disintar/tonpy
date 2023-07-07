@@ -328,22 +328,5 @@ class CellBuilder:
 
         return self
 
-    # def store_builder(self, b: "CellBuilder", as_ref: bool = False) -> "CellBuilder":
-    #     """
-    #     Append builder ``b`` to current CellBuilder
-    #
-    #     :param b: ``CellBuilder`` that will be appended to current builder
-    #     :param as_ref: If ``True`` will be stored as next ref
-    #     :return:
-    #     """
-    #
-    #     if as_ref:
-    #         self.store_ref(b.end_cell())
-    #     else:
-    #         self.store_bitstring(b.begin_parse().to_bitstring())
-    #
-    #         while b.refs > 0:
-    #             self.store_ref(b.begin_parse().load_ref())
-
     def __repr__(self):
         return self.builder.__repr__()

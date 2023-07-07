@@ -18,3 +18,12 @@ def bitstring_to_utf8(bitstring_: str, strict: bool = True) -> str:
     utf8_text = bytes_data.decode("utf-8")
 
     return utf8_text
+
+
+def convert_str_to_bitsring(string: str) -> str:
+    encoded_bitstring = string.encode('utf-8')
+    return ''.join(bin(byte)[2:].zfill(8) for byte in encoded_bitstring)
+
+
+def convert_str_to_int(string: str) -> int:
+    return int(convert_str_to_bitsring(string), 2)
