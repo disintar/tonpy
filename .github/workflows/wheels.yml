@@ -131,7 +131,6 @@ jobs:
         run: |
           python -m build --wheel --outdir dist/ .
           python fix_whl_name.py
-          ls -lhta ./dist
         env:
           TAG_FIX: ${{ matrix.fix_tag }}
       - name: Store the binary wheel
