@@ -115,7 +115,7 @@ jobs:
 
       - name: Build wheel
         run: |
-          python -m build --wheel --outdir dist/ .
+          python -n -m build --wheel --outdir dist/ .
           python fix_whl_name.py
         env:
           TAG_FIX: ${{ matrix.fix_tag }}
@@ -141,6 +141,7 @@ jobs:
             python: "3.9"
             link: https://github.com/disintar/ton/releases/download/ton-cpython-39-aarch64-darwin/
             file: python_ton.cpython-39-darwin.so
+            fix_tag: arm64
 
     runs-on: ${{ matrix.os }}
 
@@ -171,7 +172,7 @@ jobs:
 
       - name: Build wheel
         run: |
-          python3.9 -m build --wheel --outdir dist/ .
+          python3.9 -n -m build --wheel --outdir dist/ .
           python3.9 fix_whl_name.py
         env:
           TAG_FIX: ${{ matrix.fix_tag }}
