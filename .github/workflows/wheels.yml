@@ -44,21 +44,21 @@ jobs:
           - arch: x86_64
             os: Linux
             python: "3.9"
-            link: https://github.com/disintar/ton/releases/download/ton-x86_64-linux-python-39/
+            link: https://github.com/disintar/ton/releases/download/ton-cpython-39-x86_64-linux/
             file: python_ton.cpython-39-x86_64-linux-gnu.so
             fix_tag: manylinux2014_x86_64
 
           - arch: x86_64
             os: Linux
             python: "3.10"
-            link: https://github.com/disintar/ton/releases/download/ton-x86_64-linux-python-310/
+            link: https://github.com/disintar/ton/releases/download/ton-cpython-310-x86_64-linux/
             file: python_ton.cpython-310-x86_64-linux-gnu.so
             fix_tag: manylinux2014_x86_64
 
           - arch: x86_64
             os: Linux
             python: "3.11"
-            link: https://github.com/disintar/ton/releases/download/ton-x86_64-linux-python-311/
+            link: https://github.com/disintar/ton/releases/download/ton-cpython-311-x86_64-linux/
             file: python_ton.cpython-311-x86_64-linux-gnu.so
             fix_tag: manylinux2014_x86_64
           #
