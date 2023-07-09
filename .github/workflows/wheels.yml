@@ -115,7 +115,7 @@ jobs:
 
       - name: Build wheel
         run: |
-          python -n -m build --wheel --outdir dist/ .
+          python -m build -n --wheel --outdir dist/ .
           python fix_whl_name.py
         env:
           TAG_FIX: ${{ matrix.fix_tag }}
@@ -172,7 +172,7 @@ jobs:
 
       - name: Build wheel
         run: |
-          python3.9 -n -m build --wheel --outdir dist/ .
+          python3.9 -m build -n --wheel --outdir dist/ .
           python3.9 fix_whl_name.py
         env:
           TAG_FIX: ${{ matrix.fix_tag }}
