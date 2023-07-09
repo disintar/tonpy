@@ -27,3 +27,5 @@ def convert_str_to_bitsring(string: str) -> str:
 
 def convert_str_to_int(string: str) -> int:
     return int(convert_str_to_bitsring(string), 2)
+
+

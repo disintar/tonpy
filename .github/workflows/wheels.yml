@@ -30,14 +30,14 @@ jobs:
           - arch: x86_64
             os: macos-latest
             python: "3.10"
-            link: https://github.com/disintar/ton/releases/download/ton-x86_64-darwin-python-310/
+            link: https://github.com/disintar/ton/releases/download/ton-cpython-310-x86_64-darwin/
             file: python_ton.cpython-310-darwin.so
             fix_tag: x86_64
 
           - arch: x86_64
             os: macos-latest
             python: "3.11"
-            link: https://github.com/disintar/ton/releases/download/ton-x86_64-darwin-python-311/
+            link: https://github.com/disintar/ton/releases/download/ton-cpython-311-x86_64-darwin/
             file: python_ton.cpython-311-darwin.so
             fix_tag: x86_64
 
@@ -83,26 +83,26 @@ jobs:
             file: python_ton.cpython-311-darwin.so
             fix_tag: arm64
 
-    #          - arch: x86_64
-    #            os: windows-2019
-    #            python: "3.9"
-    #            link:
-    #            file:
-    #            fix_tag:
-    #
-    #          - arch: x86_64
-    #            os: windows-2019
-    #            python: "3.10"
-    #            link:
-    #            file:
-    #            fix_tag:
-    #
-    #          - arch: x86_64
-    #            os: windows-2019
-    #            python: "3.11"
-    #            link:
-    #            file:
-    #            fix_tag:
+          - arch: x86_64
+            os: windows-2019
+            python: "3.9"
+            link: https://github.com/disintar/ton/releases/download/ton-cpython-39-x86_64-windows/
+            file: python_ton.cp39-win_amd64.pyd
+            fix_tag:
+
+          - arch: x86_64
+            os: windows-2019
+            python: "3.10"
+            link: https://github.com/disintar/ton/releases/download/ton-cpython-310-x86_64-windows/
+            file: python_ton.cp310-win_amd64.pyd
+            fix_tag:
+
+          - arch: x86_64
+            os: windows-2019
+            python: "3.11"
+            link: https://github.com/disintar/ton/releases/download/ton-cpython-311-x86_64-windows/
+            file: python_ton.cp311-win_amd64.pyd
+            fix_tag:
 
     runs-on: ${{ matrix.os }}
 
