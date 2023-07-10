@@ -279,6 +279,7 @@ def test_store_var_int():
     cs = cb.begin_parse()
     assert cs.load_var_int(x) == int_by_bits
 
+    cb = CellBuilder()
     x = 32
     bits = ((x - 1) * 8)
     int_by_bits = int("1" * (bits - 1), 2)

@@ -67,8 +67,10 @@ def test_load_uint():
         cb.store_uint(random_int_neg, bits)
 
         cs = CellSlice(cb.to_boc())
+        print("\n\nWTF: ", cs.to_bitstring())
 
         assert cs.load_uint(bits) == min_int
+
         assert cs.load_uint(bits) == max_int
         assert cs.load_uint(bits) == random_int_pos
         assert cs.load_uint(bits) == random_int_neg
@@ -107,7 +109,7 @@ def test_preload_int():
 def test_preload_uint():
     cs = CellSlice("te6ccuEBAQEABgAMAAj////2pzZaHQ==")
     assert cs.preload_uint(32) == 4294967286
-    assert cs.bits == 0
+    assert cs.bits == 32
 
 
 def test_to_boc():

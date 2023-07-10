@@ -78,6 +78,10 @@ class CellBuilder:
         self.builder.store_uint_str(str(uint_), uint_bits)
         return self
 
+    def store_uint_big(self, a, b):
+        self.builder.store_256uint_str(str(a), b)
+        return self
+
     def begin_parse(self) -> CellSlice:
         """Convert CellBuilder to CellSlice"""
 

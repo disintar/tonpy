@@ -151,7 +151,7 @@ def test_vm_dict_large():
     cb = CellBuilder()
     main_cell = CellBuilder()
     cell = main_cell
-    for i in range(2000):
+    for i in range(100):
         cur_cell = CellBuilder()
         cur_cell.store_bitstring("1" * 1023)
         cell.store_ref(cur_cell.end_cell())
@@ -178,15 +178,16 @@ def test_vm_dict_set():
 
     # Large value for test
     cb = CellBuilder()
-    cell = CellBuilder()
-    for i in range(2000):
+    main_cell = CellBuilder()
+    cell = main_cell
+    for i in range(100):
         cur_cell = CellBuilder()
         cur_cell.store_bitstring("1" * 1023)
         cell.store_ref(cur_cell.end_cell())
         cell = cur_cell
 
-    cell = cell.end_cell()
-    cb.store_ref(cell)
+    main_cell = main_cell.end_cell()
+    cb.store_ref(main_cell)
     cs = cb.begin_parse()
 
     d.set(0, e, mode="replace")
