@@ -29,7 +29,8 @@ class TLB(object):
             cons_tag = [0, 2, 1]
         """
 
-        raise NotImplemented
+        # raise NotImplemented
+        a = 0
 
     cons_len = None
     cons_tag = None
