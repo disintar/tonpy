@@ -1,8 +1,6 @@
 tonpy.types package
 ===================
 
-Submodules
-----------
 
 tonpy.types.cell module
 -----------------------
@@ -29,17 +27,17 @@ tonpy.types.cellslice module
    :show-inheritance:
 
 tonpy.types.vmdict module
-----------------------------
+-------------------------
 
 .. automodule:: tonpy.types.vmdict
    :members:
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
+tonpy.types.tlb module
+----------------------
 
-.. automodule:: tonpy.types
+.. automodule:: tonpy.types.tlb
    :members:
    :undoc-members:
    :show-inheritance:

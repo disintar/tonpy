@@ -25,20 +25,22 @@ What is supported?
    - `CellSlice`_
    - `CellBuilder`_
    - `VmDict`_
+   - `TLB`_
 
 - TVM
    - Raw TVM
    - Transaction Emulator
 
 - TLB
-   - Python codegen
+   - `Python codegen`_
 
 
 .. _Cell: https://tonpy.dton.io/tonpy.types.html#module-tonpy.types.cell
 .. _CellSlice: https://tonpy.dton.io/tonpy.types.html#module-tonpy.types.cellslice
 .. _CellBuilder: https://tonpy.dton.io/tonpy.types.html#module-tonpy.types.cellbuilder
 .. _VmDict: https://tonpy.dton.io/tonpy.types.html#module-tonpy.types.vmdict
-
+.. _TLB:
+.. _Python codegen:
 |
 
 .. _check tests examples out: https://github.com/disintar/tonpy/tree/main/src/tonpy/tests
@@ -49,7 +51,8 @@ What is supported?
    :caption: Contents:
 
    installation
-   tonpy
+   tonpy.types
+   tonpy.tlb_gen
 
 
 .. role:: raw-html(raw)

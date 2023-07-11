@@ -108,3 +108,133 @@ def test_tag_multi_int_large_zfilled():
         exec(f"assert A_record.get_tag(instance) == A_record.Tag.a{i}", globals(), locals())
 
 
+def test_tag_with_aug():
+    # language=tl-b
+    tlb_text = """
+    test$001 {x:#} a:(## x) = A x;
+    test1$000 a:# = A 1;
+    test2$010 a:# = A 2;
+    test3$110 a:# = A 3;
+    test4$111 a:# = A 4;
+    test5$100 a:# = A 5;
+    
+    test$001 {x:#} {y:#} a:(## x) b:(## y) = B x y;
+    test1$000 {y:#} a:# b:(## y) = B 1 y;
+    test2$010 {x:#} a:# b:(## x) = B x 2;
+    test3$110 a:# = B 1 1;
+    test4$111 a:# = B 2 2;
+    test5$100 a:# = B 3 3;
+    
+    test$001 {x:#} {y:#} {z:#} a:(## x) b:(## y) c:(## z) = C x y z;
+    test1$000 {y:#} {z:#} a:# b:(## y) c:(## z) = C 1 y z;
+    test2$010 {x:#} {z:#} a:# b:(## x) c:(## z)= C x 2 z;
+    test3$110 {z:#} a:# b:# c:(## z) = C 1 1 z;
+    test4$111 a:# = C 2 2 2;
+    test5$100 a:# = C 3 3 3;
+    
+    
+    test$001 {x:#} {y:#} {z:#} {h:#} a:(## x) b:(## y) c:(## z) d:(## h) = D x y z h;
+    test$001 {x:#} {y:#} {z:#} {h:#} {i:#} a:(## x) b:(## y) c:(## z) d:(## h) e:(## i) = E x y z h i;
+    
+    
+    test$001 {x:#} a:(## x) = F ~a x;
+    test1$011 a:(## 32) = F ~a 0;
+    """
+    add_tlb(tlb_text, globals())
+
+    A_record = A(0)  # noqa
+    B_record = B(0, 0)  # noqa
+    C_record = C(0, 0, 0)  # noqa
+    D_record = D(0, 0, 0, 0)  # noqa
+    E_record = E(0, 0, 0, 0, 0)  # noqa
+    F_record = F(0)  # noqa
+
+    assert A_record.get_tag(CellBuilder().store_bitstring("001").begin_parse()) == A_record.Tag.test
+    assert A_record.get_tag(CellBuilder().store_bitstring("000").begin_parse()) == A_record.Tag.test1
+    assert A_record.get_tag(CellBuilder().store_bitstring("010").begin_parse()) == A_record.Tag.test2
+    assert A_record.get_tag(CellBuilder().store_bitstring("110").begin_parse()) == A_record.Tag.test3
+    assert A_record.get_tag(CellBuilder().store_bitstring("111").begin_parse()) == A_record.Tag.test4
+    assert A_record.get_tag(CellBuilder().store_bitstring("100").begin_parse()) == A_record.Tag.test5
+
+    assert B_record.get_tag(CellBuilder().store_bitstring("001").begin_parse()) == B_record.Tag.test
+    assert B_record.get_tag(CellBuilder().store_bitstring("000").begin_parse()) == B_record.Tag.test1
+    assert B_record.get_tag(CellBuilder().store_bitstring("010").begin_parse()) == B_record.Tag.test2
+    assert B_record.get_tag(CellBuilder().store_bitstring("110").begin_parse()) == B_record.Tag.test3
+    assert B_record.get_tag(CellBuilder().store_bitstring("111").begin_parse()) == B_record.Tag.test4
+    assert B_record.get_tag(CellBuilder().store_bitstring("100").begin_parse()) == B_record.Tag.test5
+
+    assert C_record.get_tag(CellBuilder().store_bitstring("001").begin_parse()) == C_record.Tag.test
+    assert C_record.get_tag(CellBuilder().store_bitstring("000").begin_parse()) == C_record.Tag.test1
+    assert C_record.get_tag(CellBuilder().store_bitstring("010").begin_parse()) == C_record.Tag.test2
+    assert C_record.get_tag(CellBuilder().store_bitstring("110").begin_parse()) == C_record.Tag.test3
+    assert C_record.get_tag(CellBuilder().store_bitstring("111").begin_parse()) == C_record.Tag.test4
+    assert C_record.get_tag(CellBuilder().store_bitstring("100").begin_parse()) == C_record.Tag.test5
+
+    assert D_record.get_tag(CellBuilder().store_bitstring("001").begin_parse()) == D_record.Tag.test
+    assert E_record.get_tag(CellBuilder().store_bitstring("001").begin_parse()) == E_record.Tag.test
+
+    assert F_record.get_tag(CellBuilder().store_bitstring("001").begin_parse()) == F_record.Tag.test
+    assert F_record.get_tag(CellBuilder().store_bitstring("011").begin_parse()) == F_record.Tag.test1
+
+
+def test_enum():
+    # language=tl-b
+    tlb_text = """
+    test$_ = A; // simple Enum
+    test$01 = B;
+    
+    a$0 = C;
+    b$1 = C;
+    
+    a$0 = D;
+    c$101 = D;
+    b$11 = D;
+    """
+    add_tlb(tlb_text, globals())
+
+    A_record = A()
+    B_record = B()
+    C_record = C()
+    D_record = D()
+
+    assert A_record.fetch_enum(CellBuilder().begin_parse()) == 0
+
+    cb = CellBuilder()
+    A_record.store_enum_from(cb)  # While enum is $_ it'll do nothing
+    assert A_record.fetch_enum(cb.begin_parse()) == cb.bits == 0
+
+    assert B_record.fetch_enum(CellBuilder().store_bitstring('01').begin_parse()) == int('01', 2)
+
+    cb = CellBuilder()
+    B_record.store_enum_from(cb)  # While enum is const it'll always save const
+    assert B_record.fetch_enum(cb.begin_parse()) == int('01', 2)
+
+    assert C_record.fetch_enum(CellBuilder().store_bitstring('0').begin_parse()) == int('0', 2)
+
+    cb = CellBuilder()
+    C_record.store_enum_from(cb, 0)
+    assert C_record.fetch_enum(cb.begin_parse()) == int('0', 2)
+
+    assert C_record.fetch_enum(CellBuilder().store_bitstring('1').begin_parse()) == int('1', 2)
+
+    cb = CellBuilder()
+    C_record.store_enum_from(cb, 1)
+    assert C_record.fetch_enum(cb.begin_parse()) == int('1', 2)
+
+    assert D_record.fetch_enum(CellBuilder().store_bitstring('0').begin_parse()) == int('0', 2)
+
+    cb = CellBuilder()
+    D_record.store_enum_from(cb, 0)
+    assert D_record.fetch_enum(cb.begin_parse()) == D_record.cons_tag[0] == int('0', 2)
+
+    assert D_record.fetch_enum(CellBuilder().store_bitstring('11').begin_parse()) == int('11', 2)
+
+    cb = CellBuilder()
+    D_record.store_enum_from(cb, 2)
+    assert D_record.fetch_enum(cb.begin_parse()) == D_record.cons_tag[2] == int('11', 2)
+
+    assert D_record.fetch_enum(CellBuilder().store_bitstring('101').begin_parse()) == int('101', 2)
+
+    cb = CellBuilder()
+    D_record.store_enum_from(cb, 1)
+    assert D_record.fetch_enum(cb.begin_parse()) == D_record.cons_tag[1] == int('101', 2)
