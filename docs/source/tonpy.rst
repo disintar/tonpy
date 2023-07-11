@@ -5,25 +5,8 @@ Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 3
 
    tonpy.types
+   tonpy.tlb_gen
 
-Submodules
-----------
-
-tonpy.types module
------------------
-
-.. automodule:: tonpy.types
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: tonpy
-   :members:
-   :undoc-members:
-   :show-inheritance:

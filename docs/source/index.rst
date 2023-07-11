@@ -1,16 +1,13 @@
 tonpy: powerful Python TON toolkit
 ==================================
 
-.. |br| raw:: html
-
-   <br />
-
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
    main_info
    installation
+   tonpy
    tonpy.types
    tonpy.tlb_gen
 

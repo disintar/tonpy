@@ -1,6 +1,10 @@
 tonpy.types package
 ===================
 
+.. |br| raw:: html
+
+   <br />
+
 
 tonpy.types.cell module
 -----------------------

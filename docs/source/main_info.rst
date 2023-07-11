@@ -41,8 +41,8 @@ What is supported?
 .. _CellSlice: https://tonpy.dton.io/tonpy.types.html#module-tonpy.types.cellslice
 .. _CellBuilder: https://tonpy.dton.io/tonpy.types.html#module-tonpy.types.cellbuilder
 .. _VmDict: https://tonpy.dton.io/tonpy.types.html#module-tonpy.types.vmdict
-.. _TLB:
-.. _Python codegen:
+.. _TLB: https://tonpy.dton.io/tonpy.types.html#module-tonpy.types.tlb
+.. _Python codegen: https://tonpy.dton.io/tonpy.tlb_gen.html#module-tonpy.tlb_gen.py
 |
 
 .. _check tests examples here: https://github.com/disintar/tonpy/tree/main/src/tonpy/tests

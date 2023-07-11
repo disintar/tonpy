@@ -1,6 +1,10 @@
 tonpy.tlb_gen package
 ===================
 
+.. |br| raw:: html
+
+   <br />
+
 
 tonpy.tlb_gen.py module
 -----------------------
