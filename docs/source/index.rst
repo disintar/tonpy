@@ -1,6 +1,10 @@
 tonpy: powerful Python TON toolkit
 ==================================
 
+.. |br| raw:: html
+
+   <br />
+
 **tonpy** is a Python package that provides data structures and API to interact
 with `TON blockchain`_. Tonpy is separate for two
 packages: `C++ bindings`_
