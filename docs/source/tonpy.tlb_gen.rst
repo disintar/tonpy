@@ -5,9 +5,7 @@ tonpy.tlb_gen package
 tonpy.tlb_gen.py module
 -----------------------
 
-.. automodule:: tonpy.tlb_gen.py
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. autofunction:: tonpy.tlb_gen.py.parse_tlb
 
+.. autofunction:: tonpy.tlb_gen.py.add_tlb
 
