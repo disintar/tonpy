@@ -12,13 +12,14 @@ from tonpy.utils.bit_int import test_value_len
 class VmDict:
     def __init__(self, key_len: int, signed: bool = False, cell_root: Union[Union[str, Cell], CellSlice] = None):
         """
-        Wrapper of HashmapE (dictionary type of TON)
+        Wrapper of HashmapE (dictionary type of TON)  |br|
 
-        Key are represented as ``key_len`` bits. They can be loaded as ``signed`` or not.
+        Key are represented as ``key_len`` bits. They can be loaded as ``signed`` or not.  |br|
 
         :param key_len: Size of keys in bits (up to 257 with ``signed`` or 256)
         :param signed: Load keys as signed integers or not
         :param cell_root: Root of HashmapE, can be BOC string, CellSlice or Cell
+        :return:
         """
 
         if key_len > 256:
@@ -52,7 +53,7 @@ class VmDict:
 
     def set(self, key: int, value: CellSlice, mode: str = "set", signed: bool = None) -> "VmDict":
         """
-        Add / Set / Replace ``key`` as ``key_len`` and ``signed`` bits to value ``value``
+        Add / Set / Replace ``key`` as ``key_len`` and ``signed`` bits to value ``value``  |br|
 
         - Set: sets the value associated with ``key_len``-bit key ``key`` in VmDict to value ``value``
 
@@ -86,7 +87,7 @@ class VmDict:
     def lookup_nearest_key(self, key: int, fetch_next: bool = True, allow_eq: bool = False,
                            invert_first: bool = True, signed: bool = None) -> tuple[int, CellSlice]:
         """
-        Compute the nearest key to ``key``
+        Compute the nearest key to ``key``  |br|
 
         :param key: ``self.key_len``-bit integer key
         :param fetch_next: If ``True`` will fetch next else will return prev
@@ -104,7 +105,7 @@ class VmDict:
     def get_minmax_key(self, fetch_max: bool = True, invert_first: bool = True, signed: bool = None) -> tuple[
         int, CellSlice]:
         """
-        Fetch max / min ``key, value``
+        Fetch max / min ``key, value``  |br|
 
         :param fetch_max: If ``True`` will fetch max key, else will fetch min key in dict
         :param invert_first: If ``True`` will respect ``signed`` in operations
@@ -119,7 +120,7 @@ class VmDict:
     def get_minmax_key_ref(self, fetch_max: bool = True, inver_first: bool = False, signed: bool = None) -> tuple[
         int, Cell]:
         """
-        Same as get_minmax, but fetch Cell by key (stored in ref)
+        Same as get_minmax, but fetch Cell by key (stored in ref)  |br|
 
         :param fetch_max: If ``True`` will fetch max key, else will fetch min key in dict
         :param invert_first: If ``True`` will respect ``signed`` in operations
@@ -132,7 +133,7 @@ class VmDict:
 
     def set_ref(self, key: int, value: Cell, mode: str = "set", signed: bool = None) -> "VmDict":
         """
-        Same as set, but store Cell to ref (by key)
+        Same as set, but store Cell to ref (by key)  |br|
 
         :param key: Integer to be stored as key
         :param value: CellSlice to be stored
@@ -152,7 +153,7 @@ class VmDict:
 
     def set_builder(self, key: int, value: CellBuilder, mode: str = "set", signed: bool = None) -> "VmDict":
         """
-        Set cell builder stored to ``key``, you can load it by ``lookup`` method
+        Set cell builder stored to ``key``, you can load it by ``lookup`` method  |br|
 
         :param key: Integer to be stored as key
         :param value: CellSlice to be stored
@@ -172,7 +173,7 @@ class VmDict:
 
     def lookup(self, key: int, signed: bool = None) -> CellSlice:
         """
-        Fetch CellSlice stored in ``key``
+        Fetch CellSlice stored in ``key``  |br|
 
         :param key: Integer to be loaded as ``self.key_len`` bit and used as key to search
         :param signed: Signed
@@ -185,7 +186,7 @@ class VmDict:
 
     def lookup_delete(self, key: int, signed: bool = None) -> CellSlice:
         """
-        Same as lookup, but delete ``(key, value)`` from VmDict
+        Same as lookup, but delete ``(key, value)`` from VmDict  |br|
 
         :param key: Integer to be loaded as ``self.key_len`` bit and used as key to search
         :param signed: Signed
@@ -198,7 +199,7 @@ class VmDict:
 
     def lookup_ref(self, key, signed: bool = None) -> Cell:
         """
-        Same as lookup, but fetch ref stored by ``set_ref``
+        Same as lookup, but fetch ref stored by ``set_ref``  |br|
 
         :param key:  Integer to be loaded as ``self.key_len`` bit and used as key to search
         :param signed: Signed
@@ -211,7 +212,7 @@ class VmDict:
 
     def lookup_delete_ref(self, key: int, signed: bool = None) -> Cell:
         """
-        Same as ```lookup_delete`` but delete the ref stored by ``set_ref``
+        Same as ```lookup_delete`` but delete the ref stored by ``set_ref``  |br|
 
         :param key:  Integer to be loaded as ``self.key_len`` bit and used as key to search
         :param signed: Signed

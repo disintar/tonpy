@@ -7,7 +7,7 @@ from tonpy.types.cellslice import CellSlice
 class Cell:
     def __init__(self, pc: Union[PyCell, str] = None):
         """
-        Cell is simple data structure of TON with up to 1023 bits and 4 refs to other cells
+        Cell is simple data structure of TON with up to 1023 bits and 4 refs to other cells  |br|
 
         :param pc: PyCell (c++) or BOC str
         """

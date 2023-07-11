@@ -30,7 +30,7 @@ class TLB(object):
         """
 
         # raise NotImplemented
-        a = 0
+        pass
 
     cons_len = None
     cons_tag = None
