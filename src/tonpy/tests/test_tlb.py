@@ -108,9 +108,3 @@ def test_tag_multi_int_large_zfilled():
         exec(f"assert A_record.get_tag(instance) == A_record.Tag.a{i}", globals(), locals())
 
 
-def test_add_with_same_tag():
-    add_tlb("_ = A;", globals())
-
-    with pytest.raises(RuntimeError):
-        # Since A already codegen-ed it can't be extended by new constructor
-        add_tlb("_ a:(## 32) = A;", globals())

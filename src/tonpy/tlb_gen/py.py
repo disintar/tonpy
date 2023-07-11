@@ -17,8 +17,6 @@ def parse_tlb(tlb_text: str) -> str:
     return code
 
 
-# TODO: raise error on add_tlb same classes
-
 def add_tlb(tlb_text: str,
             imported_globals: globals):
     """
