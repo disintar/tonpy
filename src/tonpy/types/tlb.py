@@ -32,6 +32,15 @@ class TLB(object):
         # raise NotImplemented
         pass
 
+    class Record:
+        """
+        Each TLB type have ``Record`` subclass means instance of TLB type |br|
+        If you have multiple constructors name of ``Record`` class will be change to ``Record_{{constructor_name}}`` |br|
+        Each record have ``__init__`` function witch contains all fields of TLB type |br|
+        Check out ``test_tlb.py`` ``test_records`` function
+        """
+        pass
+
     cons_len = None
     cons_tag = None
 

@@ -268,22 +268,25 @@ def test_records():
     add_tlb(tlb_text, globals())
 
     A_record = A(TLB())
+    T_record = T(TLB())
+    test_record = T_record.Record(32)
+    assert test_record.k == 32
 
     empty_cell = CellBuilder().end_cell()
     empty_cs = CellBuilder().begin_parse()
 
     # Can create Record_a from params
-    test_record = A_record.Record_a(0, 0, BitArray("0b11"), empty_cell, empty_cs)
-    assert test_record.a == 0
-    assert test_record.b == 0
+    test_record = A_record.Record_a(1, 2, BitArray("0b11"), empty_cell, empty_cs)
+    assert test_record.a == 1
+    assert test_record.b == 2
     assert test_record.c.bin == '11'
     assert test_record.e == empty_cell
     assert test_record.f == empty_cs
 
     # Can create Record_b from params
-    test_record = A_record.Record_b(0, 0, BitArray("0b11"), empty_cell, empty_cs)
-    assert test_record.e == 0
-    assert test_record.d == 0
-    assert test_record.c.bin == '11'
+    test_record = A_record.Record_b(3, 4, BitArray("0b01"), empty_cell, empty_cs)
+    assert test_record.e == 3
+    assert test_record.d == 4
+    assert test_record.c.bin == '01'
     assert test_record.b == empty_cell
     assert test_record.a == empty_cs
