@@ -1,3 +1,5 @@
+from typing import Union
+
 from tonpy.libs.python_ton import PyCellBuilder
 from tonpy.types.cell import Cell
 from tonpy.types.cellslice import CellSlice
@@ -233,13 +235,16 @@ class CellBuilder:
         self.builder.store_uint_leq(upper_bound, str(value))
         return self
 
-    def store_bitstring(self, bitstring: str) -> "CellBuilder":
+    def store_bitstring(self, bitstring: Union[str, BitArray]) -> "CellBuilder":
         """
         Store bits from ``bitstring`` string  |br|
 
         :param bitstring: Bits to store to cell (ex. '11001')
         :return: Current CellBuilder
         """
+
+        if isinstance(bitstring, BitArray):
+            bitstring = bitstring.bin
 
         self.builder.store_bitstring(bitstring)
         return self

@@ -3,6 +3,7 @@ import pytest
 from tonpy.tlb_gen.py import add_tlb, parse_tlb
 from enum import Enum
 import bitstring
+from bitstring import BitArray
 from tonpy.types import TLB, TLBComplex, Cell, CellSlice, CellBuilder
 from typing import Optional, Union
 from itertools import product
@@ -255,3 +256,34 @@ def test_special():
     assert A_record.always_special() is True
     assert B_record.always_special() is False
 
+
+def test_records():
+    # language=tl-b
+    tlb_text = """
+    _ {x:Type} k:# = T x;
+    a$0 {x:Type} a:# b:(## 32) c:bits512 e:^(T uint32) f:(T x) = A x;
+    b$1 {x:Type} e:# d:(## 32) c:bits512 b:^(T uint32) a:(T x) = A x;
+    """
+
+    add_tlb(tlb_text, globals())
+
+    A_record = A(TLB())
+
+    empty_cell = CellBuilder().end_cell()
+    empty_cs = CellBuilder().begin_parse()
+
+    # Can create Record_a from params
+    test_record = A_record.Record_a(0, 0, BitArray("0b11"), empty_cell, empty_cs)
+    assert test_record.a == 0
+    assert test_record.b == 0
+    assert test_record.c.bin == '11'
+    assert test_record.e == empty_cell
+    assert test_record.f == empty_cs
+
+    # Can create Record_b from params
+    test_record = A_record.Record_b(0, 0, BitArray("0b11"), empty_cell, empty_cs)
+    assert test_record.e == 0
+    assert test_record.d == 0
+    assert test_record.c.bin == '11'
+    assert test_record.b == empty_cell
+    assert test_record.a == empty_cs
