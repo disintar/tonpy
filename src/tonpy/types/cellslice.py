@@ -1,6 +1,6 @@
 from tonpy.libs.python_ton import PyCellSlice, parseStringToCell, load_as_cell_slice
 from typing import Union
-
+from enum import Enum
 from typing import TYPE_CHECKING
 
 from tonpy.utils.bit_converter import bitstring_to_utf8
@@ -11,7 +11,14 @@ if TYPE_CHECKING:
 
 # TODO: begins_with_skip_bits, begins_with_skip, begins_with, begins_with_bits
 class CellSlice:
-    def __init__(self, cs: Union[PyCellSlice, str]):
+    class SpecialType(Enum):
+        Ordinary = 0
+        PrunnedBranch = 1
+        Library = 2
+        MerkleProof = 3
+        MerkleUpdate = 4
+
+    def __init__(self, cs: Union[PyCellSlice, str], allow_special: bool = False):
         """
         CellSlice allow you to read data from cell in two ways:  |br|
 
@@ -19,11 +26,12 @@ class CellSlice:
             - Prefetching data not moving cursor position
 
         :param cs: PyCellSlice (c++) or BOC str
+        :param allow_special: Allow to load special cells
         :return:
         """
 
         if isinstance(cs, str):
-            self.cell_slice: PyCellSlice = load_as_cell_slice(parseStringToCell(cs))
+            self.cell_slice: PyCellSlice = load_as_cell_slice(parseStringToCell(cs), allow_special)
         elif isinstance(cs, PyCellSlice):
             self.cell_slice: PyCellSlice = cs
         else:
@@ -40,6 +48,13 @@ class CellSlice:
         """Refs num that been used in cell"""
 
         return self.cell_slice.refs
+
+    def is_special(self) -> bool:
+        """Is current cell in special"""
+        return self.cell_slice.is_special()
+
+    def special_type(self) -> "CellSlice.SpecialType":
+        return CellSlice.SpecialType(self.cell_slice.special_type())
 
     def load_uint(self, n: int) -> int:
         """
@@ -343,9 +358,8 @@ class CellSlice:
 
     def bselect(self, bits: int, mask: int) -> int:
         """
-        Unsigned integer coded by ``bits``: 0b111  |br|
-        Unsigned integer coded by ``bits``: 0b111  |br|
-        Mask: 0b11111111 (up to 8 variants)  |br|
+        Unsigned integer ``bits``: ``0b111``  |br|
+        Mask: ``0b11111111`` (up to 8 variants)  |br|
         Result: 7  |br|
 
 

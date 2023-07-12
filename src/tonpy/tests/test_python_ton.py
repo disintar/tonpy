@@ -10,6 +10,6 @@ from tonpy.libs.python_ton import PyCell, PyCellSlice, PyCellBuilder, PyDict, Py
 
 def test_load_boc():
     cell = parseStringToCell('te6ccuEBAQEACgAUABAAAAAAAAAAe4EqE1s=')
-    cs = load_as_cell_slice(cell)
+    cs = load_as_cell_slice(cell, False)
     assert cell.get_hash() == cs.get_hash()
     assert cs.load_int(64) == '123'

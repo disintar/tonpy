@@ -238,3 +238,20 @@ def test_enum():
     cb = CellBuilder()
     D_record.store_enum_from(cb, 1)
     assert D_record.fetch_enum(cb.begin_parse()) == D_record.cons_tag[1] == int('101', 2)
+
+
+def test_special():
+    # language=tl-b
+    tlb_text = """
+    !test$0 = A;
+    test$0 = B;
+    """
+
+    add_tlb(tlb_text, globals())
+
+    A_record = A()
+    B_record = B()
+
+    assert A_record.always_special() is True
+    assert B_record.always_special() is False
+

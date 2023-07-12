@@ -65,6 +65,11 @@ class TLB(object):
         """
         raise NotImplementedError
 
+    def always_special(self) -> bool:
+        """Is current type marked as special cell or not"""
+
+        raise NotImplementedError
+
 
 class TLBComplex(object):
     pass

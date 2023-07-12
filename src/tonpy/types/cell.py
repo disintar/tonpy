@@ -28,10 +28,10 @@ class Cell:
 
         return self.cell.get_hash()
 
-    def begin_parse(self) -> CellSlice:
+    def begin_parse(self, allow_special=False) -> CellSlice:
         """Convert cell to CellSlice"""
 
-        return CellSlice(load_as_cell_slice(self.cell))
+        return CellSlice(load_as_cell_slice(self.cell, allow_special))
 
     def is_null(self) -> bool:
         """Some cells are nulls, you can't operate with such ones"""

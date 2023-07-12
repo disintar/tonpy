@@ -1,6 +1,8 @@
 from pathlib import Path
 import sys
 
+import pytest
+
 path_root = Path(__file__).parents[2]
 sys.path.append(str(path_root))
 
@@ -58,3 +60,26 @@ def test_to_boc():
 
     c = Cell("te6ccuEBAQEABQAKAAVBX/xo8FXp")
     assert c.to_boc() == "te6ccuEBAQEABQAKAAVBX/xo8FXp"
+
+
+special_boc = 'te6ccgECCAEAAZYACUYDrgStkKrCoJbT+LOzwtnwHYu1pPW8WSJMWo0m/dpuxBkAIAEkEBHvVar///8RAgMEBQKgm8ephwAAAACEAQIwXXIAAAABAAAAAAAAAAAAAAAAAGStZTsAACOndPk2QAAAI6d0+TZGvx8hlQAG+a0B2aZhAdmf0MQAAAADAAAAAAAAAC4GByhIAQFKQKbStv6SvSqEfoPgXK5bCn+NHXuYUPbA1ciY+SAQPwADKEgBAZ4wW4B3exJSaUiB1Hy1NBfKS519G+RZu6rIG17vV4jLAB8oSAEBs0TT5lkdKa7umzwtMNVY3bOu9WuMAia4hgBNxgU9geAACwCYAAAjp3Tp9AQB2aZh58HTwBnpdOI4ieRKyBDHoZ1QCWxZF6lCAJRNRaCm2NEoU/0ZqIy9W1WLKoTqLuiyRadYbHBC9Vr8r5voMExOiwCYAAAjp3Tp9AgCMF1xLotqvpwEzhDPQp5pnxsacYiwPX2hQ3vH7250Lm8mfwax4kMBEp/6Dgg9YmqElR7RqVYmYR1A1ZLh8FfsNgMyCA=='
+
+
+def test_special_boc():
+    cell = Cell(special_boc)
+
+    with pytest.raises(RuntimeError):
+        cell.begin_parse()
+
+    # allow to load special
+    cs = cell.begin_parse(True)
+
+
+def test_is_special():
+    cs = Cell(special_boc).begin_parse(True)
+    assert cs.is_special() is True
+
+
+def test_special_type():
+    cs = Cell(special_boc).begin_parse(True)
+    assert cs.special_type() == CellSlice.SpecialType.MerkleProof
