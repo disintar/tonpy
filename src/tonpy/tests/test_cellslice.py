@@ -350,3 +350,35 @@ def test_empty_ext():
     assert cs.empty_ext() is False
     cs.load_ref()
     assert cs.empty_ext() is True
+
+
+def test_load_bool():
+    cb = CellBuilder()
+    cb.store_uint(1, 1)
+    cs = cb.begin_parse()
+
+    assert cs.load_bool() is True
+    assert cs.bits == 0
+
+    cb = CellBuilder()
+    cb.store_uint(0, 1)
+    cs = cb.begin_parse()
+
+    assert cs.load_bool() is False
+    assert cs.bits == 0
+
+
+def test_preload_bool():
+    cb = CellBuilder()
+    cb.store_uint(1, 1)
+    cs = cb.begin_parse()
+
+    assert cs.preload_bool() is True
+    assert cs.bits == 1
+
+    cb = CellBuilder()
+    cb.store_uint(0, 1)
+    cs = cb.begin_parse()
+
+    assert cs.preload_bool() is False
+    assert cs.bits == 1

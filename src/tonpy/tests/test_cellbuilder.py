@@ -349,3 +349,16 @@ def test_store_string():
     assert text[:23] == cs.load_string(23 * 8)
 
     # TODO: test not strict load
+
+
+def test_store_build():
+    cb = CellBuilder()
+    cb.store_bool(True)
+    cs = cb.begin_parse()
+    assert cs.load_bool() is True
+
+    cb = CellBuilder()
+    cb.store_bool(False)
+    cs = cb.begin_parse()
+    assert cs.load_bool() is False
+

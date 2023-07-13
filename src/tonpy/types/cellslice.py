@@ -386,5 +386,13 @@ class CellSlice:
 
         return self.cell_slice.empty_ext()
 
+    def load_bool(self) -> bool:
+        """Load 1 bit from current CellSlice and return it as bool"""
+        return bool(self.load_uint(1))
+
+    def preload_bool(self) -> bool:
+        """Preload 1 bit from current CellSlice and return it as bool"""
+        return bool(self.preload_uint(1))
+
     def __repr__(self):
         return self.cell_slice.__repr__()

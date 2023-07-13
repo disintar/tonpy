@@ -335,5 +335,14 @@ class CellBuilder:
 
         return self
 
+    def store_bool(self, bool_: bool) -> "CellBuilder":
+        """Store bool ``bool_`` as 1 bit to current CellBuilder and return modified self"""
+        if bool(bool_) is True:
+            self.store_uint(1, 1)
+        else:
+            self.store_uint(0, 1)
+
+        return self
+
     def __repr__(self):
         return self.builder.__repr__()
