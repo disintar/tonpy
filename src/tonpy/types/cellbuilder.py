@@ -216,7 +216,7 @@ class CellBuilder:
 
     def store_uint_leq(self, upper_bound: int, value: int) -> "CellBuilder":
         """
-        Store ``value`` less or equal than ``upper_bound`` unsigned integer stored as ``bitCount(upper_bound - 1)`` bits  |br|
+        Store ``value`` less or equal than ``upper_bound`` unsigned integer stored as ``bitCount(upper_bound)`` bits  |br|
 
         :param upper_bound: Max unsigned integer that can be stored
         :param value: Value to store

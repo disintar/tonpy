@@ -394,5 +394,15 @@ class CellSlice:
         """Preload 1 bit from current CellSlice and return it as bool"""
         return bool(self.preload_uint(1))
 
+    def load_uint_leq(self, upper_bound: int) -> int:
+        """Load value less or equal than ``upper_bound`` unsigned integer stored as ``bitCount(upper_bound)`` bits"""
+
+        return self.cell_slice.fetch_uint_leq(upper_bound)
+
+    def load_uint_less(self, upper_bound: int) -> int:
+        """Load value less than ``upper_bound`` unsigned integer stored as ``bitCount(upper_bound - 1)`` bits"""
+
+        return self.cell_slice.fetch_uint_less(upper_bound)
+
     def __repr__(self):
         return self.cell_slice.__repr__()

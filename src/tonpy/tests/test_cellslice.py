@@ -382,3 +382,19 @@ def test_preload_bool():
 
     assert cs.preload_bool() is False
     assert cs.bits == 1
+
+
+def test_load_less():
+    for i in range(0, 100):
+        cb = CellBuilder()
+        cb.store_uint_less(100, i)
+        cs = cb.begin_parse()
+        assert cs.load_uint_less(100) == i
+
+
+def test_load_leq():
+    for i in range(0, 101):
+        cb = CellBuilder()
+        cb.store_uint_leq(100, i)
+        cs = cb.begin_parse()
+        assert cs.load_uint_leq(100) == i
