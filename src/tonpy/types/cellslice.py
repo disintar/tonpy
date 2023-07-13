@@ -159,7 +159,7 @@ class CellSlice:
 
         return self.cell_slice.get_hash()
 
-    def _load_string_cell_chain(self, bit_size=0):
+    def _load_string_cell_chain(self, bit_size: int = 0) -> str:
         """Recursively load string from CellChain"""
 
         cs = self.load_ref(as_cs=True)
@@ -351,7 +351,7 @@ class CellSlice:
 
         return CellSlice(self.cell_slice.load_tlb(tlb_structure))
 
-    def dump(self):
+    def dump(self) -> str:
         """Recursively dump all cells as hex"""
 
         return self.cell_slice.dump()
@@ -380,6 +380,11 @@ class CellSlice:
         """
 
         return int(self.cell_slice.bselect_ext(bits, str(mask)))
+
+    def empty_ext(self) -> bool:
+        """Is current CellSlice is empty (no bits, no refs)"""
+
+        return self.cell_slice.empty_ext()
 
     def __repr__(self):
         return self.cell_slice.__repr__()

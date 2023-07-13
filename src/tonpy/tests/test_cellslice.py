@@ -337,3 +337,16 @@ def test_bselect_ext():
         cs = CellSlice(cb.to_boc())
         d = cs.bselect_ext(2, mask)
         assert i == d
+
+
+def test_empty_ext():
+    cb = CellBuilder()
+    cb.store_bitstring('11100')
+    cb.store_ref(CellBuilder().end_cell())
+    cs = cb.begin_parse()
+
+    assert cs.empty_ext() is False
+    cs.load_uint(5)
+    assert cs.empty_ext() is False
+    cs.load_ref()
+    assert cs.empty_ext() is True

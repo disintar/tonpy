@@ -40,7 +40,6 @@ class TLB(object):
         Check out ``test_tlb.py`` ``test_records`` function
         """
         pass
-
     cons_len = None
     cons_tag = None
 
