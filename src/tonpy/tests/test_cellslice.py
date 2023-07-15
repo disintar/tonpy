@@ -5,7 +5,7 @@ from random import random
 path_root = Path(__file__).parents[2]
 sys.path.append(str(path_root))
 
-from tonpy.types.cellbuilder import CellBuilder, CellSlice
+from tonpy.types.cellbuilder import CellBuilder, CellSlice, Cell
 
 
 # Warning: CellSlice(cb.to_boc()) is slow
@@ -439,3 +439,14 @@ def test_load_bitstring():
     bs = cs.preload_bitstring(8)
     assert bs == '00001010'
     assert cs.bits == 32 - (8 + 16)
+
+
+def test_c_cs():
+    c = Cell("te6ccuEBAQEABQAKAAVBX/xo8FXp")
+    h = c.get_hash()
+    cs = c.begin_parse()
+    cs.load_uint(2)
+    assert cs.get_hash() != h
+    assert c.get_hash() == h
+    cs2 = c.begin_parse()
+    assert cs2.get_hash() == h

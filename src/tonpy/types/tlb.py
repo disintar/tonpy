@@ -1,6 +1,6 @@
 from collections import defaultdict
 from enum import Enum
-from typing import Optional
+from typing import Optional, List, Union
 
 from tonpy.types import CellSlice, CellBuilder, Cell
 
@@ -68,9 +68,10 @@ class TLB(object):
     class Record(RecordBase):
         pass
 
-    cons_len = None
-    cons_tag = None
+    cons_len: Union[List[int], int] = None
+    cons_tag: List[int] = None
     tag_to_class = {}
+    original_cell: Optional[Cell] = None
 
     def get_tag(self, cs: CellSlice) -> Optional["TLB.Tag"]:
         """
@@ -134,6 +135,9 @@ class TLB(object):
         """
         if cell_ref.is_null():
             return None
+
+        # save original cell
+        self.original_cell = cell_ref
 
         cs = cell_ref.begin_parse()
 

@@ -90,3 +90,4 @@ def test_copy():
     cell2 = cell.copy()
 
     assert cell.get_hash() == cell2.get_hash()
+
