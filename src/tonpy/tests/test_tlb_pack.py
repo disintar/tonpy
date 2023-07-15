@@ -13,7 +13,7 @@ def test_nat_unpack():
     # language=tl-b
     tlb_text = """
     a$10001 a:# b:(#< 10) c:(#<= 64) d:(## 64) = A;
-    b$10000 = A;
+    b$10000 test_bool:(## 1) = A;
     """
 
     # Pack A.a
@@ -28,7 +28,7 @@ def test_nat_unpack():
     test_a_c = test_a.end_cell()
 
     # Pack A.b
-    test_b = CellBuilder().store_bitstring('10000')
+    test_b = CellBuilder().store_bitstring('10000').store_bool(True)
 
     test_b_cs = test_b.begin_parse()
     test_b_c = test_b.end_cell()
@@ -64,6 +64,7 @@ def test_nat_unpack():
 
     rec_b = A.Record_b()
     assert rec_b.unpack(test_b_cs) is True
+    assert rec_b.test_bool is True
     assert rec_b.cell_unpack(test_b_c) is True
 
 
@@ -71,7 +72,7 @@ def test_complex_unpack():
     # language=tl-b
     tlb_text = """
     a$10001 a:# b:(#< 10) c:(#<= 64) d:(## 64) = A;
-    b$10000 = A;
+    b$10000 test_bool:(## 1) = A;
     """
 
     # Pack A.a
@@ -86,7 +87,7 @@ def test_complex_unpack():
     test_a_c = test_a.end_cell()
 
     # Pack A.b
-    test_b = CellBuilder().store_bitstring('10000')
+    test_b = CellBuilder().store_bitstring('10000').store_bool(True)
 
     test_b_cs = test_b.begin_parse()
     test_b_c = test_b.end_cell()
@@ -101,10 +102,12 @@ def test_complex_unpack():
     assert tc.get_tag_enum() == A.Tag.b
     assert tc.get_tag() == 16
     assert tc.get_tag_len() == 5
+    assert tc.test_bool is True
     assert type(tcs) is A.Record_b
     assert tcs.get_tag_enum() == A.Tag.b
     assert tcs.get_tag() == 16
     assert tcs.get_tag_len() == 5
+    assert tcs.test_bool is True
 
     tA = A()
     rec_a = tA.cell_unpack(test_a_c)
