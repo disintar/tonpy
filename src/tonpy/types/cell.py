@@ -48,5 +48,10 @@ class Cell:
 
         return self.cell.dump_as_tlb(tlb)
 
+    def copy(self) -> PyCell:
+        """Copy current Cell"""
+
+        return Cell(self.cell.copy())
+
     def __repr__(self):
         return self.cell.__repr__()

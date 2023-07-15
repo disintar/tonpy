@@ -83,3 +83,10 @@ def test_is_special():
 def test_special_type():
     cs = Cell(special_boc).begin_parse(True)
     assert cs.special_type() == CellSlice.SpecialType.MerkleProof
+
+
+def test_copy():
+    cell = Cell("te6ccuEBAQEABQAKAAVBX/xo8FXp")
+    cell2 = cell.copy()
+
+    assert cell.get_hash() == cell2.get_hash()
