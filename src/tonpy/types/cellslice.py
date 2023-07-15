@@ -403,5 +403,31 @@ class CellSlice:
 
         return self.cell_slice.fetch_uint_less(upper_bound)
 
+    def load_bitstring(self, size: int) -> str:
+        """Load bitstring of ``size`` bits and move cursor"""
+
+        if self.bits < size:
+            raise ValueError("Not enough bits to unpack")
+
+        tmp = self.to_bitstring()[:size]
+        self.skip_bits(size)
+
+        return tmp
+
+    def preload_bitstring(self, size: int) -> str:
+        """Load bitstring of ``size`` bits"""
+
+        if self.bits < size:
+            raise ValueError("Not enough bits to unpack")
+
+        tmp = self.to_bitstring()[:size]
+
+        return tmp
+
+    def load_subslice(self, bits: int, refs: int = 0):
+        """Load ``bits`` and ``refs`` to separate ``CellSlice``"""
+
+        return self.cell_slice.load_subslice(bits, refs)
+
     def __repr__(self):
         return self.cell_slice.__repr__()

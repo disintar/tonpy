@@ -398,3 +398,30 @@ def test_load_leq():
         cb.store_uint_leq(100, i)
         cs = cb.begin_parse()
         assert cs.load_uint_leq(100) == i
+
+
+def test_load_subslice():
+    cb = CellBuilder()
+    cb.store_uint(10, 32)
+    cb.store_ref(CellBuilder().end_cell())
+    cs = cb.begin_parse()
+    cs.load_uint(16)
+    cs2 = cs.load_subslice(16, 1)
+    assert cs.bits == 0
+    assert cs.refs == 0
+    assert cs2.bits == 16
+    assert cs2.refs == 1
+
+
+def test_load_bitstring():
+    cb = CellBuilder()
+    cb.store_uint(10, 32)
+    cs = cb.begin_parse()
+    cs.load_uint(16)
+
+    bs = cs.load_bitstring(8)
+    assert bs == '00000000'
+    assert cs.bits == 32 - (8 + 16)
+    bs = cs.preload_bitstring(8)
+    assert bs == '00001010'
+    assert cs.bits == 32 - (8 + 16)
