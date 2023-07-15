@@ -425,9 +425,14 @@ class CellSlice:
         return tmp
 
     def load_subslice(self, bits: int, refs: int = 0):
-        """Load ``bits`` and ``refs`` to separate ``CellSlice``"""
+        """Load ``bits`` and ``refs`` to separate ``CellSlice`` and move cursor"""
 
         return self.cell_slice.load_subslice(bits, refs)
+
+    def preload_subslice(self, bits: int, refs: int = 0):
+        """Load ``bits`` and ``refs`` to separate ``CellSlice``"""
+
+        return self.cell_slice.preload_subslice(bits, refs)
 
     def __repr__(self):
         return self.cell_slice.__repr__()

@@ -413,6 +413,20 @@ def test_load_subslice():
     assert cs2.refs == 1
 
 
+def test_preload_subslice():
+    cb = CellBuilder()
+    cb.store_uint(10, 32)
+    cb.store_ref(CellBuilder().end_cell())
+    cs = cb.begin_parse()
+    cs.load_uint(16)
+    cs2 = cs.preload_subslice(16, 1)
+    cs.load_uint(8)
+    assert cs.bits == 8
+    assert cs.refs == 1
+    assert cs2.bits == 16
+    assert cs2.refs == 1
+
+
 def test_load_bitstring():
     cb = CellBuilder()
     cb.store_uint(10, 32)
