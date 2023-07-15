@@ -2,7 +2,40 @@ from collections import defaultdict
 from enum import Enum
 from typing import Optional
 
-from tonpy.types import CellSlice, CellBuilder
+from tonpy.types import CellSlice, CellBuilder, Cell
+
+
+class RecordBase:
+    """
+    Each TLB type have ``Record`` subclass means instance of TLB type |br|
+    If you have multiple constructors name of ``Record`` class will be change to ``Record_{{constructor_name}}`` |br|
+    Each record have ``__init__`` function witch contains all fields of TLB type |br|
+    Check out ``test_tlb.py`` ``test_records`` function
+    """
+
+    def get_tag_enum(self):
+        """"""
+        raise NotImplementedError
+
+    def get_tag(self):
+        """"""
+        raise NotImplementedError
+
+    def get_tag_len(self):
+        """"""
+        raise NotImplementedError
+
+    def get_type_class(self):
+        """"""
+        raise NotImplementedError
+
+    def unpack(self, cs: CellSlice) -> bool:
+        """"""
+        raise NotImplementedError
+
+    def cell_unpack(self, cell_ref: Cell) -> bool:
+        """"""
+        raise NotImplementedError
 
 
 class TLB(object):
@@ -32,16 +65,12 @@ class TLB(object):
         # raise NotImplemented
         pass
 
-    class Record:
-        """
-        Each TLB type have ``Record`` subclass means instance of TLB type |br|
-        If you have multiple constructors name of ``Record`` class will be change to ``Record_{{constructor_name}}`` |br|
-        Each record have ``__init__`` function witch contains all fields of TLB type |br|
-        Check out ``test_tlb.py`` ``test_records`` function
-        """
+    class Record(RecordBase):
         pass
+
     cons_len = None
     cons_tag = None
+    tag_to_class = {}
 
     def get_tag(self, cs: CellSlice) -> Optional["TLB.Tag"]:
         """
@@ -78,6 +107,44 @@ class TLB(object):
 
         raise NotImplementedError
 
+    def unpack(self, cs: CellSlice) -> Optional[RecordBase]:
+        """
+        Unpack current TLB and return TLB.Record if success, else return None
 
-class TLBComplex(object):
-    pass
+        :param cs: CellSlice to unpack TLB from
+        :return: TLB.Record instance or None
+        """
+
+        try:
+            t = self.tag_to_class[self.get_tag(cs)]()
+
+            if not t.unpack(cs):
+                return None
+
+            return t
+        except (RuntimeError, KeyError, ValueError):
+            return None
+
+    def cell_unpack(self, cell_ref: Cell) -> Optional[RecordBase]:
+        """
+        Same as ``unpack`` but
+
+        :param cell_ref:
+        :return:
+        """
+        if cell_ref.is_null():
+            return None
+
+        cs = cell_ref.begin_parse()
+
+        t = self.unpack(cs)
+
+        if t is not None and not cs.empty_ext():
+            return None
+
+        return t
+
+
+class TLBComplex(TLB):
+    def __init__(self):
+        super().__init__()

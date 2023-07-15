@@ -9,7 +9,6 @@ if TYPE_CHECKING:
     from tonpy.types import Cell
 
 
-# TODO: begins_with_skip_bits, begins_with_skip, begins_with, begins_with_bits
 class CellSlice:
     class SpecialType(Enum):
         Ordinary = 0
