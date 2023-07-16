@@ -293,8 +293,8 @@ class CellSlice:
 
         .. code-block::
 
-            refs = bits_refs % (2 ** 16)
-            bits = bits_refs / (2 ** 16)
+            refs = bits_refs / (2 ** 16)
+            bits = bits_refs % (2 ** 16)
 
          |br|
 
@@ -433,6 +433,30 @@ class CellSlice:
         """Load ``bits`` and ``refs`` to separate ``CellSlice``"""
 
         return CellSlice(self.cell_slice.preload_subslice(bits, refs))
+
+    def load_subslice_ext(self, bits_refs: int) -> "CellSlice":
+        """Same as ``load_subslice`` but in ``ext`` size format
+
+        .. code-block::
+
+            refs = bits_refs % (2 ** 16)
+            bits = bits_refs / (2 ** 16)
+
+        """
+
+        return self.cell_slice.load_subslice_ext(bits_refs)
+
+    def preload_subslice_ext(self, bits_refs: int) -> "CellSlice":
+        """Same as ``preload_subslice`` but in ``ext`` size format
+
+        .. code-block::
+
+            refs = bits_refs % (2 ** 16)
+            bits = bits_refs / (2 ** 16)
+
+        """
+
+        return self.cell_slice.preload_subslice_ext(bits_refs)
 
     def __repr__(self):
         return self.cell_slice.__repr__()

@@ -248,11 +248,11 @@ def test_advance_ext():
     refs_to_skip = 2
     bits_to_skip = 240
 
-    assert cs.advance_ext(bits_to_skip * (2 ** 16) + refs_to_skip) is True
+    assert cs.advance_ext(refs_to_skip * (2 ** 16) + bits_to_skip) is True
     assert cs.refs == 2
     assert cs.bits == 240
-    assert cs.advance_ext(480 * (2 ** 16) + 0) is False
-    assert cs.advance_ext(2 * (2 ** 16) + 4) is False
+    assert cs.advance_ext(0 * (2 ** 16) + 480) is False
+    assert cs.advance_ext(4 * (2 ** 16) + 2) is False
 
 
 def test_dump_as_tlb():
@@ -450,3 +450,30 @@ def test_c_cs():
     assert c.get_hash() == h
     cs2 = c.begin_parse()
     assert cs2.get_hash() == h
+
+
+def test_load_subslice_ext():
+    cb = CellBuilder()
+    cb.store_uint(10, 32)
+    cb.store_ref(CellBuilder().end_cell())
+    cs = cb.begin_parse()
+    cs.load_uint(16)
+    cs2 = cs.load_subslice_ext(1 * (2 ** 16) + 16)
+    assert cs.bits == 0
+    assert cs.refs == 0
+    assert cs2.bits == 16
+    assert cs2.refs == 1
+
+
+def test_preload_subslice_ext():
+    cb = CellBuilder()
+    cb.store_uint(10, 32)
+    cb.store_ref(CellBuilder().end_cell())
+    cs = cb.begin_parse()
+    cs.load_uint(16)
+    cs2 = cs.preload_subslice_ext(1 * (2 ** 16) + 16)
+    cs.load_uint(8)
+    assert cs.bits == 8
+    assert cs.refs == 1
+    assert cs2.bits == 16
+    assert cs2.refs == 1
