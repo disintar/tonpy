@@ -219,3 +219,30 @@ def test_hex_tag():
     # invalid cell
     rec = A().fetch(CellBuilder().store_uint(0x000000016, 32).end_cell())
     assert rec is None
+
+
+def test_basic_contraint():
+    # language=tl-b
+    tlb_text = """
+    _ a:# { a >= 10 } { a <= 100 } = A;
+    _ b:(#< 100) { b = 99 } = B;
+    """
+    add_tlb(tlb_text, globals())
+
+    rec = A().fetch(CellBuilder().store_uint(11, 32).begin_parse())
+    assert rec.a == 11
+
+    rec = A().fetch(CellBuilder().store_uint(9, 32).begin_parse())
+    assert rec is None
+
+    rec = A().fetch(CellBuilder().store_uint(99, 32).begin_parse())
+    assert rec.a == 99
+
+    rec = A().fetch(CellBuilder().store_uint(101, 32).begin_parse())
+    assert rec is None
+
+    rec = B().fetch(CellBuilder().store_uint_less(100, 99).begin_parse())
+    assert rec.b == 99
+
+    rec = B().fetch(CellBuilder().store_uint_less(100, 98).begin_parse())
+    assert rec is None
