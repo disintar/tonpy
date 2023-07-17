@@ -444,7 +444,7 @@ class CellSlice:
 
         """
 
-        return self.cell_slice.load_subslice_ext(bits_refs)
+        return CellSlice(self.cell_slice.load_subslice_ext(bits_refs))
 
     def preload_subslice_ext(self, bits_refs: int) -> "CellSlice":
         """Same as ``preload_subslice`` but in ``ext`` size format
@@ -456,7 +456,7 @@ class CellSlice:
 
         """
 
-        return self.cell_slice.preload_subslice_ext(bits_refs)
+        return CellSlice(self.cell_slice.preload_subslice_ext(bits_refs))
 
     def __repr__(self):
         return self.cell_slice.__repr__()

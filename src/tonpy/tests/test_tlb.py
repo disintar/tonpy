@@ -7,6 +7,7 @@ from bitstring import BitArray
 from tonpy.types import TLB, TLBComplex, Cell, CellSlice, CellBuilder
 from typing import Optional, Union
 from itertools import product
+from tonpy.types.tlb_types import *
 
 
 def test_tag_multi_bits():

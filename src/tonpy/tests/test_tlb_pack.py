@@ -8,6 +8,8 @@ from tonpy.types import TLB, TLBComplex, Cell, CellSlice, CellBuilder, RecordBas
 from typing import Optional, Union
 from itertools import product
 
+from tonpy.types.tlb_types import *
+
 
 def test_nat_unpack():
     # language=tl-b
@@ -131,3 +133,22 @@ def test_complex_unpack():
     assert rec_a.b == 9
     assert rec_a.c == 64
     assert rec_a.d == int('1' * 64, 2)
+
+
+def test_complex_unpack():
+    # language=tl-b
+    tlb_text = """
+    _ a:(## 64) = A;
+    _ a:# b:^A = B;
+    _ a:B = C;
+    """
+
+    add_tlb(tlb_text, globals())
+
+    cb = CellBuilder()  # _ a:B = C;
+    cb.store_uint(321, 32)  # _ a:#
+    cb.store_ref(CellBuilder().store_uint(12345, 64).end_cell())  # b:^A = B; / _ a:(## 64) = A;
+
+    rec = C().fetch(cb.end_cell(), True)
+    assert rec.a.a == 321
+    assert rec.a.b.a == 12345

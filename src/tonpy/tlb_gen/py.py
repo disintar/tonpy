@@ -26,18 +26,15 @@ def add_tlb(tlb_text: str,
     :return:
     """
 
-    tlb_text = tlb_text
+    tlb_text = parse_tlb(tlb_text).split("# definitions of constants")
+    constants, tlb_text = tlb_text[1], tlb_text[0]
 
-    old_subclasses = []
-    for i in TLBComplex.__subclasses__():
-        old_subclasses.append(i)
-
-    exec(parse_tlb(tlb_text), imported_globals, locals())
+    exec(tlb_text, globals(), locals())
 
     # Write new classes to imported globals
-    for i in TLBComplex.__subclasses__():
-        if i not in old_subclasses:
-            print("----" * 10)
-            print("FOUND ", i.__name__, " CLASS")
-            print("----" * 10)
-            imported_globals[i.__name__] = locals()[i.__name__]
+    for i in locals()['tlb_classes']:
+        print("Found class: ", i)
+        imported_globals[i] = locals()[i]
+        globals()[i] = locals()[i]
+
+    exec(constants, globals(), locals())

@@ -3,3 +3,4 @@ from tonpy.types.cellslice import CellSlice
 from tonpy.types.cellbuilder import CellBuilder
 from tonpy.types.vmdict import VmDict
 from tonpy.types.tlb import TLB, TLBComplex, RecordBase
+from tonpy.types.tlb_types import RefT, NatWidth

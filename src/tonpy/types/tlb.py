@@ -72,6 +72,7 @@ class TLB(object):
     cons_tag: List[int] = None
     tag_to_class = {}
     original_cell: Optional[Cell] = None
+    original_cell_slice: Optional[CellSlice] = None
 
     def get_tag(self, cs: CellSlice) -> Optional["TLB.Tag"]:
         """
@@ -108,29 +109,33 @@ class TLB(object):
 
         raise NotImplementedError
 
-    def unpack(self, cs: CellSlice) -> Optional[RecordBase]:
+    def unpack(self, cs: CellSlice, rec_unpack: bool = False) -> Optional[RecordBase]:
         """
         Unpack current TLB and return TLB.Record if success, else return None
 
         :param cs: CellSlice to unpack TLB from
+        :param rec_unpack: Recursively unpack all types or fetch as ``Cell`` / ``CellSlice`` all not self types
         :return: TLB.Record instance or None
         """
+
+        self.original_cell_slice = cs
 
         try:
             t = self.tag_to_class[self.get_tag(cs)]()
 
-            if not t.unpack(cs):
+            if not t.unpack(cs, rec_unpack):
                 return None
 
             return t
         except (RuntimeError, KeyError, ValueError):
             return None
 
-    def cell_unpack(self, cell_ref: Cell) -> Optional[RecordBase]:
+    def cell_unpack(self, cell_ref: Cell, rec_unpack: bool = False) -> Optional[RecordBase]:
         """
         Same as ``unpack`` but
 
         :param cell_ref:
+        :param rec_unpack: Recursively unpack all types or fetch as ``Cell`` / ``CellSlice`` all not self types
         :return:
         """
         if cell_ref.is_null():
@@ -141,14 +146,31 @@ class TLB(object):
 
         cs = cell_ref.begin_parse()
 
-        t = self.unpack(cs)
+        t = self.unpack(cs, rec_unpack)
 
         if t is not None and not cs.empty_ext():
             return None
 
         return t
 
+    def fetch(self, cell_or_slice: Union[Cell, CellSlice], rec_unpack: bool = False) -> "Optional[TLB.Record]":
+        """
+
+        :param cell_or_slice:
+        :param rec_unpack:
+        :return:
+        """
+
+        if isinstance(cell_or_slice, Cell):
+            return self.cell_unpack(cell_or_slice, rec_unpack)
+        elif isinstance(cell_or_slice, CellSlice):
+            return self.unpack(cell_or_slice, rec_unpack)
+        else:
+            raise ValueError(f"Type {type(cell_or_slice)} is not supported")
+
 
 class TLBComplex(TLB):
+    constants = {}
+
     def __init__(self):
         super().__init__()
