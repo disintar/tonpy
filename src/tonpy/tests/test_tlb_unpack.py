@@ -222,27 +222,37 @@ def test_hex_tag():
 
 
 def test_basic_contraint():
+    tlb_texts = []
+
     # language=tl-b
-    tlb_text = """
+    tlb_texts.append("""
     _ a:# { a >= 10 } { a <= 100 } = A;
     _ b:(#< 100) { b = 99 } = B;
-    """
-    add_tlb(tlb_text, globals())
+    """)
 
-    rec = A().fetch(CellBuilder().store_uint(11, 32).begin_parse())
-    assert rec.a == 11
+    # language=tl-b
+    tlb_texts.append("""
+    _ a:# { 100 >= a } { 10 <= a } = A;
+    _ b:(#< 100) { 99 = b } = B;
+    """)
 
-    rec = A().fetch(CellBuilder().store_uint(9, 32).begin_parse())
-    assert rec is None
+    for tlb_text in tlb_texts:
+        add_tlb(tlb_text, globals())
 
-    rec = A().fetch(CellBuilder().store_uint(99, 32).begin_parse())
-    assert rec.a == 99
+        rec = A().fetch(CellBuilder().store_uint(11, 32).begin_parse())
+        assert rec.a == 11
 
-    rec = A().fetch(CellBuilder().store_uint(101, 32).begin_parse())
-    assert rec is None
+        rec = A().fetch(CellBuilder().store_uint(9, 32).begin_parse())
+        assert rec is None
 
-    rec = B().fetch(CellBuilder().store_uint_less(100, 99).begin_parse())
-    assert rec.b == 99
+        rec = A().fetch(CellBuilder().store_uint(99, 32).begin_parse())
+        assert rec.a == 99
 
-    rec = B().fetch(CellBuilder().store_uint_less(100, 98).begin_parse())
-    assert rec is None
+        rec = A().fetch(CellBuilder().store_uint(101, 32).begin_parse())
+        assert rec is None
+
+        rec = B().fetch(CellBuilder().store_uint_less(100, 99).begin_parse())
+        assert rec.b == 99
+
+        rec = B().fetch(CellBuilder().store_uint_less(100, 98).begin_parse())
+        assert rec is None
