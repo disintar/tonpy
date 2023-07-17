@@ -293,3 +293,37 @@ def test_conditions_fields_chain():
             True).store_bool(True).store_uint(1234567, 64).begin_parse())
     assert rec.e.load_uint(
         64) == 1234567  # todo: https://github.com/ton-blockchain/ton/issues/736#issuecomment-1638776943
+
+
+def test_anon_subfields():
+    # language=tl-b
+    tlb_text = """
+    _ a:# ^[ b:# c:# d:# ] = A;
+    """
+    add_tlb(tlb_text, globals())
+
+    rec = A().fetch(CellBuilder().store_uint(1, 32).store_ref(
+        CellBuilder().store_uint(2, 32).store_uint(3, 32).store_uint(4, 32).end_cell()).end_cell())
+
+    assert rec.a == 1
+    assert rec.r1.b == 2
+    assert rec.r1.c == 3
+    assert rec.r1.d == 4
+
+    # language=tl-b
+    tlb_text = """
+    _ a:# ^[ b:# ^[ c:# ^[ d:# ] ] ] = A;
+    """
+    add_tlb(tlb_text, globals())
+
+    cb = CellBuilder
+    tmp = cb().store_uint(0, 32).end_cell()
+    tmp2 = cb().store_uint(1, 32).store_ref(tmp).end_cell()
+    tmp3 = cb().store_uint(2, 32).store_ref(tmp2).end_cell()
+
+    rec = A().fetch(cb().store_uint(3, 32).store_ref(tmp3).end_cell())
+
+    assert rec.a == 3
+    assert rec.r1.b == 2
+    assert rec.r1.r1.c == 1
+    assert rec.r1.r1.r1.d == 0

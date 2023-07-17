@@ -13,6 +13,8 @@ class RecordBase:
     Check out ``test_tlb.py`` ``test_records`` function
     """
 
+    field_names = []  # names of all fetched fields
+
     def get_tag_enum(self):
         """Get current TLB.Record constructor tag in ``Enum`` type of ``TLB.Tag``"""
         raise NotImplementedError
@@ -176,7 +178,6 @@ class TLB(object):
 
     def fetch(self, cell_or_slice: Union[Cell, CellSlice], rec_unpack: bool = False) -> "Optional[TLB.Record]":
         """
-
         :param cell_or_slice:
         :param rec_unpack: pass to RecordBase ``rec_unpack``
         :return:
