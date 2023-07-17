@@ -183,3 +183,39 @@ def test_builtin_unpack():
     assert rec.d.d.a == 4
     assert rec.d.d.b == 5
     assert rec.d.d.c == 6
+
+
+def test_bool_tag():
+    # language=tl-b
+    tlb_text = """
+    bool_false$0 = Bool;
+    bool_true$1 = Bool;
+    _ test_b:Bool = A;
+    """
+    add_tlb(tlb_text, globals())
+
+    rec = A().fetch(CellBuilder().store_zeroes(1).end_cell())
+    assert rec.test_b is False
+
+    rec = A().fetch(CellBuilder().store_ones(1).end_cell())
+    assert rec.test_b is True
+
+
+def test_hex_tag():
+    # language=tl-b
+    tlb_text = """
+    bool_false#00000032 = MyTag;
+    bool_true#00000064 = MyTag;
+    _ test_b:MyTag = A;
+    """
+    add_tlb(tlb_text, globals())
+
+    rec = A().fetch(CellBuilder().store_uint(0x000000064, 32).end_cell())
+    assert rec.test_b == 0x000000064
+
+    rec = A().fetch(CellBuilder().store_uint(0x000000032, 32).end_cell())
+    assert rec.test_b == 0x000000032
+
+    # invalid cell
+    rec = A().fetch(CellBuilder().store_uint(0x000000016, 32).end_cell())
+    assert rec is None

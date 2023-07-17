@@ -14,27 +14,44 @@ class RecordBase:
     """
 
     def get_tag_enum(self):
-        """"""
+        """Get current TLB.Record constructor tag in ``Enum`` type of ``TLB.Tag``"""
         raise NotImplementedError
 
     def get_tag(self):
-        """"""
+        """Get current TLB.Record constructor tag"""
         raise NotImplementedError
 
     def get_tag_len(self):
-        """"""
+        """Get length of bits for current TLB.Record constructor tag"""
         raise NotImplementedError
 
     def get_type_class(self):
-        """"""
+        """Get TLB type of current record"""
         raise NotImplementedError
 
-    def unpack(self, cs: CellSlice) -> bool:
-        """"""
+    def unpack(self, cs: CellSlice, rec_unpack: bool = False) -> bool:
+        """
+        Unpack current CellSlice as TLB.Record to fields, if success return True |br|
+        All field values store in class object. If ``rec_unpack`` is True - unpack all types with recursion |br|
+        Note: simple types that contains only from tags don't need ``rec_unpack``, they will be fetched immediately |br|
+
+        :param cs: CellSlice to be fetched as TLB.Record
+        :param rec_unpack: Need to unpack all types with recursion
+        :return: Is unpack was success
+        """
         raise NotImplementedError
 
-    def cell_unpack(self, cell_ref: Cell) -> bool:
-        """"""
+    def cell_unpack(self, cell_ref: Cell, rec_unpack: bool = False) -> bool:
+        """
+        Unpack current Cell as TLB.Record to fields, if success return True |br|
+        All field values store in class object. If ``rec_unpack`` is True - unpack all types with recursion |br|
+        Note: simple types that contains only from tags don't need ``rec_unpack``, they will be fetched immediately |br|
+        If after unpack Cell contains some data - return False |br|
+
+        :param cell_ref: Cell to be fetched as TLB.Record
+        :param rec_unpack: Need to unpack all types with recursion
+        :return: Is unpack was success
+        """
         raise NotImplementedError
 
 
@@ -118,7 +135,7 @@ class TLB(object):
 
 
         :param cs: CellSlice to unpack TLB from
-        :param rec_unpack: Recursively unpack all types or fetch as ``Cell`` / ``CellSlice`` all not self types
+        :param rec_unpack: pass to RecordBase ``rec_unpack``
         :return: TLB.Record instance or None
         """
 
@@ -139,7 +156,7 @@ class TLB(object):
         Same as ``unpack`` but
 
         :param cell_ref:
-        :param rec_unpack: Recursively unpack all types or fetch as ``Cell`` / ``CellSlice`` all not self types
+        :param rec_unpack: pass to RecordBase ``rec_unpack``
         :return:
         """
         if cell_ref.is_null():
@@ -161,7 +178,7 @@ class TLB(object):
         """
 
         :param cell_or_slice:
-        :param rec_unpack: Recursively unpack all types or fetch as ``Cell`` / ``CellSlice`` all not self types
+        :param rec_unpack: pass to RecordBase ``rec_unpack``
         :return:
         """
 
