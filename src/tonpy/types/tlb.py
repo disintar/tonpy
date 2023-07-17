@@ -111,7 +111,11 @@ class TLB(object):
 
     def unpack(self, cs: CellSlice, rec_unpack: bool = False) -> Optional[RecordBase]:
         """
-        Unpack current TLB and return TLB.Record if success, else return None
+        Unpack current TLB and return TLB.Record if success, else return None |br|
+
+        By default, rec_unpack is False because for large TLB structures it can be slow. |br|
+        More simple way is to skip needed structures one by one and load to python objects only needed ones. |br|
+
 
         :param cs: CellSlice to unpack TLB from
         :param rec_unpack: Recursively unpack all types or fetch as ``Cell`` / ``CellSlice`` all not self types
@@ -157,7 +161,7 @@ class TLB(object):
         """
 
         :param cell_or_slice:
-        :param rec_unpack:
+        :param rec_unpack: Recursively unpack all types or fetch as ``Cell`` / ``CellSlice`` all not self types
         :return:
         """
 
@@ -167,10 +171,3 @@ class TLB(object):
             return self.unpack(cell_or_slice, rec_unpack)
         else:
             raise ValueError(f"Type {type(cell_or_slice)} is not supported")
-
-
-class TLBComplex(TLB):
-    constants = {}
-
-    def __init__(self):
-        super().__init__()

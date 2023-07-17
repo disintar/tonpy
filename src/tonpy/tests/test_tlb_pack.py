@@ -1,15 +1,5 @@
-import pytest
-
-from tonpy.tlb_gen.py import add_tlb, parse_tlb
-from enum import Enum
-import bitstring
-from bitstring import BitArray
-from tonpy.types import TLB, TLBComplex, Cell, CellSlice, CellBuilder, RecordBase
-from typing import Optional, Union
-from itertools import product
-
-from tonpy.types.tlb_types import *
-
+from tonpy.tlb_gen.py import add_tlb
+from tonpy.types import CellBuilder
 
 def test_nat_unpack():
     # language=tl-b
