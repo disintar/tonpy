@@ -148,7 +148,7 @@ class TLB(object):
                 return None
 
             return t
-        except (RuntimeError, KeyError, ValueError):
+        except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
             return None
 
     def cell_unpack(self, cell_ref: Cell, rec_unpack: bool = False) -> Optional[RecordBase]:

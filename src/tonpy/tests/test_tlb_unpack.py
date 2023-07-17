@@ -256,3 +256,40 @@ def test_basic_contraint():
 
         rec = B().fetch(CellBuilder().store_uint_less(100, 98).begin_parse())
         assert rec is None
+
+
+def test_condition_fields():
+    # language=tl-b
+    tlb_text = """
+    _ a:(## 1) b:(a?(## 64)) = A;
+    """
+    add_tlb(tlb_text, globals())
+
+    rec = A().fetch(CellBuilder().store_bool(False).begin_parse())
+    assert rec.a is False
+    assert rec.b is None
+
+    rec = A().fetch(CellBuilder().store_bool(False).store_uint(179, 64).begin_parse())
+    assert rec.a is False
+    assert rec.b is None
+
+    rec = A().fetch(CellBuilder().store_bool(False).store_uint(179, 64).end_cell())
+    assert rec is None
+
+    rec = A().fetch(CellBuilder().store_bool(True).store_uint(179, 64).begin_parse())
+    assert rec.a is True
+    assert rec.b == 179
+
+
+def test_conditions_fields_chain():
+    # language=tl-b
+    tlb_text = """
+    _ a:(## 32) b:(## 8) c:(## 1) d:(## 1) e:((a . b)?(c?(d?((## 64))))) = A;
+    """
+    add_tlb(tlb_text, globals())
+
+    rec = A().fetch(
+        CellBuilder().store_uint(int('00000000000000000000100000000000', 2), 32).store_uint(12, 8).store_bool(
+            True).store_bool(True).store_uint(1234567, 64).begin_parse())
+    assert rec.e.load_uint(
+        64) == 1234567  # todo: https://github.com/ton-blockchain/ton/issues/736#issuecomment-1638776943
