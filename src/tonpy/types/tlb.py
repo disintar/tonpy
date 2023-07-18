@@ -31,7 +31,8 @@ class RecordBase:
         """Get TLB type of current record"""
         raise NotImplementedError
 
-    def unpack(self, cs: CellSlice, rec_unpack: bool = False) -> bool:
+    def unpack(self, cs: CellSlice, rec_unpack: bool = False,
+               strict: bool = True) -> bool:
         """
         Unpack current CellSlice as TLB.Record to fields, if success return True |br|
         All field values store in class object. If ``rec_unpack`` is True - unpack all types with recursion |br|
@@ -39,11 +40,13 @@ class RecordBase:
 
         :param cs: CellSlice to be fetched as TLB.Record
         :param rec_unpack: Need to unpack all types with recursion
+        :param strict: If False some failed to parse subtypes can be None
         :return: Is unpack was success
         """
         raise NotImplementedError
 
-    def cell_unpack(self, cell_ref: Cell, rec_unpack: bool = False) -> bool:
+    def cell_unpack(self, cell_ref: Cell, rec_unpack: bool = False,
+                    strict: bool = True) -> bool:
         """
         Unpack current Cell as TLB.Record to fields, if success return True |br|
         All field values store in class object. If ``rec_unpack`` is True - unpack all types with recursion |br|
@@ -52,6 +55,7 @@ class RecordBase:
 
         :param cell_ref: Cell to be fetched as TLB.Record
         :param rec_unpack: Need to unpack all types with recursion
+        :param strict: If False some failed to parse subtypes can be None
         :return: Is unpack was success
         """
         raise NotImplementedError
@@ -130,7 +134,8 @@ class TLB(object):
 
         raise NotImplementedError
 
-    def unpack(self, cs: CellSlice, rec_unpack: bool = False) -> Optional[RecordBase]:
+    def unpack(self, cs: CellSlice, rec_unpack: bool = False,
+               strict: bool = True) -> Optional[RecordBase]:
         """
         Unpack current TLB and return TLB.Record if success, else return None |br|
 
@@ -140,6 +145,7 @@ class TLB(object):
 
         :param cs: CellSlice to unpack TLB from
         :param rec_unpack: pass to RecordBase ``rec_unpack``
+        :param strict: pass to RecordBase ``strict``
         :return: TLB.Record instance or None
         """
 
@@ -148,19 +154,21 @@ class TLB(object):
         try:
             t = self.tag_to_class[self.get_tag(cs)]()
 
-            if not t.unpack(cs, rec_unpack):
+            if not t.unpack(cs, rec_unpack, strict=strict):
                 return None
 
             return t
         except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
             return None
 
-    def cell_unpack(self, cell_ref: Cell, rec_unpack: bool = False) -> Optional[RecordBase]:
+    def cell_unpack(self, cell_ref: Cell, rec_unpack: bool = False,
+                    strict: bool = True) -> Optional[RecordBase]:
         """
         Same as ``unpack`` but
 
         :param cell_ref:
         :param rec_unpack: pass to RecordBase ``rec_unpack``
+        :param strict: pass to RecordBase ``strict``
         :return:
         """
         if cell_ref.is_null():
@@ -171,24 +179,26 @@ class TLB(object):
 
         cs = cell_ref.begin_parse()
 
-        t = self.unpack(cs, rec_unpack)
+        t = self.unpack(cs, rec_unpack, strict=strict)
 
         if t is not None and not cs.empty_ext():
             return None
 
         return t
 
-    def fetch(self, cell_or_slice: Union[Cell, CellSlice], rec_unpack: bool = False) -> "Optional[TLB.Record]":
+    def fetch(self, cell_or_slice: Union[Cell, CellSlice], rec_unpack: bool = False,
+              strict: bool = True) -> "Optional[TLB.Record]":
         """
         :param cell_or_slice:
         :param rec_unpack: pass to RecordBase ``rec_unpack``
+        :param strict: pass to RecordBase ``strict``
         :return:
         """
 
         if isinstance(cell_or_slice, Cell):
-            return self.cell_unpack(cell_or_slice, rec_unpack)
+            return self.cell_unpack(cell_or_slice, rec_unpack, strict=strict)
         elif isinstance(cell_or_slice, CellSlice):
-            return self.unpack(cell_or_slice, rec_unpack)
+            return self.unpack(cell_or_slice, rec_unpack, strict=strict)
         else:
             raise ValueError(f"Type {type(cell_or_slice)} is not supported")
 

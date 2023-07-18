@@ -338,5 +338,37 @@ def test_sub_params():
     add_tlb(tlb_text, globals())
 
     cb = CellBuilder
-    tmp = cb().store_uint(0, 10).end_cell()
+    tmp = cb().store_uint(12, 10).end_cell()
     rec = B().fetch(tmp)
+
+    assert rec.b.a == 12
+
+
+def test_sub_params_complex():
+    # language=tl-b
+    tlb_text = """
+        _ {x:#} {y:#} {z:#} a:(## x) { a = y } 
+        b:(## z) { b = z } = A x y z;
+        _ b:(A 10 5 8) = B;
+        """
+    add_tlb(tlb_text, globals())
+
+    cb = CellBuilder
+    tmp = cb().store_uint(5, 10).store_uint(8, 8).end_cell()
+    rec = B().fetch(tmp)
+
+    assert rec.b.a == 5
+    assert rec.b.b == 8
+
+    cb = CellBuilder
+    tmp = cb().store_uint(5, 10).store_uint(7, 8).end_cell()
+    rec = B().fetch(tmp)
+
+    assert rec is None
+
+    cb = CellBuilder
+    tmp = cb().store_uint(5, 10).store_uint(7, 8).end_cell()
+    rec = B().fetch(tmp, strict=False)
+
+    assert isinstance(rec, B.Record)
+    assert rec.b is None
