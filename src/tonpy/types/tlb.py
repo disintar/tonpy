@@ -92,6 +92,8 @@ class TLB(object):
     tag_to_class = {}
     original_cell: Optional[Cell] = None
     original_cell_slice: Optional[CellSlice] = None
+    params_attrs = []  # all params defined for TLB type from __init__
+    has_params = False  # is type is parametrized
 
     def get_tag(self, cs: CellSlice) -> Optional["TLB.Tag"]:
         """
@@ -189,3 +191,15 @@ class TLB(object):
             return self.unpack(cell_or_slice, rec_unpack)
         else:
             raise ValueError(f"Type {type(cell_or_slice)} is not supported")
+
+    def get_param_record(self, item: str):
+        """Copy params from TLB to Record"""
+
+        obj = getattr(self, item)
+
+        if self.has_params:
+            # copy all params
+            for i in self.params_attrs:
+                setattr(obj, i, getattr(self, i))
+
+        return obj

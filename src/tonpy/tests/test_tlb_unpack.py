@@ -327,3 +327,16 @@ def test_anon_subfields():
     assert rec.r1.b == 2
     assert rec.r1.r1.c == 1
     assert rec.r1.r1.r1.d == 0
+
+
+def test_sub_params():
+    # language=tl-b
+    tlb_text = """
+    _ {x:#} a:(## x) = A x;
+    _ b:(A 10) = B;
+    """
+    add_tlb(tlb_text, globals())
+
+    cb = CellBuilder
+    tmp = cb().store_uint(0, 10).end_cell()
+    rec = B().fetch(tmp)
