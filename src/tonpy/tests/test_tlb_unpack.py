@@ -372,3 +372,65 @@ def test_sub_params_complex():
 
     assert isinstance(rec, B.Record)
     assert rec.b is None
+
+
+def test_negate_simple():
+    # language=tl-b
+    tlb_text = """
+    _ {a:#} b:# { ~a = 10 } = NegateSimple;
+    """
+
+    add_tlb(tlb_text, globals())
+
+    cb = CellBuilder
+    tmp = cb().store_uint(5, 32).end_cell()
+    rec = NegateSimple().fetch(tmp)
+    assert rec.b == 5
+    assert rec.a == 10
+
+
+def test_negate_simple_plus():
+    # language=tl-b
+    tlb_text = """
+    _ {a:#} b:# { ~a = b } = NegateSimplePlus;
+    """
+
+    add_tlb(tlb_text, globals())
+
+    cb = CellBuilder
+    tmp = cb().store_uint(8, 32).end_cell()
+    rec = NegateSimplePlus().fetch(tmp)
+    assert rec.b == 8
+    assert rec.a == 8
+
+    # language=tl-b
+    tlb_text = """
+    _ {a:#} {ap:#} b:# c:# { ~a = (10 * b) } { ~ap = (10 + c) } = NegateSimplePlus;
+    """
+
+    add_tlb(tlb_text, globals())
+
+    cb = CellBuilder
+    tmp = cb().store_uint(8, 32).store_uint(184, 32).end_cell()
+    rec = NegateSimplePlus().fetch(tmp)
+    assert rec.b == 8
+    assert rec.c == 184
+    assert rec.a == 80
+    assert rec.ap == 194
+
+
+def test_negate_deduct():
+    # language=tl-b
+    tlb_text = """
+    _ {a:#} {ap:#} b:# c:# { ~a + 10 = b } { ~ap * 20 = c } = NegateDeduct;
+    """
+
+    add_tlb(tlb_text, globals())
+
+    cb = CellBuilder
+    tmp = cb().store_uint(18, 32).store_uint(200, 32).end_cell()
+    rec = NegateDeduct().fetch(tmp)
+    assert rec.b == 18
+    assert rec.a == 8
+    assert rec.c == 200
+    assert rec.ap == 10

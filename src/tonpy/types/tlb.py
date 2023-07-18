@@ -60,6 +60,22 @@ class RecordBase:
         """
         raise NotImplementedError
 
+    def add_r1(self, val: str, y: int, z: int) -> bool:
+        if y > z:
+            return False
+
+        x = z - y
+        setattr(self, val, x)
+        return x >= 0
+
+    def mul_r1(self, val: str, y: int, z: int) -> bool:
+        if not y or z % y != 0:
+            return False
+
+        x = z / y
+        setattr(self, val, x)
+        return x >= 0
+
 
 class TLB(object):
     class Tag(Enum):

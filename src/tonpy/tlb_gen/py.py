@@ -37,5 +37,4 @@ def add_tlb(tlb_text: str,
         imported_globals[i] = locals()[i]
         globals()[i] = locals()[i]
 
-    print(constants)
     exec(constants, globals(), locals())
