@@ -14,6 +14,7 @@ class RecordBase:
     """
 
     field_names = []  # names of all fetched fields
+    negate_params = []  # params that determinate on serialization process
 
     def get_tag_enum(self):
         """Get current TLB.Record constructor tag in ``Enum`` type of ``TLB.Tag``"""
@@ -217,6 +218,35 @@ class TLB(object):
             return self.unpack(cell_or_slice, rec_unpack, strict=strict)
         else:
             raise ValueError(f"Type {type(cell_or_slice)} is not supported")
+
+    def fetch_to(self, to_obj: object,
+                 cell_or_slice: Union[Cell, CellSlice],
+                 unpack_names: List[str],
+                 rec_unpack: bool = False,
+                 strict: bool = True):
+        """
+        Same as fetch, but copy negate params to ``to_obj`` with names from ``unpack_names``
+
+        :param to_obj:
+        :param cell_or_slice:
+        :param unpack_names:
+        :param rec_unpack:
+        :param strict:
+        :return:
+        """
+
+        rec = self.fetch(cell_or_slice=cell_or_slice, rec_unpack=rec_unpack, strict=strict)
+
+        if rec is None:
+            return rec
+
+        if not (len(rec.negate_params) == len(unpack_names)):
+            return None
+
+        for param, name in zip(rec.negate_params, unpack_names):
+            setattr(to_obj, name, getattr(rec, param))
+
+        return rec
 
     def get_param_record(self, item: str):
         """Copy params from TLB to Record"""

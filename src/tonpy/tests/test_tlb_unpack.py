@@ -434,3 +434,23 @@ def test_negate_deduct():
     assert rec.a == 8
     assert rec.c == 200
     assert rec.ap == 10
+
+
+def test_negate_complex():
+    # language=tl-b
+    tlb_text = """
+    _ {m:#} {x:#} n:(## m) d:(## x) = Define ~n m x ~d;
+    _ {n_from_define:#} {d:#} defined_val:(Define ~n_from_define 8 1 ~d) real_value:(## n_from_define) = Example;
+    """
+
+    add_tlb(tlb_text, globals())
+
+    cb = CellBuilder
+    tmp = cb().store_uint(16, 8).store_uint(1, 1).store_uint(123, 16).end_cell()
+    rec = Example().fetch(tmp)
+
+    assert rec.real_value == 123
+    assert rec.defined_val.m == 8
+    assert rec.defined_val.n == 16
+    assert rec.defined_val.x == 1
+    assert rec.defined_val.d == 1
