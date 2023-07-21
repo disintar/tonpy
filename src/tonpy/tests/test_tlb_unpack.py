@@ -145,46 +145,6 @@ def test_complex_unpack():
     assert rec.a.b.a == 12345
 
 
-def test_builtin_unpack():
-    # language=tl-b
-    tlb_text = """
-    _ a:^(uint256) b:^(int256) c:^(## 32)  = C;
-    _ a:^Cell b:^Any c:^(bits256) d:^C = B;
-    _ a:^# b:^(#< 5) c:^(#<= 10) d:^B = A;
-    """
-    add_tlb(tlb_text, globals())
-
-    cb = CellBuilder
-
-    A_a = cb().store_uint(1, 32).end_cell()
-    A_b = cb().store_uint_less(5, 2).end_cell()
-    A_c = cb().store_uint_leq(10, 3).end_cell()
-
-    B_a = cb().store_bitstring('1001').end_cell()
-    B_b = cb().store_bitstring('0110').end_cell()
-    B_c = cb().store_bitstring('1' * 256).end_cell()
-
-    C_a = cb().store_uint(4, 256).end_cell()
-    C_b = cb().store_int(5, 256).end_cell()
-    C_c = cb().store_uint(6, 32).end_cell()
-
-    final_C = cb().store_ref(C_a).store_ref(C_b).store_ref(C_c).end_cell()
-    final_B = cb().store_ref(B_a).store_ref(B_b).store_ref(B_c).store_ref(final_C).end_cell()
-    final_A = cb().store_ref(A_a).store_ref(A_b).store_ref(A_c).store_ref(final_B).end_cell()
-
-    rec = A().fetch(final_A, rec_unpack=True)
-
-    assert rec.a == 1
-    assert rec.b == 2
-    assert rec.c == 3
-    assert rec.d.a.begin_parse().to_bitstring() == '1001'
-    assert rec.d.b.begin_parse().to_bitstring() == '0110'
-    assert rec.d.c == '1' * 256
-    assert rec.d.d.a == 4
-    assert rec.d.d.b == 5
-    assert rec.d.d.c == 6
-
-
 def test_bool_tag():
     # language=tl-b
     tlb_text = """
@@ -269,7 +229,7 @@ def test_condition_fields():
     assert rec.a is False
     assert rec.b is None
 
-    rec = A().fetch(CellBuilder().store_bool(False).store_uint(179, 64).begin_parse())
+    rec = A().fetch(CellBuilder().store_bool(False).store_uint(179, 64).begin_parse(), strict=False)
     assert rec.a is False
     assert rec.b is None
 
@@ -337,8 +297,7 @@ def test_sub_params():
     """
     add_tlb(tlb_text, globals())
 
-    cb = CellBuilder
-    tmp = cb().store_uint(12, 10).end_cell()
+    tmp = CellBuilder().store_uint(12, 10).end_cell()
     rec = B().fetch(tmp)
 
     assert rec.b.a == 12

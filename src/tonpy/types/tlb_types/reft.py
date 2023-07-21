@@ -8,7 +8,7 @@ class RefT(TLB):
         super().__init__()
         self.type = x
 
-    def fetch(self, cell_ref: Cell, rec_unpack: bool = False) -> "Optional[TLB.Record]":
+    def fetch(self, cell_ref: Cell, rec_unpack: bool = False, strict: bool = False) -> "Optional[TLB.Record]":
         """ Load first ref from CellSlice and unpack as type """
 
         assert isinstance(cell_ref, Cell)
@@ -18,7 +18,7 @@ class RefT(TLB):
 
 
 class FakeCell(TLB):
-    def fetch(self, cell_ref: Cell, rec_unpack: bool = False) -> "Optional[TLB.Record]":
+    def fetch(self, cell_ref: Cell, rec_unpack: bool = False, strict: bool = False) -> "Optional[TLB.Record]":
         assert isinstance(cell_ref, Cell)
         self.original_cell = cell_ref
         return cell_ref

@@ -6,7 +6,7 @@ class Int(TLB):
         super().__init__()
         self.size = x
 
-    def unpack(self, cs: CellSlice, rec_unpack: bool = False) -> int:
+    def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = False) -> int:
         return cs.load_int(self.size)
 
 
@@ -15,7 +15,7 @@ class UInt(TLB):
         super().__init__()
         self.size = x
 
-    def unpack(self, cs: CellSlice, rec_unpack: bool = False) -> int:
+    def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = False) -> int:
         return cs.load_uint(self.size)
 
 
@@ -24,5 +24,5 @@ class Bits(TLB):
         super().__init__()
         self.size = x
 
-    def unpack(self, cs: CellSlice, rec_unpack: bool = False) -> str:
+    def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = False) -> str:
         return cs.load_bitstring(self.size)

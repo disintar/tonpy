@@ -13,8 +13,10 @@ class RecordBase:
     Check out ``test_tlb.py`` ``test_records`` function
     """
 
-    field_names = []  # names of all fetched fields
-    negate_params = []  # params that determinate on serialization process
+    def __init__(self):
+        self.field_names = []  # names of all fetched fields
+        self.conditional_fields = []  # names of all fields that are conditional
+        self.negate_params = []  # params that determinate on serialization process
 
     def get_tag_enum(self):
         """Get current TLB.Record constructor tag in ``Enum`` type of ``TLB.Tag``"""
@@ -256,6 +258,7 @@ class TLB(object):
         if self.has_params:
             # copy all params
             for i in self.params_attrs:
-                setattr(obj, i, getattr(self, i))
+                if hasattr(self, i):
+                    setattr(obj, i, getattr(self, i))
 
         return obj
