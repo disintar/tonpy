@@ -29,9 +29,10 @@ def add_tlb(tlb_text: str,
     tlb_text = parse_tlb(tlb_text).split("# definitions of constants")
     constants, tlb_text = tlb_text[1], tlb_text[0]
 
-    tlb_text_t = tlb_text.split("\n")
-    for i, j in zip(range(len(tlb_text_t)), tlb_text_t):
-        print(i, ": ", j)
+    # Debug
+    # tlb_text_t = tlb_text.split("\n")
+    # for i, j in zip(range(len(tlb_text_t)), tlb_text_t):
+    #     print(i, ": ", j)
 
     exec(tlb_text, globals(), locals())
 
