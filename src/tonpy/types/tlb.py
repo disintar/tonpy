@@ -1,6 +1,6 @@
 from collections import defaultdict
 from enum import Enum
-from typing import Optional, List, Union
+from typing import Optional, List, Union, Callable
 
 from tonpy.types import CellSlice, CellBuilder, Cell
 
@@ -177,7 +177,7 @@ class TLB(object):
                 return None
 
             return t
-        except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
+        except (TabError):
             return None
 
     def cell_unpack(self, cell_ref: Cell, rec_unpack: bool = False,
@@ -206,13 +206,16 @@ class TLB(object):
         return t
 
     def fetch(self, cell_or_slice: Union[Cell, CellSlice], rec_unpack: bool = False,
-              strict: bool = True) -> "Optional[TLB.Record]":
+              strict: bool = True) -> "Optional[Union[Union[Union[TLB.Record, Cell], CellSlice], None]]":
         """
         :param cell_or_slice:
         :param rec_unpack: pass to RecordBase ``rec_unpack``
         :param strict: pass to RecordBase ``strict``
-        :return:
+        :return: Will return cell/cellslice if cell is special, else will return record on success, else None
         """
+
+        if self.always_special():
+            return cell_or_slice
 
         if isinstance(cell_or_slice, Cell):
             return self.cell_unpack(cell_or_slice, rec_unpack, strict=strict)
@@ -250,15 +253,20 @@ class TLB(object):
 
         return rec
 
-    def get_param_record(self, item: str):
+    def get_param_record(self, item: str) -> Callable:
         """Copy params from TLB to Record"""
-
         obj = getattr(self, item)
 
-        if self.has_params:
-            # copy all params
-            for i in self.params_attrs:
-                if hasattr(self, i):
-                    setattr(obj, i, getattr(self, i))
+        def f():
+            if self.has_params:
+                # copy all params
+                for i in set(self.params_attrs):
+                    if hasattr(self, i):
+                        setattr(obj, i, getattr(self, i))
 
-        return obj
+            return obj()
+
+        return f
+
+    def nat_abs(self, x: int):
+        return (x > 1) * 2 + (x & 1)

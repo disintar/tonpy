@@ -413,3 +413,18 @@ def test_negate_complex():
     assert rec.defined_val.n == 16
     assert rec.defined_val.x == 1
     assert rec.defined_val.d == 1
+
+
+def test_apply_on_builtin():
+    # language=tl-b
+    tlb_text = """
+    anycast_info$_ depth:(#<= 30) { depth >= 1 }
+    rewrite_pfx:(bits depth) = Anycast;
+    """
+
+    add_tlb(tlb_text, globals())
+
+    tmp = CellBuilder().store_uint_leq(30, 5).store_bitstring("1" * 5).begin_parse()
+    rec = Anycast().fetch(tmp)
+    assert rec.depth == 5
+    assert rec.rewrite_pfx == "1" * 5

@@ -28,7 +28,7 @@ class Cell:
 
         return self.cell.get_hash()
 
-    def begin_parse(self, allow_special=False) -> CellSlice:
+    def begin_parse(self, allow_special=True) -> CellSlice:
         """Convert cell to CellSlice"""
 
         return CellSlice(load_as_cell_slice(self.cell, allow_special))

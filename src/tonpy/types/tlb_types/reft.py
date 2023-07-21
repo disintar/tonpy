@@ -22,3 +22,14 @@ class FakeCell(TLB):
         assert isinstance(cell_ref, Cell)
         self.original_cell = cell_ref
         return cell_ref
+
+
+class tAny(TLB):
+    def fetch(self, c: Union[Cell, CellSlice], rec_unpack: bool = False,
+              strict: bool = False) -> "Optional[TLB.Record]":
+        if isinstance(c, Cell):
+            self.original_cell = c
+            return c
+        else:
+            self.original_cell_slice = c.load_subslice(c.bits, c.refs)
+            return self.original_cell_slice

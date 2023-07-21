@@ -69,7 +69,7 @@ def test_special_boc():
     cell = Cell(special_boc)
 
     with pytest.raises(RuntimeError):
-        cell.begin_parse()
+        cell.begin_parse(False)
 
     # allow to load special
     cs = cell.begin_parse(True)
@@ -90,4 +90,3 @@ def test_copy():
     cell2 = cell.copy()
 
     assert cell.get_hash() == cell2.get_hash()
-
