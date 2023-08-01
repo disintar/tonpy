@@ -9,4 +9,5 @@ Subpackages
 
    tonpy.types
    tonpy.tlb_gen
+   tonpy.fift
 

@@ -36,6 +36,9 @@ What is supported?
 - TLB
    - `Python codegen`_
 
+- Tools
+   - `Fift disassembler`_
+
 
 .. _Cell: https://tonpy.dton.io/tonpy.types.html#module-tonpy.types.cell
 .. _CellSlice: https://tonpy.dton.io/tonpy.types.html#module-tonpy.types.cellslice
@@ -43,6 +46,7 @@ What is supported?
 .. _VmDict: https://tonpy.dton.io/tonpy.types.html#module-tonpy.types.vmdict
 .. _TLB: https://tonpy.dton.io/tonpy.types.html#module-tonpy.types.tlb
 .. _Python codegen: https://tonpy.dton.io/tonpy.tlb_gen.html#module-tonpy.tlb_gen.py
+.. _Fift disassembler:
 |
 
 .. _check tests examples here: https://github.com/disintar/tonpy/tree/main/src/tonpy/tests

@@ -1,0 +1,1 @@
+from tonpy.fift.disasm import disassembler

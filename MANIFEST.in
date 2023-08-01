@@ -1,2 +1,3 @@
 include requirements.txt
 recursive-include src/tonpy/libs *.so
+recursive-include src/tonpy/fift/libs *.fif
