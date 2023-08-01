@@ -1,7 +1,6 @@
 from tonpy.tlb_gen.py import add_tlb
 from tonpy.types import CellBuilder
 
-
 def test_builtin_unpack():
     # language=tl-b
     tlb_text = """

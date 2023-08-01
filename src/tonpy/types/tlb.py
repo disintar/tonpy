@@ -150,8 +150,7 @@ class TLB(object):
 
     def always_special(self) -> bool:
         """Is current type marked as special cell or not"""
-
-        raise NotImplementedError
+        return False
 
     def unpack(self, cs: CellSlice, rec_unpack: bool = False,
                strict: bool = True) -> Optional[RecordBase]:
@@ -206,7 +205,7 @@ class TLB(object):
         return t
 
     def fetch(self, cell_or_slice: Union[Cell, CellSlice], rec_unpack: bool = False,
-              strict: bool = True) -> "Optional[Union[Union[Union[TLB.Record, Cell], CellSlice], None]]":
+              strict: bool = True, **kwargs) -> "Optional[Union[Union[Union[TLB.Record, Cell], CellSlice], None]]":
         """
         :param cell_or_slice:
         :param rec_unpack: pass to RecordBase ``rec_unpack``
@@ -255,18 +254,16 @@ class TLB(object):
 
     def get_param_record(self, item: str) -> Callable:
         """Copy params from TLB to Record"""
-        obj = getattr(self, item)
+        TMPClass = type("TMPClass", (getattr(self, item),), {})
+        TMPClass.name = item
 
-        def f():
-            if self.has_params:
-                # copy all params
-                for i in set(self.params_attrs):
-                    if hasattr(self, i):
-                        setattr(obj, i, getattr(self, i))
+        if self.has_params:
+            # copy all params
+            for i in set(self.params_attrs):
+                if hasattr(self, i):
+                    setattr(TMPClass, i, getattr(self, i))
 
-            return obj()
-
-        return f
+        return TMPClass
 
     def nat_abs(self, x: int):
         return (x > 1) * 2 + (x & 1)

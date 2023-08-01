@@ -4,6 +4,7 @@ from tonpy.libs.python_ton import codegen_python_tlb
 from enum import Enum
 from tonpy.types import *
 from typing import Union, Optional
+from loguru import logger
 
 
 def parse_tlb(tlb_text: str) -> str:
@@ -47,7 +48,7 @@ def add_tlb(tlb_text: str,
     exec(constants, globals(), locals())
 
 
-def process_file(filepath: str) -> None:
+def process_file(filepath: str, out_path: str = None) -> None:
     """
     Parse tlb file and convert it to ``.py`` file with codegened code
 
@@ -61,11 +62,11 @@ def process_file(filepath: str) -> None:
         data = f.read()
         tlb_code = parse_tlb(data)
 
-        new_path = Path(filepath.replace(file_path.name, file_path.name[:-4] + '.py'))
-        print(new_path)
+        if out_path is None:
+            new_path = Path(filepath.replace(file_path.name, file_path.name[:-4] + '.py'))
+        else:
+            new_path = out_path
+
+        logger.warning(f"New path for TLB gen: {new_path}")
         with open(new_path, 'w') as fw:
             fw.write(tlb_code)
-
-
-if __name__ == "__main__":
-    process_file("/Users/tvorogme/projects/tonpy/src/tonpy/tlb_sources/block.tlb")

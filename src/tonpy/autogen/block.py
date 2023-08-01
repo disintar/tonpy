@@ -24,7 +24,7 @@ class Unit(TLBComplex):
         return Unit.Tag(0)
 
 
-    def fetch_enum(self, cs: CellSlice) -> int:
+    def fetch_enum(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> int:
         return 0
 
 
@@ -55,7 +55,7 @@ class Unit(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -66,7 +66,7 @@ class Unit(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -95,7 +95,7 @@ class Truet(TLBComplex):
         return Truet.Tag(0)
 
 
-    def fetch_enum(self, cs: CellSlice) -> int:
+    def fetch_enum(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> int:
         return 0
 
 
@@ -126,7 +126,7 @@ class Truet(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -137,7 +137,7 @@ class Truet(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -167,7 +167,7 @@ class Bool(TLBComplex):
         return Bool.Tag(int(cs.preload_uint(1)))
 
 
-    def fetch_enum(self, cs: CellSlice) -> int:
+    def fetch_enum(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> int:
         value = cs.load_uint(1)
         assert value in self.cons_tag, f'Unexpected value {value} for tag, expected one of: {self.cons_tag}'
         return value
@@ -203,7 +203,7 @@ class Bool(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -214,7 +214,7 @@ class Bool(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -242,7 +242,7 @@ class Bool(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -253,7 +253,7 @@ class Bool(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -282,7 +282,7 @@ class BoolFalse(TLBComplex):
         return BoolFalse.Tag(0)
 
 
-    def fetch_enum(self, cs: CellSlice) -> int:
+    def fetch_enum(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> int:
         value = cs.load_uint(1)
         assert value == 0, 'Not valid tag fetched'
         return value
@@ -317,7 +317,7 @@ class BoolFalse(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -328,7 +328,7 @@ class BoolFalse(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -357,7 +357,7 @@ class BoolTrue(TLBComplex):
         return BoolTrue.Tag(0)
 
 
-    def fetch_enum(self, cs: CellSlice) -> int:
+    def fetch_enum(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> int:
         value = cs.load_uint(1)
         assert value == 1, 'Not valid tag fetched'
         return value
@@ -392,7 +392,7 @@ class BoolTrue(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -403,7 +403,7 @@ class BoolTrue(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -462,7 +462,7 @@ class Maybe(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -473,7 +473,7 @@ class Maybe(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -503,12 +503,12 @@ class Maybe(TLBComplex):
             try:
                 assert cs.load_uint(1) == 1, 'Cons tag check failed'
 
-                self.value = self.X_.fetch(cs)                 
+                self.value = self.X_.fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -519,7 +519,7 @@ class Maybe(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -583,12 +583,12 @@ class Either(TLBComplex):
             try:
                 assert cs.load_uint(1) == 0, 'Cons tag check failed'
 
-                self.value = self.X_.fetch(cs)                 
+                self.value = self.X_.fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -599,7 +599,7 @@ class Either(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -629,12 +629,12 @@ class Either(TLBComplex):
             try:
                 assert cs.load_uint(1) == 1, 'Cons tag check failed'
 
-                self.value = self.Y_.fetch(cs)                 
+                self.value = self.Y_.fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -645,7 +645,7 @@ class Either(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -710,13 +710,13 @@ class Both(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.first = self.X_.fetch(cs) 
-                self.second = self.Y_.fetch(cs)                 
+                self.first = self.X_.fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.second = self.Y_.fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -727,7 +727,7 @@ class Both(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -786,7 +786,7 @@ class Bit(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -797,7 +797,7 @@ class Bit(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -881,12 +881,12 @@ class Hashmap(TLBComplex):
                 self.label = HmLabel(self.m_).fetch_to(self, cs, ["l"], rec_unpack, strict)
                 assert self.add_r1("m", self.l, self.m_), 'Add_r1 failed'
 
-                self.node = HashmapNode(self.m, self.X_).fetch(cs)                 
+                self.node = HashmapNode(self.m, self.X_).fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -897,7 +897,7 @@ class Hashmap(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -963,12 +963,12 @@ class HashmapNode(TLBComplex):
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
                 self.m_ == 0
-                self.value = self.X_.fetch(cs)                 
+                self.value = self.X_.fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -979,7 +979,7 @@ class HashmapNode(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -1021,19 +1021,21 @@ class HashmapNode(TLBComplex):
                 
                 if rec_unpack:
                     self.left = RefT(Hashmap(self.n, self.X_)).fetch(self.left, True, strict) # at 1
-                    assert self.left is not None
+                    if strict:
+                        assert self.left is not None
 
                 self.right = cs.load_ref()
                 
                 if rec_unpack:
                     self.right = RefT(Hashmap(self.n, self.X_)).fetch(self.right, True, strict) # at 1
-                    assert self.right is not None
+                    if strict:
+                        assert self.right is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -1044,7 +1046,7 @@ class HashmapNode(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -1127,11 +1129,6 @@ class HmLabel(TLBComplex):
 
                 self.s = cs.load_bitstring(self.n)
 
-                
-                if rec_unpack and self.s is not None:
-                    self.s = TLBComplex.constants["t_tuple_Bit"].fetch(self.s, True, strict) # at 3
-                    assert self.s is not None
-
                 self.m_ = self.n
                 self.negate_params.append("m_")
                 assert self.n >= 0, 'Constraint check failed'
@@ -1140,7 +1137,7 @@ class HmLabel(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -1151,7 +1148,7 @@ class HmLabel(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs, self.m_) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -1196,11 +1193,6 @@ class HmLabel(TLBComplex):
                 self.n = cs.load_uint_leq(self.n_)
                 self.s = cs.load_bitstring(self.n)
 
-                
-                if rec_unpack and self.s is not None:
-                    self.s = TLBComplex.constants["t_tuple_Bit"].fetch(self.s, True, strict) # at 3
-                    assert self.s is not None
-
                 self.m_ = self.n
                 self.negate_params.append("m_")
                 assert self.n >= 0, 'Constraint check failed'
@@ -1209,7 +1201,7 @@ class HmLabel(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -1220,7 +1212,7 @@ class HmLabel(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs, self.m_) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -1272,7 +1264,7 @@ class HmLabel(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -1283,7 +1275,7 @@ class HmLabel(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs, self.m_) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -1343,7 +1335,7 @@ class Unary(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -1354,7 +1346,7 @@ class Unary(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs, self.m_) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -1388,7 +1380,7 @@ class Unary(TLBComplex):
             try:
                 assert cs.load_uint(1) == 1, 'Cons tag check failed'
 
-                self.x = self.fetch_to(self, cs, ["n"], rec_unpack, strict)
+                self.x = TLBComplex.constants["t_Unary"].fetch_to(self, cs, ["n"], rec_unpack, strict)
                 self.m_ = self.n + 1
                 self.negate_params.append("m_")
                 assert self.n + 1 >= 0, 'Constraint check failed'
@@ -1397,7 +1389,7 @@ class Unary(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -1408,7 +1400,7 @@ class Unary(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs, self.m_) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -1470,7 +1462,7 @@ class HashmapE(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -1481,7 +1473,7 @@ class HashmapE(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -1523,13 +1515,14 @@ class HashmapE(TLBComplex):
                 
                 if rec_unpack:
                     self.root = RefT(Hashmap(self.m_, self.X_)).fetch(self.root, True, strict) # at 1
-                    assert self.root is not None
+                    if strict:
+                        assert self.root is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -1540,7 +1533,7 @@ class HashmapE(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -1606,12 +1599,12 @@ class BitstringSet(TLBComplex):
 
                 assert self.n >= 0, 'Field is leq than zero'
 
-                self.x = Hashmap(self.m_, t_Truet).fetch(cs)                 
+                self.x = Hashmap(self.m_, TLBComplex.constants["t_Truet"]).fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -1622,7 +1615,7 @@ class BitstringSet(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -1709,12 +1702,12 @@ class HashmapAug(TLBComplex):
                 self.label = HmLabel(self.m_).fetch_to(self, cs, ["l"], rec_unpack, strict)
                 assert self.add_r1("m", self.l, self.m_), 'Add_r1 failed'
 
-                self.node = HashmapAugNode(self.m, self.X_, self.Y_).fetch(cs)                 
+                self.node = HashmapAugNode(self.m, self.X_, self.Y_).fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -1725,7 +1718,7 @@ class HashmapAug(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -1798,13 +1791,13 @@ class HashmapAugNode(TLBComplex):
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
                 self.m_ == 0
-                self.extra = self.Y_.fetch(cs) 
-                self.value = self.X_.fetch(cs)                 
+                self.extra = self.Y_.fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.value = self.X_.fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -1815,7 +1808,7 @@ class HashmapAugNode(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -1861,20 +1854,22 @@ class HashmapAugNode(TLBComplex):
                 
                 if rec_unpack:
                     self.left = RefT(HashmapAug(self.n, self.X_, self.Y_)).fetch(self.left, True, strict) # at 1
-                    assert self.left is not None
+                    if strict:
+                        assert self.left is not None
 
                 self.right = cs.load_ref()
                 
                 if rec_unpack:
                     self.right = RefT(HashmapAug(self.n, self.X_, self.Y_)).fetch(self.right, True, strict) # at 1
-                    assert self.right is not None
+                    if strict:
+                        assert self.right is not None
 
-                self.extra = self.Y_.fetch(cs)                 
+                self.extra = self.Y_.fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -1885,7 +1880,7 @@ class HashmapAugNode(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -1952,12 +1947,12 @@ class HashmapAugE(TLBComplex):
             try:
                 assert cs.load_uint(1) == 0, 'Cons tag check failed'
 
-                self.extra = self.Y_.fetch(cs)                 
+                self.extra = self.Y_.fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -1968,7 +1963,7 @@ class HashmapAugE(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -2014,14 +2009,15 @@ class HashmapAugE(TLBComplex):
                 
                 if rec_unpack:
                     self.root = RefT(HashmapAug(self.m_, self.X_, self.Y_)).fetch(self.root, True, strict) # at 1
-                    assert self.root is not None
+                    if strict:
+                        assert self.root is not None
 
-                self.extra = self.Y_.fetch(cs)                 
+                self.extra = self.Y_.fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -2032,7 +2028,7 @@ class HashmapAugE(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -2116,12 +2112,12 @@ class VarHashmap(TLBComplex):
                 self.label = HmLabel(self.m_).fetch_to(self, cs, ["l"], rec_unpack, strict)
                 assert self.add_r1("m", self.l, self.m_), 'Add_r1 failed'
 
-                self.node = VarHashmapNode(self.m, self.X_).fetch(cs)                 
+                self.node = VarHashmapNode(self.m, self.X_).fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -2132,7 +2128,7 @@ class VarHashmap(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -2197,12 +2193,12 @@ class VarHashmapNode(TLBComplex):
             try:
                 assert cs.load_uint(2) == 0, 'Cons tag check failed'
 
-                self.value = self.X_.fetch(cs)                 
+                self.value = self.X_.fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -2213,7 +2209,7 @@ class VarHashmapNode(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -2261,20 +2257,22 @@ class VarHashmapNode(TLBComplex):
                 
                 if rec_unpack:
                     self.left = RefT(VarHashmap(self.n, self.X_)).fetch(self.left, True, strict) # at 1
-                    assert self.left is not None
+                    if strict:
+                        assert self.left is not None
 
                 self.right = cs.load_ref()
                 
                 if rec_unpack:
                     self.right = RefT(VarHashmap(self.n, self.X_)).fetch(self.right, True, strict) # at 1
-                    assert self.right is not None
+                    if strict:
+                        assert self.right is not None
 
-                self.value = Maybe(self.X_).fetch(cs)                 
+                self.value = Maybe(self.X_).fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -2285,7 +2283,7 @@ class VarHashmapNode(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -2334,14 +2332,15 @@ class VarHashmapNode(TLBComplex):
                 
                 if rec_unpack:
                     self.child = RefT(VarHashmap(self.n, self.X_)).fetch(self.child, True, strict) # at 1
-                    assert self.child is not None
+                    if strict:
+                        assert self.child is not None
 
-                self.value = self.X_.fetch(cs)                 
+                self.value = self.X_.fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -2352,7 +2351,7 @@ class VarHashmapNode(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -2414,7 +2413,7 @@ class VarHashmapE(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -2425,7 +2424,7 @@ class VarHashmapE(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -2467,13 +2466,14 @@ class VarHashmapE(TLBComplex):
                 
                 if rec_unpack:
                     self.root = RefT(VarHashmap(self.m_, self.X_)).fetch(self.root, True, strict) # at 1
-                    assert self.root is not None
+                    if strict:
+                        assert self.root is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -2484,7 +2484,7 @@ class VarHashmapE(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -2568,12 +2568,12 @@ class PfxHashmap(TLBComplex):
                 self.label = HmLabel(self.m_).fetch_to(self, cs, ["l"], rec_unpack, strict)
                 assert self.add_r1("m", self.l, self.m_), 'Add_r1 failed'
 
-                self.node = PfxHashmapNode(self.m, self.X_).fetch(cs)                 
+                self.node = PfxHashmapNode(self.m, self.X_).fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -2584,7 +2584,7 @@ class PfxHashmap(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -2648,12 +2648,12 @@ class PfxHashmapNode(TLBComplex):
             try:
                 assert cs.load_uint(1) == 0, 'Cons tag check failed'
 
-                self.value = self.X_.fetch(cs)                 
+                self.value = self.X_.fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -2664,7 +2664,7 @@ class PfxHashmapNode(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -2708,19 +2708,21 @@ class PfxHashmapNode(TLBComplex):
                 
                 if rec_unpack:
                     self.left = RefT(PfxHashmap(self.n, self.X_)).fetch(self.left, True, strict) # at 1
-                    assert self.left is not None
+                    if strict:
+                        assert self.left is not None
 
                 self.right = cs.load_ref()
                 
                 if rec_unpack:
                     self.right = RefT(PfxHashmap(self.n, self.X_)).fetch(self.right, True, strict) # at 1
-                    assert self.right is not None
+                    if strict:
+                        assert self.right is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -2731,7 +2733,7 @@ class PfxHashmapNode(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -2793,7 +2795,7 @@ class PfxHashmapE(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -2804,7 +2806,7 @@ class PfxHashmapE(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -2846,13 +2848,14 @@ class PfxHashmapE(TLBComplex):
                 
                 if rec_unpack:
                     self.root = RefT(PfxHashmap(self.m_, self.X_)).fetch(self.root, True, strict) # at 1
-                    assert self.root is not None
+                    if strict:
+                        assert self.root is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -2863,7 +2866,7 @@ class PfxHashmapE(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -2917,7 +2920,7 @@ class MsgAddressExt(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -2928,7 +2931,7 @@ class MsgAddressExt(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -2964,17 +2967,12 @@ class MsgAddressExt(TLBComplex):
 
                 self.len = cs.load_uint(9)
                 self.external_address = cs.load_bitstring(self.len)
-
-                
-                if rec_unpack and self.external_address is not None:
-                    self.external_address = TLBComplex.constants["t_bits"].fetch(self.external_address, True, strict) # at 3
-                    assert self.external_address is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -2985,7 +2983,7 @@ class MsgAddressExt(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -3046,17 +3044,12 @@ class Anycast(TLBComplex):
                 assert 1 <= self.depth, 'Params not equal: 1 and depth'
 
                 self.rewrite_pfx = cs.load_bitstring(self.depth)
-
-                
-                if rec_unpack and self.rewrite_pfx is not None:
-                    self.rewrite_pfx = TLBComplex.constants["t_bits"].fetch(self.rewrite_pfx, True, strict) # at 3
-                    assert self.rewrite_pfx is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -3067,7 +3060,7 @@ class Anycast(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -3131,14 +3124,14 @@ class MsgAddressInt(TLBComplex):
             try:
                 assert cs.load_uint(2) == 2, 'Cons tag check failed'
 
-                self.anycast = TLBComplex.constants["t_Maybe_Anycast"].fetch(cs) 
+                self.anycast = TLBComplex.constants["t_Maybe_Anycast"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.workchain_id = cs.load_int(8)
                 self.address = cs.load_bitstring(256)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -3149,7 +3142,7 @@ class MsgAddressInt(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -3191,21 +3184,16 @@ class MsgAddressInt(TLBComplex):
             try:
                 assert cs.load_uint(2) == 3, 'Cons tag check failed'
 
-                self.anycast = TLBComplex.constants["t_Maybe_Anycast"].fetch(cs) 
+                self.anycast = TLBComplex.constants["t_Maybe_Anycast"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.addr_len = cs.load_uint(9)
                 self.workchain_id = cs.load_int(32)
                 self.address = cs.load_bitstring(self.addr_len)
-
-                
-                if rec_unpack and self.address is not None:
-                    self.address = TLBComplex.constants["t_bits"].fetch(self.address, True, strict) # at 3
-                    assert self.address is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -3216,7 +3204,7 @@ class MsgAddressInt(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -3270,12 +3258,12 @@ class MsgAddress(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.x = TLBComplex.constants["t_MsgAddressInt"].fetch(cs)                 
+                self.x = TLBComplex.constants["t_MsgAddressInt"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -3286,7 +3274,7 @@ class MsgAddress(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -3314,12 +3302,12 @@ class MsgAddress(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.x = TLBComplex.constants["t_MsgAddressExt"].fetch(cs)                 
+                self.x = TLBComplex.constants["t_MsgAddressExt"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -3330,7 +3318,7 @@ class MsgAddress(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -3402,17 +3390,12 @@ class VarUInteger(TLBComplex):
 
                 self.len = cs.load_uint_less(self.m_)
                 self.value = cs.load_uint(8 * self.len)
-
-                
-                if rec_unpack and self.value is not None:
-                    self.value = TLBComplex.constants["t_uint_mul8"].fetch(self.value, True, strict) # at 3
-                    assert self.value is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -3423,7 +3406,7 @@ class VarUInteger(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -3495,17 +3478,12 @@ class VarInteger(TLBComplex):
 
                 self.len = cs.load_uint_less(self.m_)
                 self.value = cs.load_int(8 * self.len)
-
-                
-                if rec_unpack and self.value is not None:
-                    self.value = TLBComplex.constants["t_int_mul8"].fetch(self.value, True, strict) # at 3
-                    assert self.value is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -3516,7 +3494,7 @@ class VarInteger(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -3569,12 +3547,12 @@ class Grams(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.amount = TLBComplex.constants["t_VarUInteger_16"].fetch(cs)                 
+                self.amount = TLBComplex.constants["t_VarUInteger_16"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -3585,7 +3563,7 @@ class Grams(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -3638,12 +3616,12 @@ class Coins(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.grams = TLBComplex.constants["t_Grams"].fetch(cs)                 
+                self.grams = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -3654,7 +3632,7 @@ class Coins(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -3707,12 +3685,12 @@ class ExtraCurrencyCollection(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.dict = TLBComplex.constants["t_HashmapE_32_VarUInteger_32"].fetch(cs)                 
+                self.dict = TLBComplex.constants["t_HashmapE_32_VarUInteger_32"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -3723,7 +3701,7 @@ class ExtraCurrencyCollection(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -3780,13 +3758,13 @@ class CurrencyCollection(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.grams = TLBComplex.constants["t_Grams"].fetch(cs) 
-                self.other = TLBComplex.constants["t_ExtraCurrencyCollection"].fetch(cs)                 
+                self.grams = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.other = TLBComplex.constants["t_ExtraCurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -3797,7 +3775,7 @@ class CurrencyCollection(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -3893,18 +3871,18 @@ class CommonMsgInfo(TLBComplex):
                 self.ihr_disabled = cs.load_bool()
                 self.bounce = cs.load_bool()
                 self.bounced = cs.load_bool()
-                self.src = TLBComplex.constants["t_MsgAddressInt"].fetch(cs) 
-                self.dest = TLBComplex.constants["t_MsgAddressInt"].fetch(cs) 
-                self.value = TLBComplex.constants["t_CurrencyCollection"].fetch(cs) 
-                self.ihr_fee = TLBComplex.constants["t_Grams"].fetch(cs) 
-                self.fwd_fee = TLBComplex.constants["t_Grams"].fetch(cs) 
+                self.src = TLBComplex.constants["t_MsgAddressInt"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.dest = TLBComplex.constants["t_MsgAddressInt"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.value = TLBComplex.constants["t_CurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.ihr_fee = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.fwd_fee = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.created_lt = cs.load_uint(64)
                 self.created_at = cs.load_uint(32)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -3915,7 +3893,7 @@ class CommonMsgInfo(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -3953,14 +3931,14 @@ class CommonMsgInfo(TLBComplex):
             try:
                 assert cs.load_uint(2) == 2, 'Cons tag check failed'
 
-                self.src = TLBComplex.constants["t_MsgAddressExt"].fetch(cs) 
-                self.dest = TLBComplex.constants["t_MsgAddressInt"].fetch(cs) 
-                self.import_fee = TLBComplex.constants["t_Grams"].fetch(cs)                 
+                self.src = TLBComplex.constants["t_MsgAddressExt"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.dest = TLBComplex.constants["t_MsgAddressInt"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.import_fee = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -3971,7 +3949,7 @@ class CommonMsgInfo(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -4013,15 +3991,15 @@ class CommonMsgInfo(TLBComplex):
             try:
                 assert cs.load_uint(2) == 3, 'Cons tag check failed'
 
-                self.src = TLBComplex.constants["t_MsgAddressInt"].fetch(cs) 
-                self.dest = TLBComplex.constants["t_MsgAddressExt"].fetch(cs) 
+                self.src = TLBComplex.constants["t_MsgAddressInt"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.dest = TLBComplex.constants["t_MsgAddressExt"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.created_lt = cs.load_uint(64)
                 self.created_at = cs.load_uint(32)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -4032,7 +4010,7 @@ class CommonMsgInfo(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -4127,18 +4105,18 @@ class CommonMsgInfoRelaxed(TLBComplex):
                 self.ihr_disabled = cs.load_bool()
                 self.bounce = cs.load_bool()
                 self.bounced = cs.load_bool()
-                self.src = TLBComplex.constants["t_MsgAddress"].fetch(cs) 
-                self.dest = TLBComplex.constants["t_MsgAddressInt"].fetch(cs) 
-                self.value = TLBComplex.constants["t_CurrencyCollection"].fetch(cs) 
-                self.ihr_fee = TLBComplex.constants["t_Grams"].fetch(cs) 
-                self.fwd_fee = TLBComplex.constants["t_Grams"].fetch(cs) 
+                self.src = TLBComplex.constants["t_MsgAddress"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.dest = TLBComplex.constants["t_MsgAddressInt"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.value = TLBComplex.constants["t_CurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.ihr_fee = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.fwd_fee = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.created_lt = cs.load_uint(64)
                 self.created_at = cs.load_uint(32)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -4149,7 +4127,7 @@ class CommonMsgInfoRelaxed(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -4191,15 +4169,15 @@ class CommonMsgInfoRelaxed(TLBComplex):
             try:
                 assert cs.load_uint(2) == 3, 'Cons tag check failed'
 
-                self.src = TLBComplex.constants["t_MsgAddress"].fetch(cs) 
-                self.dest = TLBComplex.constants["t_MsgAddressExt"].fetch(cs) 
+                self.src = TLBComplex.constants["t_MsgAddress"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.dest = TLBComplex.constants["t_MsgAddressExt"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.created_lt = cs.load_uint(64)
                 self.created_at = cs.load_uint(32)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -4210,7 +4188,7 @@ class CommonMsgInfoRelaxed(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -4273,7 +4251,7 @@ class TickTock(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -4284,7 +4262,7 @@ class TickTock(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -4353,16 +4331,16 @@ class StateInit(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.split_depth = TLBComplex.constants["t_Maybe_natwidth_5"].fetch(cs) 
-                self.special = TLBComplex.constants["t_Maybe_TickTock"].fetch(cs) 
-                self.code = TLBComplex.constants["t_Maybe_Ref_Cell"].fetch(cs) 
-                self.data = TLBComplex.constants["t_Maybe_Ref_Cell"].fetch(cs) 
-                self.library = TLBComplex.constants["t_Maybe_Ref_Cell"].fetch(cs)                 
+                self.split_depth = TLBComplex.constants["t_Maybe_natwidth_5"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.special = TLBComplex.constants["t_Maybe_TickTock"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.code = TLBComplex.constants["t_Maybe_Ref_Cell"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.data = TLBComplex.constants["t_Maybe_Ref_Cell"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.library = TLBComplex.constants["t_Maybe_Ref_Cell"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -4373,7 +4351,7 @@ class StateInit(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -4442,16 +4420,16 @@ class StateInitWithLibs(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.split_depth = TLBComplex.constants["t_Maybe_natwidth_5"].fetch(cs) 
-                self.special = TLBComplex.constants["t_Maybe_TickTock"].fetch(cs) 
-                self.code = TLBComplex.constants["t_Maybe_Ref_Cell"].fetch(cs) 
-                self.data = TLBComplex.constants["t_Maybe_Ref_Cell"].fetch(cs) 
-                self.library = TLBComplex.constants["t_HashmapE_256_SimpleLib"].fetch(cs)                 
+                self.split_depth = TLBComplex.constants["t_Maybe_natwidth_5"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.special = TLBComplex.constants["t_Maybe_TickTock"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.code = TLBComplex.constants["t_Maybe_Ref_Cell"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.data = TLBComplex.constants["t_Maybe_Ref_Cell"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.library = TLBComplex.constants["t_HashmapE_256_SimpleLib"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -4462,7 +4440,7 @@ class StateInitWithLibs(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -4524,13 +4502,14 @@ class SimpleLib(TLBComplex):
                 
                 if rec_unpack:
                     self.root = TLBComplex.constants["t_RefCell"].fetch(self.root, True, strict) # at 1
-                    assert self.root is not None
+                    if strict:
+                        assert self.root is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -4541,7 +4520,7 @@ class SimpleLib(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -4607,14 +4586,14 @@ class Message(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.info = TLBComplex.constants["t_CommonMsgInfo"].fetch(cs) 
-                self.init = TLBComplex.constants["t_Maybe_Either_StateInit_Ref_StateInit"].fetch(cs) 
-                self.body = Either(self.X_, RefT(self.X_)).fetch(cs)                 
+                self.info = TLBComplex.constants["t_CommonMsgInfo"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.init = TLBComplex.constants["t_Maybe_Either_StateInit_Ref_StateInit"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.body = Either(self.X_, RefT(self.X_)).fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -4625,7 +4604,7 @@ class Message(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -4691,14 +4670,14 @@ class MessageRelaxed(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.info = TLBComplex.constants["t_CommonMsgInfoRelaxed"].fetch(cs) 
-                self.init = TLBComplex.constants["t_Maybe_Either_StateInit_Ref_StateInit"].fetch(cs) 
-                self.body = Either(self.X_, RefT(self.X_)).fetch(cs)                 
+                self.info = TLBComplex.constants["t_CommonMsgInfoRelaxed"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.init = TLBComplex.constants["t_Maybe_Either_StateInit_Ref_StateInit"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.body = Either(self.X_, RefT(self.X_)).fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -4709,7 +4688,7 @@ class MessageRelaxed(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -4762,12 +4741,12 @@ class MessageAny(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.x = TLBComplex.constants["t_Message_Any"].fetch(cs)                 
+                self.x = TLBComplex.constants["t_Message_Any"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -4778,7 +4757,7 @@ class MessageAny(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -4840,7 +4819,7 @@ class IntermediateAddress(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -4851,7 +4830,7 @@ class IntermediateAddress(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -4891,7 +4870,7 @@ class IntermediateAddress(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -4902,7 +4881,7 @@ class IntermediateAddress(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -4942,7 +4921,7 @@ class IntermediateAddress(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -4953,7 +4932,7 @@ class IntermediateAddress(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -5020,20 +4999,21 @@ class MsgEnvelope(TLBComplex):
             try:
                 assert cs.load_uint(4) == 4, 'Cons tag check failed'
 
-                self.cur_addr = TLBComplex.constants["t_IntermediateAddress"].fetch(cs) 
-                self.next_addr = TLBComplex.constants["t_IntermediateAddress"].fetch(cs) 
-                self.fwd_fee_remaining = TLBComplex.constants["t_Grams"].fetch(cs) 
+                self.cur_addr = TLBComplex.constants["t_IntermediateAddress"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.next_addr = TLBComplex.constants["t_IntermediateAddress"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.fwd_fee_remaining = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.msg = cs.load_ref()
                 
                 if rec_unpack:
                     self.msg = TLBComplex.constants["t_Ref_Message_Any"].fetch(self.msg, True, strict) # at 1
-                    assert self.msg is not None
+                    if strict:
+                        assert self.msg is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -5044,7 +5024,7 @@ class MsgEnvelope(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -5113,19 +5093,21 @@ class InMsg(TLBComplex):
                 
                 if rec_unpack:
                     self.msg = TLBComplex.constants["t_Ref_Message_Any"].fetch(self.msg, True, strict) # at 1
-                    assert self.msg is not None
+                    if strict:
+                        assert self.msg is not None
 
                 self.transaction = cs.load_ref()
                 
                 if rec_unpack:
                     self.transaction = TLBComplex.constants["t_Ref_Transaction"].fetch(self.transaction, True, strict) # at 1
-                    assert self.transaction is not None
+                    if strict:
+                        assert self.transaction is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -5136,7 +5118,7 @@ class InMsg(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -5182,26 +5164,29 @@ class InMsg(TLBComplex):
                 
                 if rec_unpack:
                     self.msg = TLBComplex.constants["t_Ref_Message_Any"].fetch(self.msg, True, strict) # at 1
-                    assert self.msg is not None
+                    if strict:
+                        assert self.msg is not None
 
                 self.transaction = cs.load_ref()
                 
                 if rec_unpack:
                     self.transaction = TLBComplex.constants["t_Ref_Transaction"].fetch(self.transaction, True, strict) # at 1
-                    assert self.transaction is not None
+                    if strict:
+                        assert self.transaction is not None
 
-                self.ihr_fee = TLBComplex.constants["t_Grams"].fetch(cs) 
+                self.ihr_fee = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.proof_created = cs.load_ref()
                 
                 if rec_unpack:
                     self.proof_created = TLBComplex.constants["t_RefCell"].fetch(self.proof_created, True, strict) # at 1
-                    assert self.proof_created is not None
+                    if strict:
+                        assert self.proof_created is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -5212,7 +5197,7 @@ class InMsg(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -5254,20 +5239,22 @@ class InMsg(TLBComplex):
                 
                 if rec_unpack:
                     self.in_msg = TLBComplex.constants["t_Ref_MsgEnvelope"].fetch(self.in_msg, True, strict) # at 1
-                    assert self.in_msg is not None
+                    if strict:
+                        assert self.in_msg is not None
 
                 self.transaction = cs.load_ref()
                 
                 if rec_unpack:
                     self.transaction = TLBComplex.constants["t_Ref_Transaction"].fetch(self.transaction, True, strict) # at 1
-                    assert self.transaction is not None
+                    if strict:
+                        assert self.transaction is not None
 
-                self.fwd_fee = TLBComplex.constants["t_Grams"].fetch(cs)                 
+                self.fwd_fee = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -5278,7 +5265,7 @@ class InMsg(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -5320,20 +5307,22 @@ class InMsg(TLBComplex):
                 
                 if rec_unpack:
                     self.in_msg = TLBComplex.constants["t_Ref_MsgEnvelope"].fetch(self.in_msg, True, strict) # at 1
-                    assert self.in_msg is not None
+                    if strict:
+                        assert self.in_msg is not None
 
                 self.transaction = cs.load_ref()
                 
                 if rec_unpack:
                     self.transaction = TLBComplex.constants["t_Ref_Transaction"].fetch(self.transaction, True, strict) # at 1
-                    assert self.transaction is not None
+                    if strict:
+                        assert self.transaction is not None
 
-                self.fwd_fee = TLBComplex.constants["t_Grams"].fetch(cs)                 
+                self.fwd_fee = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -5344,7 +5333,7 @@ class InMsg(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -5386,20 +5375,22 @@ class InMsg(TLBComplex):
                 
                 if rec_unpack:
                     self.in_msg = TLBComplex.constants["t_Ref_MsgEnvelope"].fetch(self.in_msg, True, strict) # at 1
-                    assert self.in_msg is not None
+                    if strict:
+                        assert self.in_msg is not None
 
                 self.out_msg = cs.load_ref()
                 
                 if rec_unpack:
                     self.out_msg = TLBComplex.constants["t_Ref_MsgEnvelope"].fetch(self.out_msg, True, strict) # at 1
-                    assert self.out_msg is not None
+                    if strict:
+                        assert self.out_msg is not None
 
-                self.transit_fee = TLBComplex.constants["t_Grams"].fetch(cs)                 
+                self.transit_fee = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -5410,7 +5401,7 @@ class InMsg(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -5452,15 +5443,16 @@ class InMsg(TLBComplex):
                 
                 if rec_unpack:
                     self.in_msg = TLBComplex.constants["t_Ref_MsgEnvelope"].fetch(self.in_msg, True, strict) # at 1
-                    assert self.in_msg is not None
+                    if strict:
+                        assert self.in_msg is not None
 
                 self.transaction_id = cs.load_uint(64)
-                self.fwd_fee = TLBComplex.constants["t_Grams"].fetch(cs)                 
+                self.fwd_fee = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -5471,7 +5463,7 @@ class InMsg(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -5517,21 +5509,23 @@ class InMsg(TLBComplex):
                 
                 if rec_unpack:
                     self.in_msg = TLBComplex.constants["t_Ref_MsgEnvelope"].fetch(self.in_msg, True, strict) # at 1
-                    assert self.in_msg is not None
+                    if strict:
+                        assert self.in_msg is not None
 
                 self.transaction_id = cs.load_uint(64)
-                self.fwd_fee = TLBComplex.constants["t_Grams"].fetch(cs) 
+                self.fwd_fee = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.proof_delivered = cs.load_ref()
                 
                 if rec_unpack:
                     self.proof_delivered = TLBComplex.constants["t_RefCell"].fetch(self.proof_delivered, True, strict) # at 1
-                    assert self.proof_delivered is not None
+                    if strict:
+                        assert self.proof_delivered is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -5542,7 +5536,7 @@ class InMsg(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -5599,13 +5593,13 @@ class ImportFees(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.fees_collected = TLBComplex.constants["t_Grams"].fetch(cs) 
-                self.value_imported = TLBComplex.constants["t_CurrencyCollection"].fetch(cs)                 
+                self.fees_collected = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.value_imported = TLBComplex.constants["t_CurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -5616,7 +5610,7 @@ class ImportFees(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -5669,12 +5663,12 @@ class InMsgDescr(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.x = TLBComplex.constants["t_HashmapAugE_256_InMsg_ImportFees"].fetch(cs)                 
+                self.x = TLBComplex.constants["t_HashmapAugE_256_InMsg_ImportFees"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -5685,7 +5679,7 @@ class InMsgDescr(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -5755,19 +5749,21 @@ class OutMsg(TLBComplex):
                 
                 if rec_unpack:
                     self.msg = TLBComplex.constants["t_Ref_Message_Any"].fetch(self.msg, True, strict) # at 1
-                    assert self.msg is not None
+                    if strict:
+                        assert self.msg is not None
 
                 self.transaction = cs.load_ref()
                 
                 if rec_unpack:
                     self.transaction = TLBComplex.constants["t_Ref_Transaction"].fetch(self.transaction, True, strict) # at 1
-                    assert self.transaction is not None
+                    if strict:
+                        assert self.transaction is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -5778,7 +5774,7 @@ class OutMsg(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -5820,25 +5816,28 @@ class OutMsg(TLBComplex):
                 
                 if rec_unpack:
                     self.out_msg = TLBComplex.constants["t_Ref_MsgEnvelope"].fetch(self.out_msg, True, strict) # at 1
-                    assert self.out_msg is not None
+                    if strict:
+                        assert self.out_msg is not None
 
                 self.transaction = cs.load_ref()
                 
                 if rec_unpack:
                     self.transaction = TLBComplex.constants["t_Ref_Transaction"].fetch(self.transaction, True, strict) # at 1
-                    assert self.transaction is not None
+                    if strict:
+                        assert self.transaction is not None
 
                 self.reimport = cs.load_ref()
                 
                 if rec_unpack:
                     self.reimport = TLBComplex.constants["t_Ref_InMsg"].fetch(self.reimport, True, strict) # at 1
-                    assert self.reimport is not None
+                    if strict:
+                        assert self.reimport is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -5849,7 +5848,7 @@ class OutMsg(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -5887,19 +5886,21 @@ class OutMsg(TLBComplex):
                 
                 if rec_unpack:
                     self.out_msg = TLBComplex.constants["t_Ref_MsgEnvelope"].fetch(self.out_msg, True, strict) # at 1
-                    assert self.out_msg is not None
+                    if strict:
+                        assert self.out_msg is not None
 
                 self.transaction = cs.load_ref()
                 
                 if rec_unpack:
                     self.transaction = TLBComplex.constants["t_Ref_Transaction"].fetch(self.transaction, True, strict) # at 1
-                    assert self.transaction is not None
+                    if strict:
+                        assert self.transaction is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -5910,7 +5911,7 @@ class OutMsg(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -5948,19 +5949,21 @@ class OutMsg(TLBComplex):
                 
                 if rec_unpack:
                     self.out_msg = TLBComplex.constants["t_Ref_MsgEnvelope"].fetch(self.out_msg, True, strict) # at 1
-                    assert self.out_msg is not None
+                    if strict:
+                        assert self.out_msg is not None
 
                 self.imported = cs.load_ref()
                 
                 if rec_unpack:
                     self.imported = TLBComplex.constants["t_Ref_InMsg"].fetch(self.imported, True, strict) # at 1
-                    assert self.imported is not None
+                    if strict:
+                        assert self.imported is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -5971,7 +5974,7 @@ class OutMsg(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -6009,14 +6012,15 @@ class OutMsg(TLBComplex):
                 
                 if rec_unpack:
                     self.out_msg = TLBComplex.constants["t_Ref_MsgEnvelope"].fetch(self.out_msg, True, strict) # at 1
-                    assert self.out_msg is not None
+                    if strict:
+                        assert self.out_msg is not None
 
                 self.import_block_lt = cs.load_uint(63)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -6027,7 +6031,7 @@ class OutMsg(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -6077,7 +6081,7 @@ class OutMsg(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -6088,7 +6092,7 @@ class OutMsg(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -6126,19 +6130,21 @@ class OutMsg(TLBComplex):
                 
                 if rec_unpack:
                     self.out_msg = TLBComplex.constants["t_Ref_MsgEnvelope"].fetch(self.out_msg, True, strict) # at 1
-                    assert self.out_msg is not None
+                    if strict:
+                        assert self.out_msg is not None
 
                 self.imported = cs.load_ref()
                 
                 if rec_unpack:
                     self.imported = TLBComplex.constants["t_Ref_InMsg"].fetch(self.imported, True, strict) # at 1
-                    assert self.imported is not None
+                    if strict:
+                        assert self.imported is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -6149,7 +6155,7 @@ class OutMsg(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -6187,19 +6193,21 @@ class OutMsg(TLBComplex):
                 
                 if rec_unpack:
                     self.out_msg = TLBComplex.constants["t_Ref_MsgEnvelope"].fetch(self.out_msg, True, strict) # at 1
-                    assert self.out_msg is not None
+                    if strict:
+                        assert self.out_msg is not None
 
                 self.reimport = cs.load_ref()
                 
                 if rec_unpack:
                     self.reimport = TLBComplex.constants["t_Ref_InMsg"].fetch(self.reimport, True, strict) # at 1
-                    assert self.reimport is not None
+                    if strict:
+                        assert self.reimport is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -6210,7 +6218,7 @@ class OutMsg(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -6272,13 +6280,14 @@ class EnqueuedMsg(TLBComplex):
                 
                 if rec_unpack:
                     self.out_msg = TLBComplex.constants["t_Ref_MsgEnvelope"].fetch(self.out_msg, True, strict) # at 1
-                    assert self.out_msg is not None
+                    if strict:
+                        assert self.out_msg is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -6289,7 +6298,7 @@ class EnqueuedMsg(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -6342,12 +6351,12 @@ class OutMsgDescr(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.x = TLBComplex.constants["t_HashmapAugE_256_OutMsg_CurrencyCollection"].fetch(cs)                 
+                self.x = TLBComplex.constants["t_HashmapAugE_256_OutMsg_CurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -6358,7 +6367,7 @@ class OutMsgDescr(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -6411,12 +6420,12 @@ class OutMsgQueue(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.x = TLBComplex.constants["t_HashmapAugE_352_EnqueuedMsg_uint64"].fetch(cs)                 
+                self.x = TLBComplex.constants["t_HashmapAugE_352_EnqueuedMsg_uint64"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -6427,7 +6436,7 @@ class OutMsgQueue(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -6490,7 +6499,7 @@ class ProcessedUpto(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -6501,7 +6510,7 @@ class ProcessedUpto(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -6554,12 +6563,12 @@ class ProcessedInfo(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.x = TLBComplex.constants["t_HashmapE_96_ProcessedUpto"].fetch(cs)                 
+                self.x = TLBComplex.constants["t_HashmapE_96_ProcessedUpto"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -6570,7 +6579,7 @@ class ProcessedInfo(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -6628,7 +6637,7 @@ class IhrPendingSince(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -6639,7 +6648,7 @@ class IhrPendingSince(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -6692,12 +6701,12 @@ class IhrPendingInfo(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.x = TLBComplex.constants["t_HashmapE_320_IhrPendingSince"].fetch(cs)                 
+                self.x = TLBComplex.constants["t_HashmapE_320_IhrPendingSince"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -6708,7 +6717,7 @@ class IhrPendingInfo(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -6769,14 +6778,14 @@ class OutMsgQueueInfo(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.out_queue = TLBComplex.constants["t_OutMsgQueue"].fetch(cs) 
-                self.proc_info = TLBComplex.constants["t_ProcessedInfo"].fetch(cs) 
-                self.ihr_pending = TLBComplex.constants["t_IhrPendingInfo"].fetch(cs)                 
+                self.out_queue = TLBComplex.constants["t_OutMsgQueue"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.proc_info = TLBComplex.constants["t_ProcessedInfo"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.ihr_pending = TLBComplex.constants["t_IhrPendingInfo"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -6787,7 +6796,7 @@ class OutMsgQueueInfo(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -6848,14 +6857,14 @@ class StorageUsed(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.cells = TLBComplex.constants["t_VarUInteger_7"].fetch(cs) 
-                self.bits = TLBComplex.constants["t_VarUInteger_7"].fetch(cs) 
-                self.public_cells = TLBComplex.constants["t_VarUInteger_7"].fetch(cs)                 
+                self.cells = TLBComplex.constants["t_VarUInteger_7"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.bits = TLBComplex.constants["t_VarUInteger_7"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.public_cells = TLBComplex.constants["t_VarUInteger_7"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -6866,7 +6875,7 @@ class StorageUsed(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -6923,13 +6932,13 @@ class StorageUsedShort(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.cells = TLBComplex.constants["t_VarUInteger_7"].fetch(cs) 
-                self.bits = TLBComplex.constants["t_VarUInteger_7"].fetch(cs)                 
+                self.cells = TLBComplex.constants["t_VarUInteger_7"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.bits = TLBComplex.constants["t_VarUInteger_7"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -6940,7 +6949,7 @@ class StorageUsedShort(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -7001,14 +7010,14 @@ class StorageInfo(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.used = TLBComplex.constants["t_StorageUsed"].fetch(cs) 
+                self.used = TLBComplex.constants["t_StorageUsed"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.last_paid = cs.load_uint(32)
-                self.due_payment = TLBComplex.constants["t_Maybe_Grams"].fetch(cs)                 
+                self.due_payment = TLBComplex.constants["t_Maybe_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -7019,7 +7028,7 @@ class StorageInfo(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -7073,7 +7082,7 @@ class Account(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -7084,7 +7093,7 @@ class Account(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -7122,14 +7131,14 @@ class Account(TLBComplex):
             try:
                 assert cs.load_uint(1) == 1, 'Cons tag check failed'
 
-                self.addr = TLBComplex.constants["t_MsgAddressInt"].fetch(cs) 
-                self.storage_stat = TLBComplex.constants["t_StorageInfo"].fetch(cs) 
-                self.storage = TLBComplex.constants["t_AccountStorage"].fetch(cs)                 
+                self.addr = TLBComplex.constants["t_MsgAddressInt"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.storage_stat = TLBComplex.constants["t_StorageInfo"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.storage = TLBComplex.constants["t_AccountStorage"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -7140,7 +7149,7 @@ class Account(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -7202,13 +7211,13 @@ class AccountStorage(TLBComplex):
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
                 self.last_trans_lt = cs.load_uint(64)
-                self.balance = TLBComplex.constants["t_CurrencyCollection"].fetch(cs) 
-                self.state = TLBComplex.constants["t_AccountState"].fetch(cs)                 
+                self.balance = TLBComplex.constants["t_CurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.state = TLBComplex.constants["t_AccountState"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -7219,7 +7228,7 @@ class AccountStorage(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -7274,7 +7283,7 @@ class AccountState(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -7285,7 +7294,7 @@ class AccountState(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -7315,12 +7324,12 @@ class AccountState(TLBComplex):
             try:
                 assert cs.load_uint(1) == 1, 'Cons tag check failed'
 
-                self.x = TLBComplex.constants["t_StateInit"].fetch(cs)                 
+                self.x = TLBComplex.constants["t_StateInit"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -7331,7 +7340,7 @@ class AccountState(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -7366,7 +7375,7 @@ class AccountState(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -7377,7 +7386,7 @@ class AccountState(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -7409,7 +7418,7 @@ class AccountStatus(TLBComplex):
         return AccountStatus.Tag(int(cs.preload_uint(2)))
 
 
-    def fetch_enum(self, cs: CellSlice) -> int:
+    def fetch_enum(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> int:
         value = cs.load_uint(2)
         assert value in self.cons_tag, f'Unexpected value {value} for tag, expected one of: {self.cons_tag}'
         return value
@@ -7445,7 +7454,7 @@ class AccountStatus(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -7456,7 +7465,7 @@ class AccountStatus(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -7484,7 +7493,7 @@ class AccountStatus(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -7495,7 +7504,7 @@ class AccountStatus(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -7523,7 +7532,7 @@ class AccountStatus(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -7534,7 +7543,7 @@ class AccountStatus(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -7562,7 +7571,7 @@ class AccountStatus(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -7573,7 +7582,7 @@ class AccountStatus(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -7638,7 +7647,8 @@ class ShardAccount(TLBComplex):
                 
                 if rec_unpack:
                     self.account = TLBComplex.constants["t_Ref_Account"].fetch(self.account, True, strict) # at 1
-                    assert self.account is not None
+                    if strict:
+                        assert self.account is not None
 
                 self.last_trans_hash = cs.load_bitstring(256)
                 self.last_trans_lt = cs.load_uint(64)                
@@ -7646,7 +7656,7 @@ class ShardAccount(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -7657,7 +7667,7 @@ class ShardAccount(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -7715,12 +7725,12 @@ class DepthBalanceInfo(TLBComplex):
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
                 self.split_depth = cs.load_uint_leq(30)
-                self.balance = TLBComplex.constants["t_CurrencyCollection"].fetch(cs)                 
+                self.balance = TLBComplex.constants["t_CurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -7731,7 +7741,7 @@ class DepthBalanceInfo(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -7784,12 +7794,12 @@ class ShardAccounts(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.x = TLBComplex.constants["t_HashmapAugE_256_ShardAccount_DepthBalanceInfo"].fetch(cs)                 
+                self.x = TLBComplex.constants["t_HashmapAugE_256_ShardAccount_DepthBalanceInfo"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -7800,7 +7810,7 @@ class ShardAccounts(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -7857,13 +7867,13 @@ class Transaction_aux(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.in_msg = TLBComplex.constants["t_Maybe_Ref_Message_Any"].fetch(cs) 
-                self.out_msgs = TLBComplex.constants["t_HashmapE_15_Ref_Message_Any"].fetch(cs)                 
+                self.in_msg = TLBComplex.constants["t_Maybe_Ref_Message_Any"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.out_msgs = TLBComplex.constants["t_HashmapE_15_Ref_Message_Any"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -7874,7 +7884,7 @@ class Transaction_aux(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -7979,27 +7989,29 @@ class Transaction(TLBComplex):
                 self.prev_trans_lt = cs.load_uint(64)
                 self.now = cs.load_uint(32)
                 self.outmsg_cnt = cs.load_uint(15)
-                self.orig_status = TLBComplex.constants["t_AccountStatus"].fetch_enum(cs) 
-                self.end_status = TLBComplex.constants["t_AccountStatus"].fetch_enum(cs) 
+                self.orig_status = TLBComplex.constants["t_AccountStatus"].fetch_enum(cs, rec_unpack=rec_unpack, strict=strict)
+                self.end_status = TLBComplex.constants["t_AccountStatus"].fetch_enum(cs, rec_unpack=rec_unpack, strict=strict)
                 self.r1 = TLBComplex.constants["t_Transaction_aux"].fetch(cs.load_ref(), rec_unpack, strict)
-                self.total_fees = TLBComplex.constants["t_CurrencyCollection"].fetch(cs) 
+                self.total_fees = TLBComplex.constants["t_CurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.state_update = cs.load_ref()
                 
                 if rec_unpack:
                     self.state_update = TLBComplex.constants["t_Ref_HASH_UPDATE_Account"].fetch(self.state_update, True, strict) # at 1
-                    assert self.state_update is not None
+                    if strict:
+                        assert self.state_update is not None
 
                 self.description = cs.load_ref()
                 
                 if rec_unpack:
                     self.description = TLBComplex.constants["t_Ref_TransactionDescr"].fetch(self.description, True, strict) # at 1
-                    assert self.description is not None
+                    if strict:
+                        assert self.description is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -8010,7 +8022,7 @@ class Transaction(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -8088,19 +8100,21 @@ class MERKLE_UPDATE(TLBComplex):
                 
                 if rec_unpack:
                     self.old = RefT(self.X_).fetch(self.old, True, strict) # at 1
-                    assert self.old is not None
+                    if strict:
+                        assert self.old is not None
 
                 self.new = cs.load_ref()
                 
                 if rec_unpack:
                     self.new = RefT(self.X_).fetch(self.new, True, strict) # at 1
-                    assert self.new is not None
+                    if strict:
+                        assert self.new is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -8111,7 +8125,7 @@ class MERKLE_UPDATE(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -8181,7 +8195,7 @@ class HASH_UPDATE(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -8192,7 +8206,7 @@ class HASH_UPDATE(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -8266,13 +8280,14 @@ class MERKLE_PROOF(TLBComplex):
                 
                 if rec_unpack:
                     self.virtual_root = RefT(self.X_).fetch(self.virtual_root, True, strict) # at 1
-                    assert self.virtual_root is not None
+                    if strict:
+                        assert self.virtual_root is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -8283,7 +8298,7 @@ class MERKLE_PROOF(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -8347,18 +8362,19 @@ class AccountBlock(TLBComplex):
                 assert cs.load_uint(4) == 5, 'Cons tag check failed'
 
                 self.account_addr = cs.load_bitstring(256)
-                self.transactions = TLBComplex.constants["t_HashmapAug_64_Ref_Transaction_CurrencyCollection"].fetch(cs) 
+                self.transactions = TLBComplex.constants["t_HashmapAug_64_Ref_Transaction_CurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.state_update = cs.load_ref()
                 
                 if rec_unpack:
                     self.state_update = TLBComplex.constants["t_Ref_HASH_UPDATE_Account"].fetch(self.state_update, True, strict) # at 1
-                    assert self.state_update is not None
+                    if strict:
+                        assert self.state_update is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -8369,7 +8385,7 @@ class AccountBlock(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -8422,12 +8438,12 @@ class ShardAccountBlocks(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.x = TLBComplex.constants["t_HashmapAugE_256_AccountBlock_CurrencyCollection"].fetch(cs)                 
+                self.x = TLBComplex.constants["t_HashmapAugE_256_AccountBlock_CurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -8438,7 +8454,7 @@ class ShardAccountBlocks(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -8499,14 +8515,14 @@ class TrStoragePhase(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.storage_fees_collected = TLBComplex.constants["t_Grams"].fetch(cs) 
-                self.storage_fees_due = TLBComplex.constants["t_Maybe_Grams"].fetch(cs) 
-                self.status_change = TLBComplex.constants["t_AccStatusChange"].fetch_enum(cs)                 
+                self.storage_fees_collected = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.storage_fees_due = TLBComplex.constants["t_Maybe_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.status_change = TLBComplex.constants["t_AccStatusChange"].fetch_enum(cs, rec_unpack=rec_unpack, strict=strict)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -8517,7 +8533,7 @@ class TrStoragePhase(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -8548,7 +8564,7 @@ class AccStatusChange(TLBComplex):
         return AccStatusChange.Tag(int(cs.bselect_ext(2, 13)))
 
 
-    def fetch_enum(self, cs: CellSlice) -> int:
+    def fetch_enum(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> int:
         expected_tag = self.get_tag(cs).value
         cs.advance(self.cons_len[expected_tag])
         return expected_tag
@@ -8584,7 +8600,7 @@ class AccStatusChange(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -8595,7 +8611,7 @@ class AccStatusChange(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -8623,7 +8639,7 @@ class AccStatusChange(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -8634,7 +8650,7 @@ class AccStatusChange(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -8662,7 +8678,7 @@ class AccStatusChange(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -8673,7 +8689,7 @@ class AccStatusChange(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -8730,13 +8746,13 @@ class TrCreditPhase(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.due_fees_collected = TLBComplex.constants["t_Maybe_Grams"].fetch(cs) 
-                self.credit = TLBComplex.constants["t_CurrencyCollection"].fetch(cs)                 
+                self.due_fees_collected = TLBComplex.constants["t_Maybe_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.credit = TLBComplex.constants["t_CurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -8747,7 +8763,7 @@ class TrCreditPhase(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -8832,12 +8848,12 @@ class TrComputePhase_aux(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.gas_used = TLBComplex.constants["t_VarUInteger_7"].fetch(cs) 
-                self.gas_limit = TLBComplex.constants["t_VarUInteger_7"].fetch(cs) 
-                self.gas_credit = TLBComplex.constants["t_Maybe_VarUInteger_3"].fetch(cs) 
+                self.gas_used = TLBComplex.constants["t_VarUInteger_7"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.gas_limit = TLBComplex.constants["t_VarUInteger_7"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.gas_credit = TLBComplex.constants["t_Maybe_VarUInteger_3"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.mode = cs.load_int(8)
                 self.exit_code = cs.load_int(32)
-                self.exit_arg = TLBComplex.constants["t_Maybe_int32"].fetch(cs) 
+                self.exit_arg = TLBComplex.constants["t_Maybe_int32"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.vm_steps = cs.load_uint(32)
                 self.vm_init_state_hash = cs.load_bitstring(256)
                 self.vm_final_state_hash = cs.load_bitstring(256)                
@@ -8845,7 +8861,7 @@ class TrComputePhase_aux(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -8856,7 +8872,7 @@ class TrComputePhase_aux(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -8912,12 +8928,12 @@ class TrComputePhase(TLBComplex):
             try:
                 assert cs.load_uint(1) == 0, 'Cons tag check failed'
 
-                self.reason = TLBComplex.constants["t_ComputeSkipReason"].fetch_enum(cs)                 
+                self.reason = TLBComplex.constants["t_ComputeSkipReason"].fetch_enum(cs, rec_unpack=rec_unpack, strict=strict)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -8928,7 +8944,7 @@ class TrComputePhase(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -8977,13 +8993,13 @@ class TrComputePhase(TLBComplex):
                 self.success = cs.load_bool()
                 self.msg_state_used = cs.load_bool()
                 self.account_activated = cs.load_bool()
-                self.gas_fees = TLBComplex.constants["t_Grams"].fetch(cs) 
+                self.gas_fees = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.r1 = TLBComplex.constants["t_TrComputePhase_aux"].fetch(cs.load_ref(), rec_unpack, strict)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -8994,7 +9010,7 @@ class TrComputePhase(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -9026,7 +9042,7 @@ class ComputeSkipReason(TLBComplex):
         return ComputeSkipReason.Tag(int(cs.preload_uint(2)))
 
 
-    def fetch_enum(self, cs: CellSlice) -> int:
+    def fetch_enum(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> int:
         expected_tag = self.get_tag(cs).value
         value = cs.load_uint(self.cons_len[expected_tag])
         assert value == self.cons_tag[expected_tag], f'Not valid tag fetched, got {value}, expected {self.cons_tag[expected_tag]}'
@@ -9063,7 +9079,7 @@ class ComputeSkipReason(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -9074,7 +9090,7 @@ class ComputeSkipReason(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -9102,7 +9118,7 @@ class ComputeSkipReason(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -9113,7 +9129,7 @@ class ComputeSkipReason(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -9141,7 +9157,7 @@ class ComputeSkipReason(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -9152,7 +9168,7 @@ class ComputeSkipReason(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -9180,7 +9196,7 @@ class ComputeSkipReason(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -9191,7 +9207,7 @@ class ComputeSkipReason(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -9299,22 +9315,22 @@ class TrActionPhase(TLBComplex):
                 self.success = cs.load_bool()
                 self.valid = cs.load_bool()
                 self.no_funds = cs.load_bool()
-                self.status_change = TLBComplex.constants["t_AccStatusChange"].fetch_enum(cs) 
-                self.total_fwd_fees = TLBComplex.constants["t_Maybe_Grams"].fetch(cs) 
-                self.total_action_fees = TLBComplex.constants["t_Maybe_Grams"].fetch(cs) 
+                self.status_change = TLBComplex.constants["t_AccStatusChange"].fetch_enum(cs, rec_unpack=rec_unpack, strict=strict)
+                self.total_fwd_fees = TLBComplex.constants["t_Maybe_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.total_action_fees = TLBComplex.constants["t_Maybe_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.result_code = cs.load_int(32)
-                self.result_arg = TLBComplex.constants["t_Maybe_int32"].fetch(cs) 
+                self.result_arg = TLBComplex.constants["t_Maybe_int32"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.tot_actions = cs.load_uint(16)
                 self.spec_actions = cs.load_uint(16)
                 self.skipped_actions = cs.load_uint(16)
                 self.msgs_created = cs.load_uint(16)
                 self.action_list_hash = cs.load_bitstring(256)
-                self.tot_msg_size = TLBComplex.constants["t_StorageUsedShort"].fetch(cs)                 
+                self.tot_msg_size = TLBComplex.constants["t_StorageUsedShort"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -9325,7 +9341,7 @@ class TrActionPhase(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -9380,7 +9396,7 @@ class TrBouncePhase(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -9391,7 +9407,7 @@ class TrBouncePhase(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -9425,13 +9441,13 @@ class TrBouncePhase(TLBComplex):
             try:
                 assert cs.load_uint(2) == 1, 'Cons tag check failed'
 
-                self.msg_size = TLBComplex.constants["t_StorageUsedShort"].fetch(cs) 
-                self.req_fwd_fees = TLBComplex.constants["t_Grams"].fetch(cs)                 
+                self.msg_size = TLBComplex.constants["t_StorageUsedShort"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.req_fwd_fees = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -9442,7 +9458,7 @@ class TrBouncePhase(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -9480,14 +9496,14 @@ class TrBouncePhase(TLBComplex):
             try:
                 assert cs.load_uint(1) == 1, 'Cons tag check failed'
 
-                self.msg_size = TLBComplex.constants["t_StorageUsedShort"].fetch(cs) 
-                self.msg_fees = TLBComplex.constants["t_Grams"].fetch(cs) 
-                self.fwd_fees = TLBComplex.constants["t_Grams"].fetch(cs)                 
+                self.msg_size = TLBComplex.constants["t_StorageUsedShort"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.msg_fees = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.fwd_fees = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -9498,7 +9514,7 @@ class TrBouncePhase(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -9571,7 +9587,7 @@ class SplitMergeInfo(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -9582,7 +9598,7 @@ class SplitMergeInfo(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -9672,18 +9688,18 @@ class TransactionDescr(TLBComplex):
                 assert cs.load_uint(4) == 0, 'Cons tag check failed'
 
                 self.credit_first = cs.load_bool()
-                self.storage_ph = TLBComplex.constants["t_Maybe_TrStoragePhase"].fetch(cs) 
-                self.credit_ph = TLBComplex.constants["t_Maybe_TrCreditPhase"].fetch(cs) 
-                self.compute_ph = TLBComplex.constants["t_TrComputePhase"].fetch(cs) 
-                self.action = TLBComplex.constants["t_Maybe_Ref_TrActionPhase"].fetch(cs) 
+                self.storage_ph = TLBComplex.constants["t_Maybe_TrStoragePhase"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.credit_ph = TLBComplex.constants["t_Maybe_TrCreditPhase"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.compute_ph = TLBComplex.constants["t_TrComputePhase"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.action = TLBComplex.constants["t_Maybe_Ref_TrActionPhase"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.aborted = cs.load_bool()
-                self.bounce = TLBComplex.constants["t_Maybe_TrBouncePhase"].fetch(cs) 
+                self.bounce = TLBComplex.constants["t_Maybe_TrBouncePhase"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.destroyed = cs.load_bool()                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -9694,7 +9710,7 @@ class TransactionDescr(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -9724,12 +9740,12 @@ class TransactionDescr(TLBComplex):
             try:
                 assert cs.load_uint(4) == 1, 'Cons tag check failed'
 
-                self.storage_ph = TLBComplex.constants["t_TrStoragePhase"].fetch(cs)                 
+                self.storage_ph = TLBComplex.constants["t_TrStoragePhase"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -9740,7 +9756,7 @@ class TransactionDescr(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -9791,16 +9807,16 @@ class TransactionDescr(TLBComplex):
                 assert cs.load_uint(3) == 1, 'Cons tag check failed'
 
                 self.is_tock = cs.load_bool()
-                self.storage_ph = TLBComplex.constants["t_TrStoragePhase"].fetch(cs) 
-                self.compute_ph = TLBComplex.constants["t_TrComputePhase"].fetch(cs) 
-                self.action = TLBComplex.constants["t_Maybe_Ref_TrActionPhase"].fetch(cs) 
+                self.storage_ph = TLBComplex.constants["t_TrStoragePhase"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.compute_ph = TLBComplex.constants["t_TrComputePhase"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.action = TLBComplex.constants["t_Maybe_Ref_TrActionPhase"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.aborted = cs.load_bool()
                 self.destroyed = cs.load_bool()                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -9811,7 +9827,7 @@ class TransactionDescr(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -9865,18 +9881,19 @@ class TransactionDescr(TLBComplex):
                 
                 if rec_unpack:
                     self.split_info = TLBComplex.constants["t_SplitMergeInfo"].fetch(self.split_info, True, strict) # at 1
-                    assert self.split_info is not None
+                    if strict:
+                        assert self.split_info is not None
 
-                self.storage_ph = TLBComplex.constants["t_Maybe_TrStoragePhase"].fetch(cs) 
-                self.compute_ph = TLBComplex.constants["t_TrComputePhase"].fetch(cs) 
-                self.action = TLBComplex.constants["t_Maybe_Ref_TrActionPhase"].fetch(cs) 
+                self.storage_ph = TLBComplex.constants["t_Maybe_TrStoragePhase"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.compute_ph = TLBComplex.constants["t_TrComputePhase"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.action = TLBComplex.constants["t_Maybe_Ref_TrActionPhase"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.aborted = cs.load_bool()
                 self.destroyed = cs.load_bool()                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -9887,7 +9904,7 @@ class TransactionDescr(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -9929,20 +9946,22 @@ class TransactionDescr(TLBComplex):
                 
                 if rec_unpack:
                     self.split_info = TLBComplex.constants["t_SplitMergeInfo"].fetch(self.split_info, True, strict) # at 1
-                    assert self.split_info is not None
+                    if strict:
+                        assert self.split_info is not None
 
                 self.prepare_transaction = cs.load_ref()
                 
                 if rec_unpack:
                     self.prepare_transaction = TLBComplex.constants["t_Ref_Transaction"].fetch(self.prepare_transaction, True, strict) # at 1
-                    assert self.prepare_transaction is not None
+                    if strict:
+                        assert self.prepare_transaction is not None
 
                 self.installed = cs.load_bool()                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -9953,7 +9972,7 @@ class TransactionDescr(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -9995,15 +10014,16 @@ class TransactionDescr(TLBComplex):
                 
                 if rec_unpack:
                     self.split_info = TLBComplex.constants["t_SplitMergeInfo"].fetch(self.split_info, True, strict) # at 1
-                    assert self.split_info is not None
+                    if strict:
+                        assert self.split_info is not None
 
-                self.storage_ph = TLBComplex.constants["t_TrStoragePhase"].fetch(cs) 
+                self.storage_ph = TLBComplex.constants["t_TrStoragePhase"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.aborted = cs.load_bool()                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -10014,7 +10034,7 @@ class TransactionDescr(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -10076,25 +10096,27 @@ class TransactionDescr(TLBComplex):
                 
                 if rec_unpack:
                     self.split_info = TLBComplex.constants["t_SplitMergeInfo"].fetch(self.split_info, True, strict) # at 1
-                    assert self.split_info is not None
+                    if strict:
+                        assert self.split_info is not None
 
                 self.prepare_transaction = cs.load_ref()
                 
                 if rec_unpack:
                     self.prepare_transaction = TLBComplex.constants["t_Ref_Transaction"].fetch(self.prepare_transaction, True, strict) # at 1
-                    assert self.prepare_transaction is not None
+                    if strict:
+                        assert self.prepare_transaction is not None
 
-                self.storage_ph = TLBComplex.constants["t_Maybe_TrStoragePhase"].fetch(cs) 
-                self.credit_ph = TLBComplex.constants["t_Maybe_TrCreditPhase"].fetch(cs) 
-                self.compute_ph = TLBComplex.constants["t_TrComputePhase"].fetch(cs) 
-                self.action = TLBComplex.constants["t_Maybe_Ref_TrActionPhase"].fetch(cs) 
+                self.storage_ph = TLBComplex.constants["t_Maybe_TrStoragePhase"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.credit_ph = TLBComplex.constants["t_Maybe_TrCreditPhase"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.compute_ph = TLBComplex.constants["t_TrComputePhase"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.action = TLBComplex.constants["t_Maybe_Ref_TrActionPhase"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.aborted = cs.load_bool()
                 self.destroyed = cs.load_bool()                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -10105,7 +10127,7 @@ class TransactionDescr(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -10198,14 +10220,14 @@ class SmartContractInfo(TLBComplex):
                 self.block_lt = cs.load_uint(64)
                 self.trans_lt = cs.load_uint(64)
                 self.rand_seed = cs.load_bitstring(256)
-                self.balance_remaining = TLBComplex.constants["t_CurrencyCollection"].fetch(cs) 
-                self.myself = TLBComplex.constants["t_MsgAddressInt"].fetch(cs) 
-                self.global_config = TLBComplex.constants["t_Maybe_Cell"].fetch(cs)                 
+                self.balance_remaining = TLBComplex.constants["t_CurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.myself = TLBComplex.constants["t_MsgAddressInt"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.global_config = TLBComplex.constants["t_Maybe_Cell"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -10216,7 +10238,7 @@ class SmartContractInfo(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -10277,7 +10299,7 @@ class OutList(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -10288,7 +10310,7 @@ class OutList(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -10330,14 +10352,15 @@ class OutList(TLBComplex):
                 
                 if rec_unpack:
                     self.prev = RefT(OutList(self.n)).fetch(self.prev, True, strict) # at 1
-                    assert self.prev is not None
+                    if strict:
+                        assert self.prev is not None
 
-                self.action = TLBComplex.constants["t_OutAction"].fetch(cs)                 
+                self.action = TLBComplex.constants["t_OutAction"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -10348,7 +10371,7 @@ class OutList(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -10409,7 +10432,7 @@ class LibRef(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -10420,7 +10443,7 @@ class LibRef(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -10454,13 +10477,14 @@ class LibRef(TLBComplex):
                 
                 if rec_unpack:
                     self.library = TLBComplex.constants["t_RefCell"].fetch(self.library, True, strict) # at 1
-                    assert self.library is not None
+                    if strict:
+                        assert self.library is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -10471,7 +10495,7 @@ class LibRef(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -10538,13 +10562,14 @@ class OutAction(TLBComplex):
                 
                 if rec_unpack:
                     self.out_msg = TLBComplex.constants["t_Ref_MessageRelaxed_Any"].fetch(self.out_msg, True, strict) # at 1
-                    assert self.out_msg is not None
+                    if strict:
+                        assert self.out_msg is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -10555,7 +10580,7 @@ class OutAction(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -10589,13 +10614,14 @@ class OutAction(TLBComplex):
                 
                 if rec_unpack:
                     self.new_code = TLBComplex.constants["t_RefCell"].fetch(self.new_code, True, strict) # at 1
-                    assert self.new_code is not None
+                    if strict:
+                        assert self.new_code is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -10606,7 +10632,7 @@ class OutAction(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -10641,12 +10667,12 @@ class OutAction(TLBComplex):
                 assert cs.load_uint(32) == 0x36e6b809, 'Cons tag check failed'
 
                 self.mode = cs.load_uint(8)
-                self.currency = TLBComplex.constants["t_CurrencyCollection"].fetch(cs)                 
+                self.currency = TLBComplex.constants["t_CurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -10657,7 +10683,7 @@ class OutAction(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -10692,12 +10718,12 @@ class OutAction(TLBComplex):
                 assert cs.load_uint(32) == 0x26fa1dd4, 'Cons tag check failed'
 
                 self.mode = cs.load_uint(7)
-                self.libref = TLBComplex.constants["t_LibRef"].fetch(cs)                 
+                self.libref = TLBComplex.constants["t_LibRef"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -10708,7 +10734,7 @@ class OutAction(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -10769,14 +10795,15 @@ class OutListNode(TLBComplex):
                 
                 if rec_unpack:
                     self.prev = TLBComplex.constants["t_RefCell"].fetch(self.prev, True, strict) # at 1
-                    assert self.prev is not None
+                    if strict:
+                        assert self.prev is not None
 
-                self.action = TLBComplex.constants["t_OutAction"].fetch(cs)                 
+                self.action = TLBComplex.constants["t_OutAction"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -10787,7 +10814,7 @@ class OutListNode(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -10857,7 +10884,7 @@ class ShardIdent(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -10868,7 +10895,7 @@ class ShardIdent(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -10941,7 +10968,7 @@ class ExtBlkRef(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -10952,7 +10979,7 @@ class ExtBlkRef(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -11021,7 +11048,8 @@ class BlockIdExt(TLBComplex):
                 
                 if rec_unpack:
                     self.shard_id = TLBComplex.constants["t_ShardIdent"].fetch(self.shard_id, True, strict) # at 1
-                    assert self.shard_id is not None
+                    if strict:
+                        assert self.shard_id is not None
 
                 self.seq_no = cs.load_uint(32)
                 self.root_hash = cs.load_bitstring(256)
@@ -11030,7 +11058,7 @@ class BlockIdExt(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -11041,7 +11069,7 @@ class BlockIdExt(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -11098,13 +11126,14 @@ class BlkMasterInfo(TLBComplex):
                 
                 if rec_unpack:
                     self.master = TLBComplex.constants["t_ExtBlkRef"].fetch(self.master, True, strict) # at 1
-                    assert self.master is not None
+                    if strict:
+                        assert self.master is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -11115,7 +11144,7 @@ class BlkMasterInfo(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -11190,15 +11219,15 @@ class ShardStateUnsplit_aux(TLBComplex):
             try:
                 self.overload_history = cs.load_uint(64)
                 self.underload_history = cs.load_uint(64)
-                self.total_balance = TLBComplex.constants["t_CurrencyCollection"].fetch(cs) 
-                self.total_validator_fees = TLBComplex.constants["t_CurrencyCollection"].fetch(cs) 
-                self.libraries = TLBComplex.constants["t_HashmapE_256_LibDescr"].fetch(cs) 
-                self.master_ref = TLBComplex.constants["t_Maybe_BlkMasterInfo"].fetch(cs)                 
+                self.total_balance = TLBComplex.constants["t_CurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.total_validator_fees = TLBComplex.constants["t_CurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.libraries = TLBComplex.constants["t_HashmapE_256_LibDescr"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.master_ref = TLBComplex.constants["t_Maybe_BlkMasterInfo"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -11209,7 +11238,7 @@ class ShardStateUnsplit_aux(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -11313,7 +11342,8 @@ class ShardStateUnsplit(TLBComplex):
                 
                 if rec_unpack:
                     self.shard_id = TLBComplex.constants["t_ShardIdent"].fetch(self.shard_id, True, strict) # at 1
-                    assert self.shard_id is not None
+                    if strict:
+                        assert self.shard_id is not None
 
                 self.seq_no = cs.load_uint(32)
                 self.vert_seq_no = cs.load_uint(32)
@@ -11325,7 +11355,8 @@ class ShardStateUnsplit(TLBComplex):
                 
                 if rec_unpack:
                     self.out_msg_queue_info = TLBComplex.constants["t_Ref_OutMsgQueueInfo"].fetch(self.out_msg_queue_info, True, strict) # at 1
-                    assert self.out_msg_queue_info is not None
+                    if strict:
+                        assert self.out_msg_queue_info is not None
 
                 self.before_split = cs.load_bool()
 
@@ -11333,15 +11364,16 @@ class ShardStateUnsplit(TLBComplex):
                 
                 if rec_unpack:
                     self.accounts = TLBComplex.constants["t_Ref_ShardAccounts"].fetch(self.accounts, True, strict) # at 1
-                    assert self.accounts is not None
+                    if strict:
+                        assert self.accounts is not None
 
                 self.r1 = TLBComplex.constants["t_ShardStateUnsplit_aux"].fetch(cs.load_ref(), rec_unpack, strict)
-                self.custom = TLBComplex.constants["t_Maybe_Ref_McStateExtra"].fetch(cs)                 
+                self.custom = TLBComplex.constants["t_Maybe_Ref_McStateExtra"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -11352,7 +11384,7 @@ class ShardStateUnsplit(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -11406,12 +11438,12 @@ class ShardState(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.x = TLBComplex.constants["t_ShardStateUnsplit"].fetch(cs)                 
+                self.x = TLBComplex.constants["t_ShardStateUnsplit"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -11422,7 +11454,7 @@ class ShardState(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -11460,19 +11492,21 @@ class ShardState(TLBComplex):
                 
                 if rec_unpack:
                     self.left = TLBComplex.constants["t_Ref_ShardStateUnsplit"].fetch(self.left, True, strict) # at 1
-                    assert self.left is not None
+                    if strict:
+                        assert self.left is not None
 
                 self.right = cs.load_ref()
                 
                 if rec_unpack:
                     self.right = TLBComplex.constants["t_Ref_ShardStateUnsplit"].fetch(self.right, True, strict) # at 1
-                    assert self.right is not None
+                    if strict:
+                        assert self.right is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -11483,7 +11517,7 @@ class ShardState(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -11546,14 +11580,15 @@ class LibDescr(TLBComplex):
                 
                 if rec_unpack:
                     self.lib = TLBComplex.constants["t_RefCell"].fetch(self.lib, True, strict) # at 1
-                    assert self.lib is not None
+                    if strict:
+                        assert self.lib is not None
 
-                self.publishers = TLBComplex.constants["t_Hashmap_256_Truet"].fetch(cs)                 
+                self.publishers = TLBComplex.constants["t_Hashmap_256_Truet"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -11564,7 +11599,7 @@ class LibDescr(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -11744,7 +11779,8 @@ class BlockInfo(TLBComplex):
                 
                 if rec_unpack:
                     self.shard = TLBComplex.constants["t_ShardIdent"].fetch(self.shard, True, strict) # at 1
-                    assert self.shard is not None
+                    if strict:
+                        assert self.shard is not None
 
                 self.gen_utime = cs.load_uint(32)
                 self.start_lt = cs.load_uint(64)
@@ -11759,35 +11795,39 @@ class BlockInfo(TLBComplex):
                     
                 if rec_unpack and self.gen_software is not None:
                     self.gen_software = TLBComplex.constants["t_GlobalVersion"].fetch(self.gen_software, True, strict) # at 3
-                    assert self.gen_software is not None
+                    if strict:
+                        assert self.gen_software is not None
 
                 if (self.not_master > 0):
                     
                     self.master_ref = cs.load_ref()
                     
                 if rec_unpack and self.master_ref is not None:
-                    self.master_ref = TLBComplex.constants["t_Ref_BlkMasterInfo"].fetch(self.master_ref, True, strict) # at 3
-                    assert self.master_ref is not None
+                    self.master_ref = TLBComplex.constants["t_Ref_BlkMasterInfo"].fetch(self.master_ref, True, strict) # at 333
+                    if strict:
+                        assert self.master_ref is not None
 
                 self.prev_ref = cs.load_ref()
                 
                 if rec_unpack:
                     self.prev_ref = RefT(BlkPrevInfo(self.after_merge)).fetch(self.prev_ref, True, strict) # at 1
-                    assert self.prev_ref is not None
+                    if strict:
+                        assert self.prev_ref is not None
 
                 if (self.vert_seqno_incr > 0):
                     
                     self.prev_vert_ref = cs.load_ref()
                     
                 if rec_unpack and self.prev_vert_ref is not None:
-                    self.prev_vert_ref = TLBComplex.constants["t_Ref_BlkPrevInfo_0"].fetch(self.prev_vert_ref, True, strict) # at 3
-                    assert self.prev_vert_ref is not None
+                    self.prev_vert_ref = TLBComplex.constants["t_Ref_BlkPrevInfo_0"].fetch(self.prev_vert_ref, True, strict) # at 333
+                    if strict:
+                        assert self.prev_vert_ref is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -11798,7 +11838,7 @@ class BlockInfo(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -11869,14 +11909,15 @@ class BlkPrevInfo(TLBComplex):
                 
                 if rec_unpack:
                     self.prev = TLBComplex.constants["t_ExtBlkRef"].fetch(self.prev, True, strict) # at 1
-                    assert self.prev is not None
+                    if strict:
+                        assert self.prev is not None
 
                 self.m_ == 0                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -11887,7 +11928,7 @@ class BlkPrevInfo(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -11923,20 +11964,22 @@ class BlkPrevInfo(TLBComplex):
                 
                 if rec_unpack:
                     self.prev1 = TLBComplex.constants["t_Ref_ExtBlkRef"].fetch(self.prev1, True, strict) # at 1
-                    assert self.prev1 is not None
+                    if strict:
+                        assert self.prev1 is not None
 
                 self.prev2 = cs.load_ref()
                 
                 if rec_unpack:
                     self.prev2 = TLBComplex.constants["t_Ref_ExtBlkRef"].fetch(self.prev2, True, strict) # at 1
-                    assert self.prev2 is not None
+                    if strict:
+                        assert self.prev2 is not None
 
                 self.m_ == 1                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -11947,7 +11990,7 @@ class BlkPrevInfo(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -12023,31 +12066,35 @@ class Block(TLBComplex):
                 
                 if rec_unpack:
                     self.info = TLBComplex.constants["t_Ref_BlockInfo"].fetch(self.info, True, strict) # at 1
-                    assert self.info is not None
+                    if strict:
+                        assert self.info is not None
 
                 self.value_flow = cs.load_ref()
                 
                 if rec_unpack:
                     self.value_flow = TLBComplex.constants["t_Ref_ValueFlow"].fetch(self.value_flow, True, strict) # at 1
-                    assert self.value_flow is not None
+                    if strict:
+                        assert self.value_flow is not None
 
                 self.state_update = cs.load_ref()
                 
                 if rec_unpack:
                     self.state_update = TLBComplex.constants["t_Ref_MERKLE_UPDATE_ShardState"].fetch(self.state_update, True, strict) # at 1
-                    assert self.state_update is not None
+                    if strict:
+                        assert self.state_update is not None
 
                 self.extra = cs.load_ref()
                 
                 if rec_unpack:
                     self.extra = TLBComplex.constants["t_Ref_BlockExtra"].fetch(self.extra, True, strict) # at 1
-                    assert self.extra is not None
+                    if strict:
+                        assert self.extra is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -12058,7 +12105,7 @@ class Block(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -12137,28 +12184,31 @@ class BlockExtra(TLBComplex):
                 
                 if rec_unpack:
                     self.in_msg_descr = TLBComplex.constants["t_Ref_InMsgDescr"].fetch(self.in_msg_descr, True, strict) # at 1
-                    assert self.in_msg_descr is not None
+                    if strict:
+                        assert self.in_msg_descr is not None
 
                 self.out_msg_descr = cs.load_ref()
                 
                 if rec_unpack:
                     self.out_msg_descr = TLBComplex.constants["t_Ref_OutMsgDescr"].fetch(self.out_msg_descr, True, strict) # at 1
-                    assert self.out_msg_descr is not None
+                    if strict:
+                        assert self.out_msg_descr is not None
 
                 self.account_blocks = cs.load_ref()
                 
                 if rec_unpack:
                     self.account_blocks = TLBComplex.constants["t_Ref_ShardAccountBlocks"].fetch(self.account_blocks, True, strict) # at 1
-                    assert self.account_blocks is not None
+                    if strict:
+                        assert self.account_blocks is not None
 
                 self.rand_seed = cs.load_bitstring(256)
                 self.created_by = cs.load_bitstring(256)
-                self.custom = TLBComplex.constants["t_Maybe_Ref_McBlockExtra"].fetch(cs)                 
+                self.custom = TLBComplex.constants["t_Maybe_Ref_McBlockExtra"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -12169,7 +12219,7 @@ class BlockExtra(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -12234,15 +12284,15 @@ class TYPE_1653(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.from_prev_blk = TLBComplex.constants["t_CurrencyCollection"].fetch(cs) 
-                self.to_next_blk = TLBComplex.constants["t_CurrencyCollection"].fetch(cs) 
-                self.imported = TLBComplex.constants["t_CurrencyCollection"].fetch(cs) 
-                self.exported = TLBComplex.constants["t_CurrencyCollection"].fetch(cs)                 
+                self.from_prev_blk = TLBComplex.constants["t_CurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.to_next_blk = TLBComplex.constants["t_CurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.imported = TLBComplex.constants["t_CurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.exported = TLBComplex.constants["t_CurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -12253,7 +12303,7 @@ class TYPE_1653(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -12318,15 +12368,15 @@ class TYPE_1654(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.fees_imported = TLBComplex.constants["t_CurrencyCollection"].fetch(cs) 
-                self.recovered = TLBComplex.constants["t_CurrencyCollection"].fetch(cs) 
-                self.created = TLBComplex.constants["t_CurrencyCollection"].fetch(cs) 
-                self.minted = TLBComplex.constants["t_CurrencyCollection"].fetch(cs)                 
+                self.fees_imported = TLBComplex.constants["t_CurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.recovered = TLBComplex.constants["t_CurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.created = TLBComplex.constants["t_CurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.minted = TLBComplex.constants["t_CurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -12337,7 +12387,7 @@ class TYPE_1654(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -12402,13 +12452,13 @@ class ValueFlow(TLBComplex):
                 assert cs.load_uint(32) == 0xb8e48dfb, 'Cons tag check failed'
 
                 self.r1 = TLBComplex.constants["t_TYPE_1653"].fetch(cs.load_ref(), rec_unpack, strict)
-                self.fees_collected = TLBComplex.constants["t_CurrencyCollection"].fetch(cs) 
+                self.fees_collected = TLBComplex.constants["t_CurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.r2 = TLBComplex.constants["t_TYPE_1654"].fetch(cs.load_ref(), rec_unpack, strict)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -12419,7 +12469,7 @@ class ValueFlow(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -12462,14 +12512,14 @@ class ValueFlow(TLBComplex):
                 assert cs.load_uint(32) == 0x3ebf98b7, 'Cons tag check failed'
 
                 self.r1 = TLBComplex.constants["t_TYPE_1653"].fetch(cs.load_ref(), rec_unpack, strict)
-                self.fees_collected = TLBComplex.constants["t_CurrencyCollection"].fetch(cs) 
-                self.burned = TLBComplex.constants["t_CurrencyCollection"].fetch(cs) 
+                self.fees_collected = TLBComplex.constants["t_CurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.burned = TLBComplex.constants["t_CurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.r2 = TLBComplex.constants["t_TYPE_1654"].fetch(cs.load_ref(), rec_unpack, strict)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -12480,7 +12530,7 @@ class ValueFlow(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -12541,12 +12591,12 @@ class BinTree(TLBComplex):
             try:
                 assert cs.load_uint(1) == 0, 'Cons tag check failed'
 
-                self.leaf = self.X_.fetch(cs)                 
+                self.leaf = self.X_.fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -12557,7 +12607,7 @@ class BinTree(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -12595,19 +12645,21 @@ class BinTree(TLBComplex):
                 
                 if rec_unpack:
                     self.left = RefT(BinTree(self.X_)).fetch(self.left, True, strict) # at 1
-                    assert self.left is not None
+                    if strict:
+                        assert self.left is not None
 
                 self.right = cs.load_ref()
                 
                 if rec_unpack:
                     self.right = RefT(BinTree(self.X_)).fetch(self.right, True, strict) # at 1
-                    assert self.right is not None
+                    if strict:
+                        assert self.right is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -12618,7 +12670,7 @@ class BinTree(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -12673,7 +12725,7 @@ class FutureSplitMerge(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -12684,7 +12736,7 @@ class FutureSplitMerge(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -12724,7 +12776,7 @@ class FutureSplitMerge(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -12735,7 +12787,7 @@ class FutureSplitMerge(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -12775,7 +12827,7 @@ class FutureSplitMerge(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -12786,7 +12838,7 @@ class FutureSplitMerge(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -12843,13 +12895,13 @@ class ShardDescr_aux(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.fees_collected = TLBComplex.constants["t_CurrencyCollection"].fetch(cs) 
-                self.funds_created = TLBComplex.constants["t_CurrencyCollection"].fetch(cs)                 
+                self.fees_collected = TLBComplex.constants["t_CurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.funds_created = TLBComplex.constants["t_CurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -12860,7 +12912,7 @@ class ShardDescr_aux(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -13006,14 +13058,14 @@ class ShardDescr(TLBComplex):
                 self.next_validator_shard = cs.load_uint(64)
                 self.min_ref_mc_seqno = cs.load_uint(32)
                 self.gen_utime = cs.load_uint(32)
-                self.split_merge_at = TLBComplex.constants["t_FutureSplitMerge"].fetch(cs) 
-                self.fees_collected = TLBComplex.constants["t_CurrencyCollection"].fetch(cs) 
-                self.funds_created = TLBComplex.constants["t_CurrencyCollection"].fetch(cs)                 
+                self.split_merge_at = TLBComplex.constants["t_FutureSplitMerge"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.fees_collected = TLBComplex.constants["t_CurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.funds_created = TLBComplex.constants["t_CurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -13024,7 +13076,7 @@ class ShardDescr(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -13140,13 +13192,13 @@ class ShardDescr(TLBComplex):
                 self.next_validator_shard = cs.load_uint(64)
                 self.min_ref_mc_seqno = cs.load_uint(32)
                 self.gen_utime = cs.load_uint(32)
-                self.split_merge_at = TLBComplex.constants["t_FutureSplitMerge"].fetch(cs) 
+                self.split_merge_at = TLBComplex.constants["t_FutureSplitMerge"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.r1 = TLBComplex.constants["t_ShardDescr_aux"].fetch(cs.load_ref(), rec_unpack, strict)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -13157,7 +13209,7 @@ class ShardDescr(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -13210,12 +13262,12 @@ class ShardHashes(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.x = TLBComplex.constants["t_HashmapE_32_Ref_BinTree_ShardDescr"].fetch(cs)                 
+                self.x = TLBComplex.constants["t_HashmapE_32_Ref_BinTree_ShardDescr"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -13226,7 +13278,7 @@ class ShardHashes(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -13294,13 +13346,13 @@ class BinTreeAug(TLBComplex):
             try:
                 assert cs.load_uint(1) == 0, 'Cons tag check failed'
 
-                self.extra = self.Y_.fetch(cs) 
-                self.leaf = self.X_.fetch(cs)                 
+                self.extra = self.Y_.fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.leaf = self.X_.fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -13311,7 +13363,7 @@ class BinTreeAug(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -13353,20 +13405,22 @@ class BinTreeAug(TLBComplex):
                 
                 if rec_unpack:
                     self.left = RefT(BinTreeAug(self.X_, self.Y_)).fetch(self.left, True, strict) # at 1
-                    assert self.left is not None
+                    if strict:
+                        assert self.left is not None
 
                 self.right = cs.load_ref()
                 
                 if rec_unpack:
                     self.right = RefT(BinTreeAug(self.X_, self.Y_)).fetch(self.right, True, strict) # at 1
-                    assert self.right is not None
+                    if strict:
+                        assert self.right is not None
 
-                self.extra = self.Y_.fetch(cs)                 
+                self.extra = self.Y_.fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -13377,7 +13431,7 @@ class BinTreeAug(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -13434,13 +13488,13 @@ class ShardFeeCreated(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.fees = TLBComplex.constants["t_CurrencyCollection"].fetch(cs) 
-                self.create = TLBComplex.constants["t_CurrencyCollection"].fetch(cs)                 
+                self.fees = TLBComplex.constants["t_CurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.create = TLBComplex.constants["t_CurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -13451,7 +13505,7 @@ class ShardFeeCreated(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -13504,12 +13558,12 @@ class ShardFees(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.x = TLBComplex.constants["t_HashmapAugE_96_ShardFeeCreated_ShardFeeCreated"].fetch(cs)                 
+                self.x = TLBComplex.constants["t_HashmapAugE_96_ShardFeeCreated_ShardFeeCreated"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -13520,7 +13574,7 @@ class ShardFees(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -13582,13 +13636,14 @@ class ConfigParams(TLBComplex):
                 
                 if rec_unpack:
                     self.config = TLBComplex.constants["t_Ref_Hashmap_32_Ref_Cell"].fetch(self.config, True, strict) # at 1
-                    assert self.config is not None
+                    if strict:
+                        assert self.config is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -13599,7 +13654,7 @@ class ConfigParams(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -13667,7 +13722,7 @@ class ValidatorInfo(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -13678,7 +13733,7 @@ class ValidatorInfo(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -13741,7 +13796,7 @@ class ValidatorBaseInfo(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -13752,7 +13807,7 @@ class ValidatorBaseInfo(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -13815,7 +13870,7 @@ class KeyMaxLt(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -13826,7 +13881,7 @@ class KeyMaxLt(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -13888,13 +13943,14 @@ class KeyExtBlkRef(TLBComplex):
                 
                 if rec_unpack:
                     self.blk_ref = TLBComplex.constants["t_ExtBlkRef"].fetch(self.blk_ref, True, strict) # at 1
-                    assert self.blk_ref is not None
+                    if strict:
+                        assert self.blk_ref is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -13905,7 +13961,7 @@ class KeyExtBlkRef(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -13958,12 +14014,12 @@ class OldMcBlocksInfo(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.x = TLBComplex.constants["t_HashmapAugE_32_KeyExtBlkRef_KeyMaxLt"].fetch(cs)                 
+                self.x = TLBComplex.constants["t_HashmapAugE_32_KeyExtBlkRef_KeyMaxLt"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -13974,7 +14030,7 @@ class OldMcBlocksInfo(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -14047,7 +14103,7 @@ class Counters(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -14058,7 +14114,7 @@ class Counters(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -14121,19 +14177,21 @@ class CreatorStats(TLBComplex):
                 
                 if rec_unpack:
                     self.mc_blocks = TLBComplex.constants["t_Counters"].fetch(self.mc_blocks, True, strict) # at 1
-                    assert self.mc_blocks is not None
+                    if strict:
+                        assert self.mc_blocks is not None
 
                 self.shard_blocks = cs.load_subslice(224)
                 
                 if rec_unpack:
                     self.shard_blocks = TLBComplex.constants["t_Counters"].fetch(self.shard_blocks, True, strict) # at 1
-                    assert self.shard_blocks is not None
+                    if strict:
+                        assert self.shard_blocks is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -14144,7 +14202,7 @@ class CreatorStats(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -14200,12 +14258,12 @@ class BlockCreateStats(TLBComplex):
             try:
                 assert cs.load_uint(8) == 23, 'Cons tag check failed'
 
-                self.counters = TLBComplex.constants["t_HashmapE_256_CreatorStats"].fetch(cs)                 
+                self.counters = TLBComplex.constants["t_HashmapE_256_CreatorStats"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -14216,7 +14274,7 @@ class BlockCreateStats(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -14246,12 +14304,12 @@ class BlockCreateStats(TLBComplex):
             try:
                 assert cs.load_uint(8) == 0x34, 'Cons tag check failed'
 
-                self.counters = TLBComplex.constants["t_HashmapAugE_256_CreatorStats_uint32"].fetch(cs)                 
+                self.counters = TLBComplex.constants["t_HashmapAugE_256_CreatorStats_uint32"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -14262,7 +14320,7 @@ class BlockCreateStats(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -14343,18 +14401,19 @@ class McStateExtra_aux(TLBComplex):
                 
                 if rec_unpack:
                     self.validator_info = TLBComplex.constants["t_ValidatorInfo"].fetch(self.validator_info, True, strict) # at 1
-                    assert self.validator_info is not None
+                    if strict:
+                        assert self.validator_info is not None
 
-                self.prev_blocks = TLBComplex.constants["t_OldMcBlocksInfo"].fetch(cs) 
+                self.prev_blocks = TLBComplex.constants["t_OldMcBlocksInfo"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.after_key_block = cs.load_bool()
-                self.last_key_block = TLBComplex.constants["t_Maybe_ExtBlkRef"].fetch(cs) 
+                self.last_key_block = TLBComplex.constants["t_Maybe_ExtBlkRef"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 if ((self.flags & (1 << 0)) != 0):
-                    self.block_create_stats = TLBComplex.constants["t_BlockCreateStats"].fetch(cs)                 
+                    self.block_create_stats = TLBComplex.constants["t_BlockCreateStats"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -14365,7 +14424,7 @@ class McStateExtra_aux(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -14432,20 +14491,21 @@ class McStateExtra(TLBComplex):
             try:
                 assert cs.load_uint(16) == 0xcc26, 'Cons tag check failed'
 
-                self.shard_hashes = TLBComplex.constants["t_ShardHashes"].fetch(cs) 
+                self.shard_hashes = TLBComplex.constants["t_ShardHashes"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.config = cs.load_subslice_ext(0x10100)
                 
                 if rec_unpack:
                     self.config = TLBComplex.constants["t_ConfigParams"].fetch(self.config, True, strict) # at 1
-                    assert self.config is not None
+                    if strict:
+                        assert self.config is not None
 
                 self.r1 = TLBComplex.constants["t_McStateExtra_aux"].fetch(cs.load_ref(), rec_unpack, strict)
-                self.global_balance = TLBComplex.constants["t_CurrencyCollection"].fetch(cs)                 
+                self.global_balance = TLBComplex.constants["t_CurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -14456,7 +14516,7 @@ class McStateExtra(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -14516,7 +14576,7 @@ class SigPubKey(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -14527,7 +14587,7 @@ class SigPubKey(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -14592,7 +14652,7 @@ class CryptoSignatureSimple(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -14603,7 +14663,7 @@ class CryptoSignatureSimple(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -14661,12 +14721,12 @@ class CryptoSignaturePair(TLBComplex):
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
                 self.node_id_short = cs.load_bitstring(256)
-                self.sign = TLBComplex.constants["t_CryptoSignature"].fetch(cs)                 
+                self.sign = TLBComplex.constants["t_CryptoSignature"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -14677,7 +14737,7 @@ class CryptoSignaturePair(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -14744,7 +14804,8 @@ class Certificate(TLBComplex):
                 
                 if rec_unpack:
                     self.temp_key = TLBComplex.constants["t_SigPubKey"].fetch(self.temp_key, True, strict) # at 1
-                    assert self.temp_key is not None
+                    if strict:
+                        assert self.temp_key is not None
 
                 self.valid_since = cs.load_uint(32)
                 self.valid_until = cs.load_uint(32)                
@@ -14752,7 +14813,7 @@ class Certificate(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -14763,7 +14824,7 @@ class Certificate(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -14822,13 +14883,14 @@ class CertificateEnv(TLBComplex):
                 
                 if rec_unpack:
                     self.certificate = TLBComplex.constants["t_Certificate"].fetch(self.certificate, True, strict) # at 1
-                    assert self.certificate is not None
+                    if strict:
+                        assert self.certificate is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -14839,7 +14901,7 @@ class CertificateEnv(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -14900,14 +14962,15 @@ class SignedCertificate(TLBComplex):
                 
                 if rec_unpack:
                     self.certificate = TLBComplex.constants["t_Certificate"].fetch(self.certificate, True, strict) # at 1
-                    assert self.certificate is not None
+                    if strict:
+                        assert self.certificate is not None
 
-                self.certificate_signature = TLBComplex.constants["t_CryptoSignature"].fetch(cs)                 
+                self.certificate_signature = TLBComplex.constants["t_CryptoSignature"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -14918,7 +14981,7 @@ class SignedCertificate(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -14976,13 +15039,14 @@ class CryptoSignature(TLBComplex):
                 
                 if rec_unpack:
                     self.x = TLBComplex.constants["t_CryptoSignatureSimple"].fetch(self.x, True, strict) # at 1
-                    assert self.x is not None
+                    if strict:
+                        assert self.x is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -14993,7 +15057,7 @@ class CryptoSignature(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -15031,19 +15095,21 @@ class CryptoSignature(TLBComplex):
                 
                 if rec_unpack:
                     self.signed_cert = TLBComplex.constants["t_Ref_SignedCertificate"].fetch(self.signed_cert, True, strict) # at 1
-                    assert self.signed_cert is not None
+                    if strict:
+                        assert self.signed_cert is not None
 
                 self.temp_key_signature = cs.load_subslice(516)
                 
                 if rec_unpack:
                     self.temp_key_signature = TLBComplex.constants["t_CryptoSignatureSimple"].fetch(self.temp_key_signature, True, strict) # at 1
-                    assert self.temp_key_signature is not None
+                    if strict:
+                        assert self.temp_key_signature is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -15054,7 +15120,7 @@ class CryptoSignature(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -15115,14 +15181,14 @@ class McBlockExtra_aux(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.prev_blk_signatures = TLBComplex.constants["t_HashmapE_16_CryptoSignaturePair"].fetch(cs) 
-                self.recover_create_msg = TLBComplex.constants["t_Maybe_Ref_InMsg"].fetch(cs) 
-                self.mint_msg = TLBComplex.constants["t_Maybe_Ref_InMsg"].fetch(cs)                 
+                self.prev_blk_signatures = TLBComplex.constants["t_HashmapE_16_CryptoSignaturePair"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.recover_create_msg = TLBComplex.constants["t_Maybe_Ref_InMsg"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.mint_msg = TLBComplex.constants["t_Maybe_Ref_InMsg"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -15133,7 +15199,7 @@ class McBlockExtra_aux(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -15207,16 +15273,16 @@ class McBlockExtra(TLBComplex):
 
                 self.key_block = cs.load_bool()
 
-                self.shard_hashes = TLBComplex.constants["t_ShardHashes"].fetch(cs) 
-                self.shard_fees = TLBComplex.constants["t_ShardFees"].fetch(cs) 
+                self.shard_hashes = TLBComplex.constants["t_ShardHashes"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.shard_fees = TLBComplex.constants["t_ShardFees"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.r1 = TLBComplex.constants["t_McBlockExtra_aux"].fetch(cs.load_ref(), rec_unpack, strict)
                 if (self.key_block > 0):
-                    self.config = TLBComplex.constants["t_ConfigParams"].fetch(cs)                 
+                    self.config = TLBComplex.constants["t_ConfigParams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -15227,7 +15293,7 @@ class McBlockExtra(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -15291,14 +15357,15 @@ class ValidatorDescr(TLBComplex):
                 
                 if rec_unpack:
                     self.public_key = TLBComplex.constants["t_SigPubKey"].fetch(self.public_key, True, strict) # at 1
-                    assert self.public_key is not None
+                    if strict:
+                        assert self.public_key is not None
 
                 self.weight = cs.load_uint(64)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -15309,7 +15376,7 @@ class ValidatorDescr(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -15351,7 +15418,8 @@ class ValidatorDescr(TLBComplex):
                 
                 if rec_unpack:
                     self.public_key = TLBComplex.constants["t_SigPubKey"].fetch(self.public_key, True, strict) # at 1
-                    assert self.public_key is not None
+                    if strict:
+                        assert self.public_key is not None
 
                 self.weight = cs.load_uint(64)
                 self.adnl_addr = cs.load_bitstring(256)                
@@ -15359,7 +15427,7 @@ class ValidatorDescr(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -15370,7 +15438,7 @@ class ValidatorDescr(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -15454,12 +15522,12 @@ class ValidatorSet(TLBComplex):
 
                 assert 1 <= self.main, 'Params not equal: 1 and main'
 
-                self.list = TLBComplex.constants["t_Hashmap_16_ValidatorDescr"].fetch(cs)                 
+                self.list = TLBComplex.constants["t_Hashmap_16_ValidatorDescr"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -15470,7 +15538,7 @@ class ValidatorSet(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -15529,12 +15597,12 @@ class ValidatorSet(TLBComplex):
                 assert 1 <= self.main, 'Params not equal: 1 and main'
 
                 self.total_weight = cs.load_uint(64)
-                self.list = TLBComplex.constants["t_HashmapE_16_ValidatorDescr"].fetch(cs)                 
+                self.list = TLBComplex.constants["t_HashmapE_16_ValidatorDescr"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -15545,7 +15613,7 @@ class ValidatorSet(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -15608,7 +15676,7 @@ class BurningConfig(TLBComplex):
             try:
                 assert cs.load_uint(8) == 1, 'Cons tag check failed'
 
-                self.blackhole_addr = TLBComplex.constants["t_Maybe_bits256"].fetch(cs) 
+                self.blackhole_addr = TLBComplex.constants["t_Maybe_bits256"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.fee_burn_num = cs.load_uint(32)
 
                 self.fee_burn_denom = cs.load_uint(32)
@@ -15621,7 +15689,7 @@ class BurningConfig(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -15632,7 +15700,7 @@ class BurningConfig(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -15697,7 +15765,7 @@ class GlobalVersion(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -15708,7 +15776,7 @@ class GlobalVersion(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -15803,7 +15871,7 @@ class ConfigProposalSetup(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -15814,7 +15882,7 @@ class ConfigProposalSetup(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -15877,19 +15945,21 @@ class ConfigVotingSetup(TLBComplex):
                 
                 if rec_unpack:
                     self.normal_params = TLBComplex.constants["t_Ref_ConfigProposalSetup"].fetch(self.normal_params, True, strict) # at 1
-                    assert self.normal_params is not None
+                    if strict:
+                        assert self.normal_params is not None
 
                 self.critical_params = cs.load_ref()
                 
                 if rec_unpack:
                     self.critical_params = TLBComplex.constants["t_Ref_ConfigProposalSetup"].fetch(self.critical_params, True, strict) # at 1
-                    assert self.critical_params is not None
+                    if strict:
+                        assert self.critical_params is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -15900,7 +15970,7 @@ class ConfigVotingSetup(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -15964,13 +16034,13 @@ class ConfigProposal(TLBComplex):
                 assert cs.load_uint(8) == 0xf3, 'Cons tag check failed'
 
                 self.param_id = cs.load_int(32)
-                self.param_value = TLBComplex.constants["t_Maybe_Ref_Cell"].fetch(cs) 
-                self.if_hash_equal = TLBComplex.constants["t_Maybe_uint256"].fetch(cs)                 
+                self.param_value = TLBComplex.constants["t_Maybe_Ref_Cell"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.if_hash_equal = TLBComplex.constants["t_Maybe_uint256"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -15981,7 +16051,7 @@ class ConfigProposal(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -16073,10 +16143,11 @@ class ConfigProposalStatus(TLBComplex):
                 
                 if rec_unpack:
                     self.proposal = TLBComplex.constants["t_Ref_ConfigProposal"].fetch(self.proposal, True, strict) # at 1
-                    assert self.proposal is not None
+                    if strict:
+                        assert self.proposal is not None
 
                 self.is_critical = cs.load_bool()
-                self.voters = TLBComplex.constants["t_HashmapE_16_Truet"].fetch(cs) 
+                self.voters = TLBComplex.constants["t_HashmapE_16_Truet"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.remaining_weight = cs.load_int(64)
                 self.validator_set_id = cs.load_uint(256)
                 self.rounds_remaining = cs.load_uint(8)
@@ -16086,7 +16157,7 @@ class ConfigProposalStatus(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -16097,7 +16168,7 @@ class ConfigProposalStatus(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -16169,7 +16240,7 @@ class WorkchainFormat(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -16180,7 +16251,7 @@ class WorkchainFormat(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -16241,7 +16312,7 @@ class WorkchainFormat(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -16252,7 +16323,7 @@ class WorkchainFormat(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -16327,7 +16398,7 @@ class WcSplitMergeTimings(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -16338,7 +16409,7 @@ class WcSplitMergeTimings(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -16458,12 +16529,12 @@ class WorkchainDescr(TLBComplex):
                 self.zerostate_root_hash = cs.load_bitstring(256)
                 self.zerostate_file_hash = cs.load_bitstring(256)
                 self.version = cs.load_uint(32)
-                self.format = WorkchainFormat(self.basic).fetch(cs)                 
+                self.format = WorkchainFormat(self.basic).fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -16474,7 +16545,7 @@ class WorkchainDescr(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -16568,18 +16639,19 @@ class WorkchainDescr(TLBComplex):
                 self.zerostate_root_hash = cs.load_bitstring(256)
                 self.zerostate_file_hash = cs.load_bitstring(256)
                 self.version = cs.load_uint(32)
-                self.format = WorkchainFormat(self.basic).fetch(cs) 
+                self.format = WorkchainFormat(self.basic).fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.split_merge_timings = cs.load_subslice(132)
                 
                 if rec_unpack:
                     self.split_merge_timings = TLBComplex.constants["t_WcSplitMergeTimings"].fetch(self.split_merge_timings, True, strict) # at 1
-                    assert self.split_merge_timings is not None
+                    if strict:
+                        assert self.split_merge_timings is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -16590,7 +16662,7 @@ class WorkchainDescr(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -16653,14 +16725,14 @@ class ComplaintPricing(TLBComplex):
             try:
                 assert cs.load_uint(8) == 26, 'Cons tag check failed'
 
-                self.deposit = TLBComplex.constants["t_Grams"].fetch(cs) 
-                self.bit_price = TLBComplex.constants["t_Grams"].fetch(cs) 
-                self.cell_price = TLBComplex.constants["t_Grams"].fetch(cs)                 
+                self.deposit = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.bit_price = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.cell_price = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -16671,7 +16743,7 @@ class ComplaintPricing(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -16730,13 +16802,13 @@ class BlockCreateFees(TLBComplex):
             try:
                 assert cs.load_uint(8) == 0x6b, 'Cons tag check failed'
 
-                self.masterchain_block_fee = TLBComplex.constants["t_Grams"].fetch(cs) 
-                self.basechain_block_fee = TLBComplex.constants["t_Grams"].fetch(cs)                 
+                self.masterchain_block_fee = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.basechain_block_fee = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -16747,7 +16819,7 @@ class BlockCreateFees(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -16827,7 +16899,7 @@ class StoragePrices(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -16838,7 +16910,7 @@ class StoragePrices(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -16932,7 +17004,7 @@ class GasLimitsPrices(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -16943,7 +17015,7 @@ class GasLimitsPrices(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -17008,7 +17080,7 @@ class GasLimitsPrices(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -17019,7 +17091,7 @@ class GasLimitsPrices(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -17059,12 +17131,12 @@ class GasLimitsPrices(TLBComplex):
 
                 self.flat_gas_limit = cs.load_uint(64)
                 self.flat_gas_price = cs.load_uint(64)
-                self.other = self.fetch(cs)                 
+                self.other = self.fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -17075,7 +17147,7 @@ class GasLimitsPrices(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -17152,7 +17224,7 @@ class ParamLimits(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -17163,7 +17235,7 @@ class ParamLimits(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -17230,25 +17302,28 @@ class BlockLimits(TLBComplex):
                 
                 if rec_unpack:
                     self.bytes = TLBComplex.constants["t_ParamLimits"].fetch(self.bytes, True, strict) # at 1
-                    assert self.bytes is not None
+                    if strict:
+                        assert self.bytes is not None
 
                 self.gas = cs.load_subslice(104)
                 
                 if rec_unpack:
                     self.gas = TLBComplex.constants["t_ParamLimits"].fetch(self.gas, True, strict) # at 1
-                    assert self.gas is not None
+                    if strict:
+                        assert self.gas is not None
 
                 self.lt_delta = cs.load_subslice(104)
                 
                 if rec_unpack:
                     self.lt_delta = TLBComplex.constants["t_ParamLimits"].fetch(self.lt_delta, True, strict) # at 1
-                    assert self.lt_delta is not None
+                    if strict:
+                        assert self.lt_delta is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -17259,7 +17334,7 @@ class BlockLimits(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -17344,7 +17419,7 @@ class MsgForwardPrices(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -17355,7 +17430,7 @@ class MsgForwardPrices(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -17435,7 +17510,7 @@ class CatchainConfig(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -17446,7 +17521,7 @@ class CatchainConfig(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -17508,7 +17583,7 @@ class CatchainConfig(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -17519,7 +17594,7 @@ class CatchainConfig(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -17626,7 +17701,7 @@ class ConsensusConfig(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -17637,7 +17712,7 @@ class ConsensusConfig(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -17721,7 +17796,7 @@ class ConsensusConfig(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -17732,7 +17807,7 @@ class ConsensusConfig(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -17821,7 +17896,7 @@ class ConsensusConfig(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -17832,7 +17907,7 @@ class ConsensusConfig(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -17926,7 +18001,7 @@ class ConsensusConfig(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -17937,7 +18012,7 @@ class ConsensusConfig(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -18009,7 +18084,8 @@ class ValidatorTempKey(TLBComplex):
                 
                 if rec_unpack:
                     self.temp_public_key = TLBComplex.constants["t_SigPubKey"].fetch(self.temp_public_key, True, strict) # at 1
-                    assert self.temp_public_key is not None
+                    if strict:
+                        assert self.temp_public_key is not None
 
                 self.seqno = cs.load_uint(32)
 
@@ -18018,7 +18094,7 @@ class ValidatorTempKey(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -18029,7 +18105,7 @@ class ValidatorTempKey(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -18092,14 +18168,15 @@ class ValidatorSignedTempKey(TLBComplex):
                 
                 if rec_unpack:
                     self.key = TLBComplex.constants["t_Ref_ValidatorTempKey"].fetch(self.key, True, strict) # at 1
-                    assert self.key is not None
+                    if strict:
+                        assert self.key is not None
 
-                self.signature = TLBComplex.constants["t_CryptoSignature"].fetch(cs)                 
+                self.signature = TLBComplex.constants["t_CryptoSignature"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -18110,7 +18187,7 @@ class ValidatorSignedTempKey(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -18205,7 +18282,7 @@ class MisbehaviourPunishmentConfig(TLBComplex):
             try:
                 assert cs.load_uint(8) == 1, 'Cons tag check failed'
 
-                self.default_flat_fine = TLBComplex.constants["t_Grams"].fetch(cs) 
+                self.default_flat_fine = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.default_proportional_fine = cs.load_uint(32)
                 self.severity_flat_mult = cs.load_uint(16)
                 self.severity_proportional_mult = cs.load_uint(16)
@@ -18220,7 +18297,7 @@ class MisbehaviourPunishmentConfig(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -18231,7 +18308,7 @@ class MisbehaviourPunishmentConfig(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -18321,7 +18398,7 @@ class SizeLimitsConfig(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -18332,7 +18409,7 @@ class SizeLimitsConfig(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -18402,7 +18479,7 @@ class SizeLimitsConfig(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -18413,7 +18490,7 @@ class SizeLimitsConfig(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -18472,13 +18549,13 @@ class SuspendedAddressList(TLBComplex):
             try:
                 assert cs.load_uint(8) == 0, 'Cons tag check failed'
 
-                self.addresses = TLBComplex.constants["t_HashmapE_288_Unit"].fetch(cs) 
+                self.addresses = TLBComplex.constants["t_HashmapE_288_Unit"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.suspended_until = cs.load_uint(32)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -18489,7 +18566,7 @@ class SuspendedAddressList(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -18556,13 +18633,13 @@ class OracleBridgeParams(TLBComplex):
             try:
                 self.bridge_address = cs.load_bitstring(256)
                 self.oracle_mutlisig_address = cs.load_bitstring(256)
-                self.oracles = TLBComplex.constants["t_HashmapE_256_uint256"].fetch(cs) 
+                self.oracles = TLBComplex.constants["t_HashmapE_256_uint256"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.external_chain_address = cs.load_bitstring(256)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -18573,7 +18650,7 @@ class OracleBridgeParams(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -18646,17 +18723,17 @@ class JettonBridgePrices(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.bridge_burn_fee = TLBComplex.constants["t_Coins"].fetch(cs) 
-                self.bridge_mint_fee = TLBComplex.constants["t_Coins"].fetch(cs) 
-                self.wallet_min_tons_for_storage = TLBComplex.constants["t_Coins"].fetch(cs) 
-                self.wallet_gas_consumption = TLBComplex.constants["t_Coins"].fetch(cs) 
-                self.minter_min_tons_for_storage = TLBComplex.constants["t_Coins"].fetch(cs) 
-                self.discover_gas_consumption = TLBComplex.constants["t_Coins"].fetch(cs)                 
+                self.bridge_burn_fee = TLBComplex.constants["t_Coins"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.bridge_mint_fee = TLBComplex.constants["t_Coins"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.wallet_min_tons_for_storage = TLBComplex.constants["t_Coins"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.wallet_gas_consumption = TLBComplex.constants["t_Coins"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.minter_min_tons_for_storage = TLBComplex.constants["t_Coins"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.discover_gas_consumption = TLBComplex.constants["t_Coins"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -18667,7 +18744,7 @@ class JettonBridgePrices(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -18745,14 +18822,14 @@ class JettonBridgeParams(TLBComplex):
 
                 self.bridge_address = cs.load_bitstring(256)
                 self.oracles_address = cs.load_bitstring(256)
-                self.oracles = TLBComplex.constants["t_HashmapE_256_uint256"].fetch(cs) 
+                self.oracles = TLBComplex.constants["t_HashmapE_256_uint256"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.state_flags = cs.load_uint(8)
-                self.burn_bridge_fee = TLBComplex.constants["t_Coins"].fetch(cs)                 
+                self.burn_bridge_fee = TLBComplex.constants["t_Coins"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -18763,7 +18840,7 @@ class JettonBridgeParams(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -18815,20 +18892,21 @@ class JettonBridgeParams(TLBComplex):
 
                 self.bridge_address = cs.load_bitstring(256)
                 self.oracles_address = cs.load_bitstring(256)
-                self.oracles = TLBComplex.constants["t_HashmapE_256_uint256"].fetch(cs) 
+                self.oracles = TLBComplex.constants["t_HashmapE_256_uint256"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.state_flags = cs.load_uint(8)
                 self.prices = cs.load_ref()
                 
                 if rec_unpack:
                     self.prices = TLBComplex.constants["t_Ref_JettonBridgePrices"].fetch(self.prices, True, strict) # at 1
-                    assert self.prices is not None
+                    if strict:
+                        assert self.prices is not None
 
                 self.external_chain_address = cs.load_bitstring(256)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -18839,7 +18917,7 @@ class JettonBridgeParams(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19084,7 +19162,7 @@ class ConfigParam(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19095,7 +19173,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19129,7 +19207,7 @@ class ConfigParam(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19140,7 +19218,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19174,7 +19252,7 @@ class ConfigParam(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19185,7 +19263,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19219,7 +19297,7 @@ class ConfigParam(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19230,7 +19308,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19264,7 +19342,7 @@ class ConfigParam(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19275,7 +19353,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19303,13 +19381,13 @@ class ConfigParam(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.x = TLBComplex.constants["t_BurningConfig"].fetch(cs) 
+                self.x = TLBComplex.constants["t_BurningConfig"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.m_ == 5                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19320,7 +19398,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19352,14 +19430,14 @@ class ConfigParam(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.mint_new_price = TLBComplex.constants["t_Grams"].fetch(cs) 
-                self.mint_add_price = TLBComplex.constants["t_Grams"].fetch(cs) 
+                self.mint_new_price = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.mint_add_price = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.m_ == 6                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19370,7 +19448,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19398,13 +19476,13 @@ class ConfigParam(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.to_mint = TLBComplex.constants["t_ExtraCurrencyCollection"].fetch(cs) 
+                self.to_mint = TLBComplex.constants["t_ExtraCurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.m_ == 7                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19415,7 +19493,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19447,14 +19525,15 @@ class ConfigParam(TLBComplex):
                 
                 if rec_unpack:
                     self.x = TLBComplex.constants["t_GlobalVersion"].fetch(self.x, True, strict) # at 1
-                    assert self.x is not None
+                    if strict:
+                        assert self.x is not None
 
                 self.m_ == 8                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19465,7 +19544,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19493,13 +19572,13 @@ class ConfigParam(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.mandatory_params = TLBComplex.constants["t_Hashmap_32_Truet"].fetch(cs) 
+                self.mandatory_params = TLBComplex.constants["t_Hashmap_32_Truet"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.m_ == 9                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19510,7 +19589,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19538,13 +19617,13 @@ class ConfigParam(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.critical_params = TLBComplex.constants["t_Hashmap_32_Truet"].fetch(cs) 
+                self.critical_params = TLBComplex.constants["t_Hashmap_32_Truet"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.m_ == 10                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19555,7 +19634,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19587,14 +19666,15 @@ class ConfigParam(TLBComplex):
                 
                 if rec_unpack:
                     self.x = TLBComplex.constants["t_ConfigVotingSetup"].fetch(self.x, True, strict) # at 1
-                    assert self.x is not None
+                    if strict:
+                        assert self.x is not None
 
                 self.m_ == 11                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19605,7 +19685,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19633,13 +19713,13 @@ class ConfigParam(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.workchains = TLBComplex.constants["t_HashmapE_32_WorkchainDescr"].fetch(cs) 
+                self.workchains = TLBComplex.constants["t_HashmapE_32_WorkchainDescr"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.m_ == 12                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19650,7 +19730,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19678,13 +19758,13 @@ class ConfigParam(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.x = TLBComplex.constants["t_ComplaintPricing"].fetch(cs) 
+                self.x = TLBComplex.constants["t_ComplaintPricing"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.m_ == 13                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19695,7 +19775,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19723,13 +19803,13 @@ class ConfigParam(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.x = TLBComplex.constants["t_BlockCreateFees"].fetch(cs) 
+                self.x = TLBComplex.constants["t_BlockCreateFees"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.m_ == 14                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19740,7 +19820,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19789,7 +19869,7 @@ class ConfigParam(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19800,7 +19880,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19850,7 +19930,7 @@ class ConfigParam(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19861,7 +19941,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19901,16 +19981,16 @@ class ConfigParam(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.min_stake = TLBComplex.constants["t_Grams"].fetch(cs) 
-                self.max_stake = TLBComplex.constants["t_Grams"].fetch(cs) 
-                self.min_total_stake = TLBComplex.constants["t_Grams"].fetch(cs) 
+                self.min_stake = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.max_stake = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.min_total_stake = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.max_stake_factor = cs.load_uint(32)
                 self.m_ == 17                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19921,7 +20001,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19949,13 +20029,13 @@ class ConfigParam(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.x = TLBComplex.constants["t_Hashmap_32_StoragePrices"].fetch(cs) 
+                self.x = TLBComplex.constants["t_Hashmap_32_StoragePrices"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.m_ == 18                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -19966,7 +20046,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20000,7 +20080,7 @@ class ConfigParam(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20011,7 +20091,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20039,13 +20119,13 @@ class ConfigParam(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.x = TLBComplex.constants["t_GasLimitsPrices"].fetch(cs) 
+                self.x = TLBComplex.constants["t_GasLimitsPrices"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.m_ == 20                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20056,7 +20136,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20084,13 +20164,13 @@ class ConfigParam(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.x = TLBComplex.constants["t_GasLimitsPrices"].fetch(cs) 
+                self.x = TLBComplex.constants["t_GasLimitsPrices"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.m_ == 21                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20101,7 +20181,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20133,14 +20213,15 @@ class ConfigParam(TLBComplex):
                 
                 if rec_unpack:
                     self.x = TLBComplex.constants["t_BlockLimits"].fetch(self.x, True, strict) # at 1
-                    assert self.x is not None
+                    if strict:
+                        assert self.x is not None
 
                 self.m_ == 22                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20151,7 +20232,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20183,14 +20264,15 @@ class ConfigParam(TLBComplex):
                 
                 if rec_unpack:
                     self.x = TLBComplex.constants["t_BlockLimits"].fetch(self.x, True, strict) # at 1
-                    assert self.x is not None
+                    if strict:
+                        assert self.x is not None
 
                 self.m_ == 23                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20201,7 +20283,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20233,14 +20315,15 @@ class ConfigParam(TLBComplex):
                 
                 if rec_unpack:
                     self.x = TLBComplex.constants["t_MsgForwardPrices"].fetch(self.x, True, strict) # at 1
-                    assert self.x is not None
+                    if strict:
+                        assert self.x is not None
 
                 self.m_ == 24                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20251,7 +20334,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20283,14 +20366,15 @@ class ConfigParam(TLBComplex):
                 
                 if rec_unpack:
                     self.x = TLBComplex.constants["t_MsgForwardPrices"].fetch(self.x, True, strict) # at 1
-                    assert self.x is not None
+                    if strict:
+                        assert self.x is not None
 
                 self.m_ == 25                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20301,7 +20385,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20329,13 +20413,13 @@ class ConfigParam(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.x = TLBComplex.constants["t_CatchainConfig"].fetch(cs) 
+                self.x = TLBComplex.constants["t_CatchainConfig"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.m_ == 28                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20346,7 +20430,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20374,13 +20458,13 @@ class ConfigParam(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.x = TLBComplex.constants["t_ConsensusConfig"].fetch(cs) 
+                self.x = TLBComplex.constants["t_ConsensusConfig"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.m_ == 29                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20391,7 +20475,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20419,13 +20503,13 @@ class ConfigParam(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.fundamental_smc_addr = TLBComplex.constants["t_HashmapE_256_Truet"].fetch(cs) 
+                self.fundamental_smc_addr = TLBComplex.constants["t_HashmapE_256_Truet"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.m_ == 31                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20436,7 +20520,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20464,13 +20548,13 @@ class ConfigParam(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.prev_validators = TLBComplex.constants["t_ValidatorSet"].fetch(cs) 
+                self.prev_validators = TLBComplex.constants["t_ValidatorSet"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.m_ == 32                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20481,7 +20565,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20509,13 +20593,13 @@ class ConfigParam(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.prev_temp_validators = TLBComplex.constants["t_ValidatorSet"].fetch(cs) 
+                self.prev_temp_validators = TLBComplex.constants["t_ValidatorSet"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.m_ == 33                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20526,7 +20610,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20554,13 +20638,13 @@ class ConfigParam(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.cur_validators = TLBComplex.constants["t_ValidatorSet"].fetch(cs) 
+                self.cur_validators = TLBComplex.constants["t_ValidatorSet"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.m_ == 34                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20571,7 +20655,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20599,13 +20683,13 @@ class ConfigParam(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.cur_temp_validators = TLBComplex.constants["t_ValidatorSet"].fetch(cs) 
+                self.cur_temp_validators = TLBComplex.constants["t_ValidatorSet"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.m_ == 35                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20616,7 +20700,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20644,13 +20728,13 @@ class ConfigParam(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.next_validators = TLBComplex.constants["t_ValidatorSet"].fetch(cs) 
+                self.next_validators = TLBComplex.constants["t_ValidatorSet"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.m_ == 36                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20661,7 +20745,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20689,13 +20773,13 @@ class ConfigParam(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.next_temp_validators = TLBComplex.constants["t_ValidatorSet"].fetch(cs) 
+                self.next_temp_validators = TLBComplex.constants["t_ValidatorSet"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.m_ == 37                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20706,7 +20790,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20734,13 +20818,13 @@ class ConfigParam(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.x = TLBComplex.constants["t_HashmapE_256_ValidatorSignedTempKey"].fetch(cs) 
+                self.x = TLBComplex.constants["t_HashmapE_256_ValidatorSignedTempKey"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.m_ == 39                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20751,7 +20835,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20779,13 +20863,13 @@ class ConfigParam(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.x = TLBComplex.constants["t_MisbehaviourPunishmentConfig"].fetch(cs) 
+                self.x = TLBComplex.constants["t_MisbehaviourPunishmentConfig"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.m_ == 40                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20796,7 +20880,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20824,13 +20908,13 @@ class ConfigParam(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.x = TLBComplex.constants["t_SizeLimitsConfig"].fetch(cs) 
+                self.x = TLBComplex.constants["t_SizeLimitsConfig"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.m_ == 43                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20841,7 +20925,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20869,13 +20953,13 @@ class ConfigParam(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.x = TLBComplex.constants["t_SuspendedAddressList"].fetch(cs) 
+                self.x = TLBComplex.constants["t_SuspendedAddressList"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.m_ == 44                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20886,7 +20970,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20914,13 +20998,13 @@ class ConfigParam(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.x = TLBComplex.constants["t_OracleBridgeParams"].fetch(cs) 
+                self.x = TLBComplex.constants["t_OracleBridgeParams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.m_ == 71                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20931,7 +21015,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20959,13 +21043,13 @@ class ConfigParam(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.x = TLBComplex.constants["t_OracleBridgeParams"].fetch(cs) 
+                self.x = TLBComplex.constants["t_OracleBridgeParams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.m_ == 72                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -20976,7 +21060,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -21004,13 +21088,13 @@ class ConfigParam(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.x = TLBComplex.constants["t_OracleBridgeParams"].fetch(cs) 
+                self.x = TLBComplex.constants["t_OracleBridgeParams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.m_ == 73                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -21021,7 +21105,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -21049,13 +21133,13 @@ class ConfigParam(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.x = TLBComplex.constants["t_JettonBridgeParams"].fetch(cs) 
+                self.x = TLBComplex.constants["t_JettonBridgeParams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.m_ == 79                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -21066,7 +21150,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -21094,13 +21178,13 @@ class ConfigParam(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.x = TLBComplex.constants["t_JettonBridgeParams"].fetch(cs) 
+                self.x = TLBComplex.constants["t_JettonBridgeParams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.m_ == 81                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -21111,7 +21195,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -21139,13 +21223,13 @@ class ConfigParam(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.x = TLBComplex.constants["t_JettonBridgeParams"].fetch(cs) 
+                self.x = TLBComplex.constants["t_JettonBridgeParams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.m_ == 82                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -21156,7 +21240,7 @@ class ConfigParam(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -21219,12 +21303,12 @@ class BlockSignaturesPure(TLBComplex):
             try:
                 self.sig_count = cs.load_uint(32)
                 self.sig_weight = cs.load_uint(64)
-                self.signatures = TLBComplex.constants["t_HashmapE_16_CryptoSignaturePair"].fetch(cs)                 
+                self.signatures = TLBComplex.constants["t_HashmapE_16_CryptoSignaturePair"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -21235,7 +21319,7 @@ class BlockSignaturesPure(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -21298,14 +21382,15 @@ class BlockSignatures(TLBComplex):
                 
                 if rec_unpack:
                     self.validator_info = TLBComplex.constants["t_ValidatorBaseInfo"].fetch(self.validator_info, True, strict) # at 1
-                    assert self.validator_info is not None
+                    if strict:
+                        assert self.validator_info is not None
 
-                self.pure_signatures = TLBComplex.constants["t_BlockSignaturesPure"].fetch(cs)                 
+                self.pure_signatures = TLBComplex.constants["t_BlockSignaturesPure"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -21316,7 +21401,7 @@ class BlockSignatures(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -21383,20 +21468,22 @@ class BlockProof(TLBComplex):
                 
                 if rec_unpack:
                     self.proof_for = TLBComplex.constants["t_BlockIdExt"].fetch(self.proof_for, True, strict) # at 1
-                    assert self.proof_for is not None
+                    if strict:
+                        assert self.proof_for is not None
 
                 self.root = cs.load_ref()
                 
                 if rec_unpack:
                     self.root = TLBComplex.constants["t_RefCell"].fetch(self.root, True, strict) # at 1
-                    assert self.root is not None
+                    if strict:
+                        assert self.root is not None
 
-                self.signatures = TLBComplex.constants["t_Maybe_Ref_BlockSignatures"].fetch(cs)                 
+                self.signatures = TLBComplex.constants["t_Maybe_Ref_BlockSignatures"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -21407,7 +21494,7 @@ class BlockProof(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -21468,7 +21555,7 @@ class ProofChain(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -21479,7 +21566,7 @@ class ProofChain(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -21522,21 +21609,17 @@ class ProofChain(TLBComplex):
                 
                 if rec_unpack:
                     self.root = TLBComplex.constants["t_RefCell"].fetch(self.root, True, strict) # at 1
-                    assert self.root is not None
+                    if strict:
+                        assert self.root is not None
 
                 if (self.n > 0):
                     
-                    self.prev = cs.load_ref()
-                    
-                if rec_unpack and self.prev is not None:
-                    self.prev = TLBComplex.constants["t_Ref_ProofChain"].fetch(self.prev, True, strict) # at 3
-                    assert self.prev is not None
-                
+                    self.prev = cs.load_ref()                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -21547,7 +21630,7 @@ class ProofChain(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -21618,20 +21701,21 @@ class TopBlockDescr(TLBComplex):
                 
                 if rec_unpack:
                     self.proof_for = TLBComplex.constants["t_BlockIdExt"].fetch(self.proof_for, True, strict) # at 1
-                    assert self.proof_for is not None
+                    if strict:
+                        assert self.proof_for is not None
 
-                self.signatures = TLBComplex.constants["t_Maybe_Ref_BlockSignatures"].fetch(cs) 
+                self.signatures = TLBComplex.constants["t_Maybe_Ref_BlockSignatures"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.len = cs.load_uint(8)
                 assert 1 <= self.len, 'Params not equal: 1 and len'
 
                 assert self.len <= 8, 'Params not equal: len and 8'
 
-                self.chain = ProofChain(self.len).fetch(cs)                 
+                self.chain = ProofChain(self.len).fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -21642,7 +21726,7 @@ class TopBlockDescr(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -21697,12 +21781,12 @@ class TopBlockDescrSet(TLBComplex):
             try:
                 assert cs.load_uint(32) == 0x4ac789f3, 'Cons tag check failed'
 
-                self.collection = TLBComplex.constants["t_HashmapE_96_Ref_TopBlockDescr"].fetch(cs)                 
+                self.collection = TLBComplex.constants["t_HashmapE_96_Ref_TopBlockDescr"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -21713,7 +21797,7 @@ class TopBlockDescrSet(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -21785,25 +21869,28 @@ class ProducerInfo(TLBComplex):
                 
                 if rec_unpack:
                     self.mc_blk_ref = TLBComplex.constants["t_ExtBlkRef"].fetch(self.mc_blk_ref, True, strict) # at 1
-                    assert self.mc_blk_ref is not None
+                    if strict:
+                        assert self.mc_blk_ref is not None
 
                 self.state_proof = cs.load_ref()
                 
                 if rec_unpack:
                     self.state_proof = TLBComplex.constants["t_Ref_MERKLE_PROOF_Block"].fetch(self.state_proof, True, strict) # at 1
-                    assert self.state_proof is not None
+                    if strict:
+                        assert self.state_proof is not None
 
                 self.prod_proof = cs.load_ref()
                 
                 if rec_unpack:
                     self.prod_proof = TLBComplex.constants["t_Ref_MERKLE_PROOF_ShardState"].fetch(self.prod_proof, True, strict) # at 1
-                    assert self.prod_proof is not None
+                    if strict:
+                        assert self.prod_proof is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -21814,7 +21901,7 @@ class ProducerInfo(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -21879,13 +21966,14 @@ class ComplaintDescr(TLBComplex):
                 
                 if rec_unpack:
                     self.prod_info = TLBComplex.constants["t_Ref_ProducerInfo"].fetch(self.prod_info, True, strict) # at 1
-                    assert self.prod_info is not None
+                    if strict:
+                        assert self.prod_info is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -21896,7 +21984,7 @@ class ComplaintDescr(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -21934,19 +22022,21 @@ class ComplaintDescr(TLBComplex):
                 
                 if rec_unpack:
                     self.prod_info_old = TLBComplex.constants["t_Ref_ProducerInfo"].fetch(self.prod_info_old, True, strict) # at 1
-                    assert self.prod_info_old is not None
+                    if strict:
+                        assert self.prod_info_old is not None
 
                 self.prod_info_new = cs.load_ref()
                 
                 if rec_unpack:
                     self.prod_info_new = TLBComplex.constants["t_Ref_ProducerInfo"].fetch(self.prod_info_new, True, strict) # at 1
-                    assert self.prod_info_new is not None
+                    if strict:
+                        assert self.prod_info_new is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -21957,7 +22047,7 @@ class ComplaintDescr(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -22045,19 +22135,20 @@ class ValidatorComplaint(TLBComplex):
                 
                 if rec_unpack:
                     self.description = TLBComplex.constants["t_Ref_ComplaintDescr"].fetch(self.description, True, strict) # at 1
-                    assert self.description is not None
+                    if strict:
+                        assert self.description is not None
 
                 self.created_at = cs.load_uint(32)
                 self.severity = cs.load_uint(8)
                 self.reward_addr = cs.load_uint(256)
-                self.paid = TLBComplex.constants["t_Grams"].fetch(cs) 
-                self.suggested_fine = TLBComplex.constants["t_Grams"].fetch(cs) 
+                self.paid = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.suggested_fine = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.suggested_fine_part = cs.load_uint(32)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -22068,7 +22159,7 @@ class ValidatorComplaint(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -22139,16 +22230,17 @@ class ValidatorComplaintStatus(TLBComplex):
                 
                 if rec_unpack:
                     self.complaint = TLBComplex.constants["t_Ref_ValidatorComplaint"].fetch(self.complaint, True, strict) # at 1
-                    assert self.complaint is not None
+                    if strict:
+                        assert self.complaint is not None
 
-                self.voters = TLBComplex.constants["t_HashmapE_16_Truet"].fetch(cs) 
+                self.voters = TLBComplex.constants["t_HashmapE_16_Truet"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.vset_id = cs.load_uint(256)
                 self.weight_remaining = cs.load_int(64)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -22159,7 +22251,7 @@ class ValidatorComplaintStatus(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -22232,7 +22324,8 @@ class VmCellSlice(TLBComplex):
                 
                 if rec_unpack:
                     self.cell = TLBComplex.constants["t_RefCell"].fetch(self.cell, True, strict) # at 1
-                    assert self.cell is not None
+                    if strict:
+                        assert self.cell is not None
 
                 self.st_bits = cs.load_uint(10)
                 self.end_bits = cs.load_uint(10)
@@ -22246,7 +22339,7 @@ class VmCellSlice(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -22257,7 +22350,7 @@ class VmCellSlice(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -22319,7 +22412,7 @@ class VmTupleRef(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -22330,7 +22423,7 @@ class VmTupleRef(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -22362,14 +22455,15 @@ class VmTupleRef(TLBComplex):
                 
                 if rec_unpack:
                     self.entry = TLBComplex.constants["t_Ref_VmStackValue"].fetch(self.entry, True, strict) # at 1
-                    assert self.entry is not None
+                    if strict:
+                        assert self.entry is not None
 
                 self.m_ == 1                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -22380,7 +22474,7 @@ class VmTupleRef(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -22418,13 +22512,14 @@ class VmTupleRef(TLBComplex):
                 
                 if rec_unpack:
                     self.ref = RefT(VmTuple(self.n + 2)).fetch(self.ref, True, strict) # at 1
-                    assert self.ref is not None
+                    if strict:
+                        assert self.ref is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -22435,7 +22530,7 @@ class VmTupleRef(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -22496,7 +22591,7 @@ class VmTuple(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -22507,7 +22602,7 @@ class VmTuple(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -22545,18 +22640,19 @@ class VmTuple(TLBComplex):
             try:
                 assert self.add_r1("n", 1, self.m_), 'Add_r1 failed'
 
-                self.head = VmTupleRef(self.n).fetch(cs) 
+                self.head = VmTupleRef(self.n).fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.tail = cs.load_ref()
                 
                 if rec_unpack:
                     self.tail = TLBComplex.constants["t_Ref_VmStackValue"].fetch(self.tail, True, strict) # at 1
-                    assert self.tail is not None
+                    if strict:
+                        assert self.tail is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -22567,7 +22663,7 @@ class VmTuple(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -22646,7 +22742,7 @@ class VmStackValue(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -22657,7 +22753,7 @@ class VmStackValue(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -22692,7 +22788,7 @@ class VmStackValue(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -22703,7 +22799,7 @@ class VmStackValue(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -22738,7 +22834,7 @@ class VmStackValue(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -22749,7 +22845,7 @@ class VmStackValue(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -22777,7 +22873,7 @@ class VmStackValue(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -22788,7 +22884,7 @@ class VmStackValue(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -22822,13 +22918,14 @@ class VmStackValue(TLBComplex):
                 
                 if rec_unpack:
                     self.cell = TLBComplex.constants["t_RefCell"].fetch(self.cell, True, strict) # at 1
-                    assert self.cell is not None
+                    if strict:
+                        assert self.cell is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -22839,7 +22936,7 @@ class VmStackValue(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -22873,13 +22970,14 @@ class VmStackValue(TLBComplex):
                 
                 if rec_unpack:
                     self.x = TLBComplex.constants["t_VmCellSlice"].fetch(self.x, True, strict) # at 1
-                    assert self.x is not None
+                    if strict:
+                        assert self.x is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -22890,7 +22988,7 @@ class VmStackValue(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -22924,13 +23022,14 @@ class VmStackValue(TLBComplex):
                 
                 if rec_unpack:
                     self.cell = TLBComplex.constants["t_RefCell"].fetch(self.cell, True, strict) # at 1
-                    assert self.cell is not None
+                    if strict:
+                        assert self.cell is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -22941,7 +23040,7 @@ class VmStackValue(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -22971,12 +23070,12 @@ class VmStackValue(TLBComplex):
             try:
                 assert cs.load_uint(8) == 6, 'Cons tag check failed'
 
-                self.cont = TLBComplex.constants["t_VmCont"].fetch(cs)                 
+                self.cont = TLBComplex.constants["t_VmCont"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -22987,7 +23086,7 @@ class VmStackValue(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -23022,12 +23121,12 @@ class VmStackValue(TLBComplex):
                 assert cs.load_uint(8) == 7, 'Cons tag check failed'
 
                 self.len = cs.load_uint(16)
-                self.data = VmTuple(self.len).fetch(cs)                 
+                self.data = VmTuple(self.len).fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -23038,7 +23137,7 @@ class VmStackValue(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -23096,12 +23195,12 @@ class VmStack(TLBComplex):
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
                 self.depth = cs.load_uint(24)
-                self.stack = VmStackList(self.depth).fetch(cs)                 
+                self.stack = VmStackList(self.depth).fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -23112,7 +23211,7 @@ class VmStack(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -23188,14 +23287,15 @@ class VmStackList(TLBComplex):
                 
                 if rec_unpack:
                     self.rest = RefT(VmStackList(self.n)).fetch(self.rest, True, strict) # at 1
-                    assert self.rest is not None
+                    if strict:
+                        assert self.rest is not None
 
-                self.tos = TLBComplex.constants["t_VmStackValue"].fetch(cs)                 
+                self.tos = TLBComplex.constants["t_VmStackValue"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -23206,7 +23306,7 @@ class VmStackList(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -23233,7 +23333,7 @@ class VmStackList(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -23244,7 +23344,7 @@ class VmStackList(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -23297,12 +23397,12 @@ class VmSaveList(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.cregs = TLBComplex.constants["t_HashmapE_4_VmStackValue"].fetch(cs)                 
+                self.cregs = TLBComplex.constants["t_HashmapE_4_VmStackValue"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -23313,7 +23413,7 @@ class VmSaveList(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -23381,7 +23481,7 @@ class VmGasLimits_aux(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -23392,7 +23492,7 @@ class VmGasLimits_aux(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -23455,7 +23555,7 @@ class VmGasLimits(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -23466,7 +23566,7 @@ class VmGasLimits(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -23519,12 +23619,12 @@ class VmLibraries(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.libraries = TLBComplex.constants["t_HashmapE_256_Ref_Cell"].fetch(cs)                 
+                self.libraries = TLBComplex.constants["t_HashmapE_256_Ref_Cell"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -23535,7 +23635,7 @@ class VmLibraries(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -23600,15 +23700,15 @@ class VmControlData(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.nargs = TLBComplex.constants["t_Maybe_uint13"].fetch(cs) 
-                self.stack = TLBComplex.constants["t_Maybe_VmStack"].fetch(cs) 
-                self.save = TLBComplex.constants["t_VmSaveList"].fetch(cs) 
-                self.cp = TLBComplex.constants["t_Maybe_int16"].fetch(cs)                 
+                self.nargs = TLBComplex.constants["t_Maybe_uint13"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.stack = TLBComplex.constants["t_Maybe_VmStack"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.save = TLBComplex.constants["t_VmSaveList"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.cp = TLBComplex.constants["t_Maybe_int16"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -23619,7 +23719,7 @@ class VmControlData(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -23687,18 +23787,19 @@ class VmCont(TLBComplex):
             try:
                 assert cs.load_uint(2) == 0, 'Cons tag check failed'
 
-                self.cdata = TLBComplex.constants["t_VmControlData"].fetch(cs) 
+                self.cdata = TLBComplex.constants["t_VmControlData"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.code = cs.load_subslice_ext(0x1001a)
                 
                 if rec_unpack:
                     self.code = TLBComplex.constants["t_VmCellSlice"].fetch(self.code, True, strict) # at 1
-                    assert self.code is not None
+                    if strict:
+                        assert self.code is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -23709,7 +23810,7 @@ class VmCont(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -23743,18 +23844,19 @@ class VmCont(TLBComplex):
             try:
                 assert cs.load_uint(2) == 1, 'Cons tag check failed'
 
-                self.cdata = TLBComplex.constants["t_VmControlData"].fetch(cs) 
+                self.cdata = TLBComplex.constants["t_VmControlData"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.next = cs.load_ref()
                 
                 if rec_unpack:
                     self.next = TLBComplex.constants["t_Ref_VmCont"].fetch(self.next, True, strict) # at 1
-                    assert self.next is not None
+                    if strict:
+                        assert self.next is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -23765,7 +23867,7 @@ class VmCont(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -23800,7 +23902,7 @@ class VmCont(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -23811,7 +23913,7 @@ class VmCont(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -23839,7 +23941,7 @@ class VmCont(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -23850,7 +23952,7 @@ class VmCont(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -23893,19 +23995,21 @@ class VmCont(TLBComplex):
                 
                 if rec_unpack:
                     self.body = TLBComplex.constants["t_Ref_VmCont"].fetch(self.body, True, strict) # at 1
-                    assert self.body is not None
+                    if strict:
+                        assert self.body is not None
 
                 self.after = cs.load_ref()
                 
                 if rec_unpack:
                     self.after = TLBComplex.constants["t_Ref_VmCont"].fetch(self.after, True, strict) # at 1
-                    assert self.after is not None
+                    if strict:
+                        assert self.after is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -23916,7 +24020,7 @@ class VmCont(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -23954,19 +24058,21 @@ class VmCont(TLBComplex):
                 
                 if rec_unpack:
                     self.body = TLBComplex.constants["t_Ref_VmCont"].fetch(self.body, True, strict) # at 1
-                    assert self.body is not None
+                    if strict:
+                        assert self.body is not None
 
                 self.after = cs.load_ref()
                 
                 if rec_unpack:
                     self.after = TLBComplex.constants["t_Ref_VmCont"].fetch(self.after, True, strict) # at 1
-                    assert self.after is not None
+                    if strict:
+                        assert self.after is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -23977,7 +24083,7 @@ class VmCont(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -24011,13 +24117,14 @@ class VmCont(TLBComplex):
                 
                 if rec_unpack:
                     self.body = TLBComplex.constants["t_Ref_VmCont"].fetch(self.body, True, strict) # at 1
-                    assert self.body is not None
+                    if strict:
+                        assert self.body is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -24028,7 +24135,7 @@ class VmCont(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -24070,25 +24177,28 @@ class VmCont(TLBComplex):
                 
                 if rec_unpack:
                     self.cond = TLBComplex.constants["t_Ref_VmCont"].fetch(self.cond, True, strict) # at 1
-                    assert self.cond is not None
+                    if strict:
+                        assert self.cond is not None
 
                 self.body = cs.load_ref()
                 
                 if rec_unpack:
                     self.body = TLBComplex.constants["t_Ref_VmCont"].fetch(self.body, True, strict) # at 1
-                    assert self.body is not None
+                    if strict:
+                        assert self.body is not None
 
                 self.after = cs.load_ref()
                 
                 if rec_unpack:
                     self.after = TLBComplex.constants["t_Ref_VmCont"].fetch(self.after, True, strict) # at 1
-                    assert self.after is not None
+                    if strict:
+                        assert self.after is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -24099,7 +24209,7 @@ class VmCont(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -24141,25 +24251,28 @@ class VmCont(TLBComplex):
                 
                 if rec_unpack:
                     self.cond = TLBComplex.constants["t_Ref_VmCont"].fetch(self.cond, True, strict) # at 1
-                    assert self.cond is not None
+                    if strict:
+                        assert self.cond is not None
 
                 self.body = cs.load_ref()
                 
                 if rec_unpack:
                     self.body = TLBComplex.constants["t_Ref_VmCont"].fetch(self.body, True, strict) # at 1
-                    assert self.body is not None
+                    if strict:
+                        assert self.body is not None
 
                 self.after = cs.load_ref()
                 
                 if rec_unpack:
                     self.after = TLBComplex.constants["t_Ref_VmCont"].fetch(self.after, True, strict) # at 1
-                    assert self.after is not None
+                    if strict:
+                        assert self.after is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -24170,7 +24283,7 @@ class VmCont(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -24209,13 +24322,14 @@ class VmCont(TLBComplex):
                 
                 if rec_unpack:
                     self.next = TLBComplex.constants["t_Ref_VmCont"].fetch(self.next, True, strict) # at 1
-                    assert self.next is not None
+                    if strict:
+                        assert self.next is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -24226,7 +24340,7 @@ class VmCont(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -24279,12 +24393,12 @@ class DNS_RecordSet(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.x = TLBComplex.constants["t_HashmapE_256_Ref_DNSRecord"].fetch(cs)                 
+                self.x = TLBComplex.constants["t_HashmapE_256_Ref_DNSRecord"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -24295,7 +24409,7 @@ class DNS_RecordSet(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -24367,13 +24481,14 @@ class TextChunkRef(TLBComplex):
                 
                 if rec_unpack:
                     self.ref = RefT(TextChunks(self.n + 1)).fetch(self.ref, True, strict) # at 1
-                    assert self.ref is not None
+                    if strict:
+                        assert self.ref is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -24384,7 +24499,7 @@ class TextChunkRef(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -24411,7 +24526,7 @@ class TextChunkRef(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -24422,7 +24537,7 @@ class TextChunkRef(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -24501,17 +24616,12 @@ class TextChunks(TLBComplex):
                 self.len = cs.load_uint(8)
                 self.data = cs.load_bitstring(8 * self.len)
 
-                
-                if rec_unpack and self.data is not None:
-                    self.data = TLBComplex.constants["t_bits_mul8"].fetch(self.data, True, strict) # at 3
-                    assert self.data is not None
-
-                self.next = TextChunkRef(self.n).fetch(cs)                 
+                self.next = TextChunkRef(self.n).fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -24522,7 +24632,7 @@ class TextChunks(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -24549,7 +24659,7 @@ class TextChunks(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -24560,7 +24670,7 @@ class TextChunks(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -24618,12 +24728,12 @@ class Text(TLBComplex):
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
                 self.chunks = cs.load_uint(8)
-                self.rest = TextChunks(self.chunks).fetch(cs)                 
+                self.rest = TextChunks(self.chunks).fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -24634,7 +24744,7 @@ class Text(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -24688,7 +24798,7 @@ class ProtoList(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -24699,7 +24809,7 @@ class ProtoList(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -24733,13 +24843,13 @@ class ProtoList(TLBComplex):
             try:
                 assert cs.load_uint(1) == 1, 'Cons tag check failed'
 
-                self.head = TLBComplex.constants["t_Protocol"].fetch_enum(cs) 
-                self.tail = self.fetch(cs)                 
+                self.head = TLBComplex.constants["t_Protocol"].fetch_enum(cs, rec_unpack=rec_unpack, strict=strict)
+                self.tail = self.fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -24750,7 +24860,7 @@ class ProtoList(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -24779,7 +24889,7 @@ class Protocol(TLBComplex):
         return Protocol.Tag(0)
 
 
-    def fetch_enum(self, cs: CellSlice) -> int:
+    def fetch_enum(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> int:
         value = cs.load_uint(16)
         assert value == 0x4854, 'Not valid tag fetched'
         return value
@@ -24814,7 +24924,7 @@ class Protocol(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -24825,7 +24935,7 @@ class Protocol(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -24879,7 +24989,7 @@ class SmcCapList(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -24890,7 +25000,7 @@ class SmcCapList(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -24924,13 +25034,13 @@ class SmcCapList(TLBComplex):
             try:
                 assert cs.load_uint(1) == 1, 'Cons tag check failed'
 
-                self.head = TLBComplex.constants["t_SmcCapability"].fetch(cs) 
-                self.tail = self.fetch(cs)                 
+                self.head = TLBComplex.constants["t_SmcCapability"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.tail = self.fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -24941,7 +25051,7 @@ class SmcCapList(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -24997,7 +25107,7 @@ class SmcCapability(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -25008,7 +25118,7 @@ class SmcCapability(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -25036,7 +25146,7 @@ class SmcCapability(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -25047,7 +25157,7 @@ class SmcCapability(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -25075,7 +25185,7 @@ class SmcCapability(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -25086,7 +25196,7 @@ class SmcCapability(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -25116,12 +25226,12 @@ class SmcCapability(TLBComplex):
             try:
                 assert cs.load_uint(8) == 0xff, 'Cons tag check failed'
 
-                self.name = TLBComplex.constants["t_Text"].fetch(cs)                 
+                self.name = TLBComplex.constants["t_Text"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -25132,7 +25242,7 @@ class SmcCapability(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -25191,12 +25301,12 @@ class DNSRecord(TLBComplex):
             try:
                 assert cs.load_uint(16) == 0x1eda, 'Cons tag check failed'
 
-                self.x = TLBComplex.constants["t_Text"].fetch(cs)                 
+                self.x = TLBComplex.constants["t_Text"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -25207,7 +25317,7 @@ class DNSRecord(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -25237,12 +25347,12 @@ class DNSRecord(TLBComplex):
             try:
                 assert cs.load_uint(16) == 0xba93, 'Cons tag check failed'
 
-                self.resolver = TLBComplex.constants["t_MsgAddressInt"].fetch(cs)                 
+                self.resolver = TLBComplex.constants["t_MsgAddressInt"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -25253,7 +25363,7 @@ class DNSRecord(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -25297,12 +25407,12 @@ class DNSRecord(TLBComplex):
                 assert self.flags <= 1, 'Params not equal: flags and 1'
 
                 if ((self.flags & (1 << 0)) != 0):
-                    self.proto_list = TLBComplex.constants["t_ProtoList"].fetch(cs)                 
+                    self.proto_list = TLBComplex.constants["t_ProtoList"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -25313,7 +25423,7 @@ class DNSRecord(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -25352,17 +25462,17 @@ class DNSRecord(TLBComplex):
             try:
                 assert cs.load_uint(16) == 0x9fd3, 'Cons tag check failed'
 
-                self.smc_addr = TLBComplex.constants["t_MsgAddressInt"].fetch(cs) 
+                self.smc_addr = TLBComplex.constants["t_MsgAddressInt"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.flags = cs.load_uint(8)
                 assert self.flags <= 1, 'Params not equal: flags and 1'
 
                 if ((self.flags & (1 << 0)) != 0):
-                    self.cap_list = TLBComplex.constants["t_SmcCapList"].fetch(cs)                 
+                    self.cap_list = TLBComplex.constants["t_SmcCapList"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -25373,7 +25483,7 @@ class DNSRecord(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -25408,7 +25518,7 @@ class DNSRecord(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -25419,7 +25529,7 @@ class DNSRecord(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -25508,21 +25618,23 @@ class ChanConfig(TLBComplex):
                 
                 if rec_unpack:
                     self.a_addr = TLBComplex.constants["t_Ref_MsgAddressInt"].fetch(self.a_addr, True, strict) # at 1
-                    assert self.a_addr is not None
+                    if strict:
+                        assert self.a_addr is not None
 
                 self.b_addr = cs.load_ref()
                 
                 if rec_unpack:
                     self.b_addr = TLBComplex.constants["t_Ref_MsgAddressInt"].fetch(self.b_addr, True, strict) # at 1
-                    assert self.b_addr is not None
+                    if strict:
+                        assert self.b_addr is not None
 
                 self.channel_id = cs.load_uint(64)
-                self.min_A_extra = TLBComplex.constants["t_Grams"].fetch(cs)                 
+                self.min_A_extra = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -25533,7 +25645,7 @@ class ChanConfig(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -25616,16 +25728,16 @@ class ChanState(TLBComplex):
 
                 self.signed_A = cs.load_bool()
                 self.signed_B = cs.load_bool()
-                self.min_A = TLBComplex.constants["t_Grams"].fetch(cs) 
-                self.min_B = TLBComplex.constants["t_Grams"].fetch(cs) 
+                self.min_A = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.min_B = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.expire_at = cs.load_uint(32)
-                self.A = TLBComplex.constants["t_Grams"].fetch(cs) 
-                self.B = TLBComplex.constants["t_Grams"].fetch(cs)                 
+                self.A = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.B = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -25636,7 +25748,7 @@ class ChanState(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -25692,16 +25804,16 @@ class ChanState(TLBComplex):
 
                 self.signed_A = cs.load_bool()
                 self.signed_B = cs.load_bool()
-                self.promise_A = TLBComplex.constants["t_Grams"].fetch(cs) 
-                self.promise_B = TLBComplex.constants["t_Grams"].fetch(cs) 
+                self.promise_A = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.promise_B = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.expire_at = cs.load_uint(32)
-                self.A = TLBComplex.constants["t_Grams"].fetch(cs) 
-                self.B = TLBComplex.constants["t_Grams"].fetch(cs)                 
+                self.A = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.B = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -25712,7 +25824,7 @@ class ChanState(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -25746,13 +25858,13 @@ class ChanState(TLBComplex):
             try:
                 assert cs.load_uint(3) == 2, 'Cons tag check failed'
 
-                self.A = TLBComplex.constants["t_Grams"].fetch(cs) 
-                self.B = TLBComplex.constants["t_Grams"].fetch(cs)                 
+                self.A = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.B = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -25763,7 +25875,7 @@ class ChanState(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -25825,13 +25937,13 @@ class ChanPromise(TLBComplex):
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
                 self.channel_id = cs.load_uint(64)
-                self.promise_A = TLBComplex.constants["t_Grams"].fetch(cs) 
-                self.promise_B = TLBComplex.constants["t_Grams"].fetch(cs)                 
+                self.promise_A = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.promise_B = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -25842,7 +25954,7 @@ class ChanPromise(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -25899,13 +26011,13 @@ class ChanSignedPromise(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.sig = TLBComplex.constants["t_Maybe_Ref_bits512"].fetch(cs) 
-                self.promise = TLBComplex.constants["t_ChanPromise"].fetch(cs)                 
+                self.sig = TLBComplex.constants["t_Maybe_Ref_bits512"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.promise = TLBComplex.constants["t_ChanPromise"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -25916,7 +26028,7 @@ class ChanSignedPromise(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -25990,16 +26102,16 @@ class ChanMsg(TLBComplex):
             try:
                 assert cs.load_uint(32) == 0x27317822, 'Cons tag check failed'
 
-                self.inc_A = TLBComplex.constants["t_Grams"].fetch(cs) 
-                self.inc_B = TLBComplex.constants["t_Grams"].fetch(cs) 
-                self.min_A = TLBComplex.constants["t_Grams"].fetch(cs) 
-                self.min_B = TLBComplex.constants["t_Grams"].fetch(cs) 
+                self.inc_A = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.inc_B = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.min_A = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.min_B = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.channel_id = cs.load_uint(64)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -26010,7 +26122,7 @@ class ChanMsg(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -26048,14 +26160,14 @@ class ChanMsg(TLBComplex):
             try:
                 assert cs.load_uint(32) == 0xf28ae183, 'Cons tag check failed'
 
-                self.extra_A = TLBComplex.constants["t_Grams"].fetch(cs) 
-                self.extra_B = TLBComplex.constants["t_Grams"].fetch(cs) 
-                self.promise = TLBComplex.constants["t_ChanSignedPromise"].fetch(cs)                 
+                self.extra_A = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.extra_B = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.promise = TLBComplex.constants["t_ChanSignedPromise"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -26066,7 +26178,7 @@ class ChanMsg(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -26094,7 +26206,7 @@ class ChanMsg(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -26105,7 +26217,7 @@ class ChanMsg(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -26133,7 +26245,7 @@ class ChanMsg(TLBComplex):
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -26144,7 +26256,7 @@ class ChanMsg(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -26205,14 +26317,14 @@ class ChanSignedMsg(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.sig_A = TLBComplex.constants["t_Maybe_Ref_bits512"].fetch(cs) 
-                self.sig_B = TLBComplex.constants["t_Maybe_Ref_bits512"].fetch(cs) 
-                self.msg = TLBComplex.constants["t_ChanMsg"].fetch(cs)                 
+                self.sig_A = TLBComplex.constants["t_Maybe_Ref_bits512"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.sig_B = TLBComplex.constants["t_Maybe_Ref_bits512"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.msg = TLBComplex.constants["t_ChanMsg"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -26223,7 +26335,7 @@ class ChanSignedMsg(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -26278,12 +26390,12 @@ class ChanOp(TLBComplex):
             try:
                 assert cs.load_uint(32) == 0x912838d1, 'Cons tag check failed'
 
-                self.msg = TLBComplex.constants["t_ChanSignedMsg"].fetch(cs)                 
+                self.msg = TLBComplex.constants["t_ChanSignedMsg"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -26294,7 +26406,7 @@ class ChanOp(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -26355,19 +26467,21 @@ class ChanData(TLBComplex):
                 
                 if rec_unpack:
                     self.config = TLBComplex.constants["t_Ref_ChanConfig"].fetch(self.config, True, strict) # at 1
-                    assert self.config is not None
+                    if strict:
+                        assert self.config is not None
 
                 self.state = cs.load_ref()
                 
                 if rec_unpack:
                     self.state = TLBComplex.constants["t_Ref_ChanState"].fetch(self.state, True, strict) # at 1
-                    assert self.state is not None
+                    if strict:
+                        assert self.state is not None
                 
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
                             assert getattr(self, i) is not None, f'Field {i} is None'
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 
@@ -26378,7 +26492,7 @@ class ChanData(TLBComplex):
                 cs = cell_ref.begin_parse()
                 return self.unpack(cs) and cs.empty_ext()
 
-            except (TabError):
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
 

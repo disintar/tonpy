@@ -1,0 +1,2 @@
+class Emulator:
+    pass
