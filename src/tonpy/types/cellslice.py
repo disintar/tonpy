@@ -1,4 +1,4 @@
-from tonpy.libs.python_ton import PyCellSlice, parseStringToCell, load_as_cell_slice
+from tonpy.libs.python_ton import PyCellSlice, parse_string_to_cell, load_as_cell_slice
 from typing import Union
 from enum import Enum
 from typing import TYPE_CHECKING
@@ -30,7 +30,7 @@ class CellSlice:
         """
 
         if isinstance(cs, str):
-            self.cell_slice: PyCellSlice = load_as_cell_slice(parseStringToCell(cs), allow_special)
+            self.cell_slice: PyCellSlice = load_as_cell_slice(parse_string_to_cell(cs), allow_special)
         elif isinstance(cs, PyCellSlice):
             self.cell_slice: PyCellSlice = cs
         else:

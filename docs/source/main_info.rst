@@ -27,26 +27,36 @@ What is supported?
    - `CellSlice`_
    - `CellBuilder`_
    - `VmDict`_
-   - `TLB`_
+   - StackEntry
+   - Stack
 
 - TVM
    - Raw TVM
    - Transaction Emulator
 
 - TLB
+   - `TLB basic types`_
    - `Python codegen`_
+
+- Autogen
+   - `Block TLB types`_
 
 - Tools
    - `Fift disassembler`_
+   - Token metadata parser
+
+- Fift
+   - Fift (with support Stack / StackEntry)
 
 
 .. _Cell: https://tonpy.dton.io/tonpy.types.html#module-tonpy.types.cell
 .. _CellSlice: https://tonpy.dton.io/tonpy.types.html#module-tonpy.types.cellslice
 .. _CellBuilder: https://tonpy.dton.io/tonpy.types.html#module-tonpy.types.cellbuilder
 .. _VmDict: https://tonpy.dton.io/tonpy.types.html#module-tonpy.types.vmdict
-.. _TLB: https://tonpy.dton.io/tonpy.types.html#module-tonpy.types.tlb
+.. _TLB basic types: https://tonpy.dton.io/tonpy.types.html#module-tonpy.types.tlb
 .. _Python codegen: https://tonpy.dton.io/tonpy.tlb_gen.html#module-tonpy.tlb_gen.py
 .. _Fift disassembler:
+.. _Block TLB types: https://github.com/disintar/tonpy/blob/main/src/tonpy/autogen/block.py
 |
 
 .. _check tests examples here: https://github.com/disintar/tonpy/tree/main/src/tonpy/tests

@@ -1,4 +1,4 @@
-from tonpy.libs.python_ton import PyCell, parseStringToCell, load_as_cell_slice
+from tonpy.libs.python_ton import PyCell, parse_string_to_cell, load_as_cell_slice
 from typing import Union
 
 from tonpy.types.cellslice import CellSlice
@@ -14,7 +14,7 @@ class Cell:
         if pc is None:
             self.cell: PyCell = PyCell()
         elif isinstance(pc, str):
-            self.cell: PyCell = parseStringToCell(pc)
+            self.cell: PyCell = parse_string_to_cell(pc)
         else:
             self.cell: PyCell = pc
 
