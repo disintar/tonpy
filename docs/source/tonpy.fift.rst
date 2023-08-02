@@ -7,7 +7,7 @@ tonpy.fift package
 
 
 tonpy.fift.disasm module
------------------------
+------------------------
 
 .. autofunction:: tonpy.fift.disasm.disassembler
 
