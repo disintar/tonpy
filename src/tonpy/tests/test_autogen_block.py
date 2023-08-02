@@ -1,4 +1,4 @@
-from tonpy import *
+from tonpy.types import CellSlice
 from tonpy.tests.block_boc import block_boc
 from tonpy.autogen.block import BlockInfo, ValueFlow, BlockExtra, Block
 from time import time
@@ -120,8 +120,6 @@ def test_block_autogen_unpack():
 
     block_extra = BlockExtra().fetch(parsed_block.extra)
     in_msg_descr = block_extra.in_msg_descr
-    d = VmDict(256, cell_root=in_msg_descr)
-
     out_msg_descr = block_extra.out_msg_descr
     account_blocks = block_extra.account_blocks
     assert hex(int(block_extra.rand_seed, 2)).upper()[
