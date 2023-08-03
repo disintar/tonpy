@@ -1,7 +1,7 @@
 from typing import Union, List, Optional
 
 from tonpy.libs.python_ton import PyTVM
-from tonpy.types import Cell, Stack, StackEntry
+from tonpy.types import Cell, Stack, StackEntry, VmDict
 
 
 class StepInfo:
@@ -67,6 +67,9 @@ class TVM:
         if not unpack_stack:
             return st
         return st.unpack_rec()
+
+    def set_libs(self, libs: VmDict):
+        self.tvm.set_libs(libs.get_cell().cell)
 
     @property
     def c5_updated(self):

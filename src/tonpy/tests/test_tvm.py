@@ -1,6 +1,6 @@
 from tonpy.fift.fift import convert_assembler
 from tonpy.tvm.tvm import TVM
-from tonpy.types import Cell, CellSlice, CellBuilder, Stack, StackEntry, Continuation
+from tonpy.types import Cell, CellSlice, CellBuilder, Stack, StackEntry, Continuation, VmDict
 
 
 def test_simple_tvm():
@@ -119,3 +119,20 @@ def test_tvm_step_info():
     assert step_1.gas_consumed == 26
     assert step_1.gas_remaining == 9223372036854775781
 
+
+def test_tvm_set_libs():
+    cell_code = convert_assembler("""<{ 228 PUSHINT }>c""")
+    code_hash = int(cell_code.get_hash(), 16)
+
+    # language=fift
+    code = """<{ %s hash>libref PUSHREF CTOS BLESS EXECUTE  }>c""" % hex(code_hash)
+    t = TVM(code=convert_assembler(code))
+
+    libs = VmDict(256)
+    libs[code_hash] = cell_code
+    t.set_libs(libs)
+
+    final_stack = t.run()
+    assert len(t.vm_steps_detailed) == 7
+    assert len(final_stack) == 1
+    assert final_stack[0].get() == 228
