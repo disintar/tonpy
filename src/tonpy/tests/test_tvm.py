@@ -1,6 +1,6 @@
 from tonpy.fift.fift import convert_assembler
 from tonpy.tvm.tvm import TVM
-from tonpy.types import Cell, CellSlice, CellBuilder, Stack, StackEntry
+from tonpy.types import Cell, CellSlice, CellBuilder, Stack, StackEntry, Continuation
 
 
 def test_simple_tvm():
@@ -48,3 +48,41 @@ def test_tvm_c4_c5_stack():
     assert final_stack == [22, 1, 64, 1, 0, 0, [100, 200], 123]
     assert t.c4_updated.begin_parse().to_bitstring() == bin(0x99991111)[2:]
     assert t.c5_updated.begin_parse().to_bitstring() == bin(0xaaaabbbb)[2:]
+
+
+def test_tvm_c7():
+    code = """<{ NOW BLOCKLT LTIME RANDSEED BALANCE }>c"""
+    t = TVM(code=convert_assembler(code))
+    t.set_c7([
+        None,
+        None,
+        123,
+        321,
+        999,
+        0x123,
+        [50000, CellBuilder().end_cell()],
+        CellBuilder().end_cell().begin_parse()])
+
+    final_stack = t.run(True)
+    assert t.success is True
+    assert final_stack[0] == 321
+    assert final_stack[1] == 999
+    assert final_stack[2] == 291
+    assert final_stack[3][0] == 50000
+    assert final_stack[3][1].begin_parse().bits == 0 and final_stack[3][1].begin_parse().refs == 0
+    assert final_stack[4].bits == 0 and final_stack[4].refs == 0
+
+
+def test_tvm_continuation():
+    code = """<{ BLESS CONT:<{ 2 INT }> }>c"""
+    t = TVM(code=convert_assembler(code))
+    t.set_stack([convert_assembler("""<{ 228 PUSHINT }>s""")])
+    final_stack = [i.get() for i in t.run()]
+    assert isinstance(final_stack[0], Continuation)
+    assert isinstance(final_stack[1], Continuation)
+
+    t = TVM(code=convert_assembler(code))
+    t.set_stack([final_stack[1].serialize().begin_parse()])
+    final_stack = [i.get() for i in t.run()]
+    assert isinstance(final_stack[0], Continuation)
+    assert isinstance(final_stack[1], Continuation)

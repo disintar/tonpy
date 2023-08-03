@@ -81,6 +81,39 @@ def test_serialize_stack():
     assert s.get_hash() == '78241E52B14D56C58495595AB665B207E6ED3CE6F889B1D8C16D88388EE30DDA'
 
 
+def test_deserialize_stack():
+    cb = CellBuilder().store_uint(10, 64)
+    cs = CellSlice("te6ccuEBAQEABQAKAAVBX/xo8FXp")
+    c = Cell("te6ccuEBAQEABQAKAAVBX/xo8FXp")
+    se = StackEntry(11)
+
+    s = Stack([10, cb, cs, c, se]).serialize()
+    assert s.get_hash() == '78241E52B14D56C58495595AB665B207E6ED3CE6F889B1D8C16D88388EE30DDA'
+
+    ss = Stack.deserialize(s.begin_parse())
+    assert ss[0].get() == 10
+    assert ss[1].get().end_cell().begin_parse().get_hash() == \
+           '2703D9A1D01AF9B0B0D7728C8A760C1DD0BC63C22BEB9E71AA3D07061343A54C'
+    assert isinstance(ss[2].get(), CellSlice)
+    assert ss[2].get().get_hash() == '235CBBDDDA3C8397468C806412A211BD2672C6188D9728C62DD48B3DEED02BA6'
+    assert ss[3].get().begin_parse().get_hash() == '235CBBDDDA3C8397468C806412A211BD2672C6188D9728C62DD48B3DEED02BA6'
+    assert ss[4].get() == 11
+
+
+def test_deserialize_stack_entry():
+    cb = StackEntry.deserialize(StackEntry(CellBuilder().store_uint(10, 64)).serialize().begin_parse())
+    cs = StackEntry.deserialize(StackEntry(CellSlice("te6ccuEBAQEABQAKAAVBX/xo8FXp")).serialize().begin_parse())
+    c = StackEntry.deserialize(StackEntry(Cell("te6ccuEBAQEABQAKAAVBX/xo8FXp")).serialize().begin_parse())
+    se = StackEntry.deserialize(StackEntry(11).serialize().begin_parse())
+
+    assert cb.get().end_cell().begin_parse().get_hash() == \
+           '2703D9A1D01AF9B0B0D7728C8A760C1DD0BC63C22BEB9E71AA3D07061343A54C'
+    assert isinstance(cs.get(), CellSlice)
+    assert cs.get().get_hash() == '235CBBDDDA3C8397468C806412A211BD2672C6188D9728C62DD48B3DEED02BA6'
+    assert c.get().begin_parse().get_hash() == '235CBBDDDA3C8397468C806412A211BD2672C6188D9728C62DD48B3DEED02BA6'
+    assert se.get() == 11
+
+
 def test_tuples():
     cb = CellBuilder().store_uint(10, 64)
     cs = CellSlice("te6ccuEBAQEABQAKAAVBX/xo8FXp")

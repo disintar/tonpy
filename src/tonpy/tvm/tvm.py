@@ -1,3 +1,5 @@
+from typing import Union, List
+
 from tonpy.libs.python_ton import PyTVM
 from tonpy.types import Cell, Stack, StackEntry
 
@@ -16,8 +18,18 @@ class TVM:
                          same_c3,
                          skip_c7)
 
-    def set_stack(self, value: Stack):
-        self.tvm.set_stack(value.stack)
+    def set_stack(self, value: Union[Stack, List]):
+        if isinstance(value, list):
+            self.tvm.set_stack(Stack(value).stack)
+        else:
+            self.tvm.set_stack(value.stack)
+
+    def set_c7(self, value: Union[StackEntry, List]):
+        if isinstance(value, list):
+            self.tvm.set_c7(StackEntry(value=value).entry)
+        else:
+            assert value.get_type() is StackEntry.Type.t_tuple, "C7 must be tuple"
+            self.tvm.set_c7(value)
 
     def set_state_init(self, state_init: Cell):
         return self.tvm.set_state_init(state_init)
@@ -28,8 +40,11 @@ class TVM:
     def clear_stack(self):
         return self.tvm.clear_stack()
 
-    def run(self):
-        return Stack(prev_stack=self.tvm.run_vm())
+    def run(self, unpack_stack=False):
+        st = Stack(prev_stack=self.tvm.run_vm())
+        if not unpack_stack:
+            return st
+        return StackEntry.rec_get([i.get() for i in st])
 
     @property
     def c5_updated(self):

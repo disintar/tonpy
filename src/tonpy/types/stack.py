@@ -1,7 +1,22 @@
-from tonpy.libs.python_ton import PyStackEntry, PyStack, make_tuple
+from tonpy.libs.python_ton import PyStackEntry, PyStack, make_tuple, deserialize_stack_entry, deserialize_stack, \
+    PyContinuation
 from tonpy.types import Cell, CellSlice, CellBuilder
 from typing import Union, Iterable, List
 from enum import Enum
+
+
+class Continuation:
+    def __init__(self, cont: Union[CellSlice, PyContinuation]):
+        if isinstance(cont, PyContinuation):
+            self.cont = cont
+        else:
+            self.cont = PyContinuation(cont)
+
+    def type(self) -> str:
+        return self.cont.type()
+
+    def serialize(self) -> Cell:
+        return Cell(self.cont.serialize())
 
 
 class StackEntry:
@@ -22,7 +37,7 @@ class StackEntry:
         t_atom = 12
         t_object = 13
 
-    def __init__(self, value: Union[Union[Union[Union[None, Cell], CellSlice], int], CellBuilder] = None,
+    def __init__(self, value: "None | Cell | CellSlice | int | CellBuilder | list | Continuation" = None,
                  entry=None):
         if entry:
             self.entry = entry
@@ -41,6 +56,8 @@ class StackEntry:
             self.entry = PyStackEntry(cell_slice=value.cell_slice)
         elif isinstance(value, list):
             self.entry = StackEntry.create_tuple(value).entry
+        elif isinstance(value, Continuation):
+            self.entry = PyStackEntry(continuation=value)
         else:
             raise ValueError(f"Type {type(value)} is not supported")
 
@@ -57,13 +74,16 @@ class StackEntry:
     def as_int(self):
         return int(self.entry.as_int())
 
+    def as_cont(self):
+        return Continuation(self.entry.as_cont())
+
     def as_tuple(self) -> List["StackEntry"]:
         return list(map(lambda x: StackEntry(entry=x), self.entry.as_tuple()))
 
     def as_cell_builder(self):
         return CellBuilder(self.entry.as_cell_builder())
 
-    def serialize(self, short_ints=True, continuations=True):
+    def serialize(self, short_ints=True, continuations=True) -> Cell:
         mode = 0
         if short_ints is False:
             mode += 1
@@ -101,6 +121,8 @@ class StackEntry:
             return self.as_cell_builder()
         elif t is StackEntry.Type.t_tuple:
             return self.as_tuple()
+        elif t is StackEntry.Type.t_vmcont:
+            return self.as_cont()
         else:
             raise ValueError(f"Not supported {t}")
 
@@ -116,6 +138,10 @@ class StackEntry:
             return StackEntry.rec_get(value.get())
         else:
             return value
+
+    @staticmethod
+    def deserialize(value: CellSlice) -> "StackEntry":
+        return StackEntry(entry=deserialize_stack_entry(value.cell_slice))
 
 
 class Stack:
@@ -159,7 +185,7 @@ class Stack:
             se = StackEntry(value=value)
             self.stack.push(se.entry)
 
-    def serialize(self, eoln=False, lisp_stype=False, serialized_bocs=False):
+    def serialize(self, eoln=False, lisp_stype=False, serialized_bocs=False) -> Cell:
         mode = 0
         if eoln:
             mode += 1
@@ -175,3 +201,7 @@ class Stack:
 
     def pop(self) -> StackEntry:
         return StackEntry(entry=self.stack.pop())
+
+    @staticmethod
+    def deserialize(value: CellSlice) -> "Stack":
+        return Stack(prev_stack=deserialize_stack(value.cell_slice))
