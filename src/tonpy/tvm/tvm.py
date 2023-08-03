@@ -1,7 +1,15 @@
-from typing import Union, List
+from typing import Union, List, Optional
 
 from tonpy.libs.python_ton import PyTVM
 from tonpy.types import Cell, Stack, StackEntry
+
+
+class StepInfo:
+    def __init__(self, stack_info):
+        self.stack = Stack(prev_stack=stack_info.stack)
+        self.gas_consumed = stack_info.gas_consumed
+        self.gas_remaining = stack_info.gas_remaining
+        self.next_op = None
 
 
 class TVM:
@@ -10,13 +18,17 @@ class TVM:
                  data: Cell = None,
                  allow_debug: bool = False,
                  same_c3: bool = True,
-                 skip_c7: bool = False):
+                 skip_c7: bool = False,
+                 enable_stack_dump=True):
         self.tvm = PyTVM(log_level,
                          code.cell if code is not None else code,
                          data.cell if data is not None else data,
                          allow_debug,
                          same_c3,
-                         skip_c7)
+                         skip_c7,
+                         enable_stack_dump)
+        self.vm_steps_detailed: Optional[List[StepInfo]] = None
+        self.enable_stack_dump = enable_stack_dump
 
     def set_stack(self, value: Union[Stack, List]):
         if isinstance(value, list):
@@ -40,11 +52,21 @@ class TVM:
     def clear_stack(self):
         return self.tvm.clear_stack()
 
+    def fetch_detailed_step_info(self):
+        self.vm_steps_detailed = [StepInfo(i) for i in self.tvm.get_stacks()]
+        ops = self.tvm.get_ops()
+        assert len(ops) == len(self.vm_steps_detailed)
+        for i, op in enumerate(ops):
+            self.vm_steps_detailed[i].next_op = op
+
     def run(self, unpack_stack=False):
         st = Stack(prev_stack=self.tvm.run_vm())
+        if self.enable_stack_dump:
+            self.fetch_detailed_step_info()
+
         if not unpack_stack:
             return st
-        return StackEntry.rec_get([i.get() for i in st])
+        return st.unpack_rec()
 
     @property
     def c5_updated(self):

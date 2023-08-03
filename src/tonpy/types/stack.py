@@ -205,3 +205,6 @@ class Stack:
     @staticmethod
     def deserialize(value: CellSlice) -> "Stack":
         return Stack(prev_stack=deserialize_stack(value.cell_slice))
+
+    def unpack_rec(self):
+        return StackEntry.rec_get([i.get() for i in self])

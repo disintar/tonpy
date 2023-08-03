@@ -74,15 +74,48 @@ def test_tvm_c7():
 
 
 def test_tvm_continuation():
+    # language=fift
     code = """<{ BLESS CONT:<{ 2 INT }> }>c"""
     t = TVM(code=convert_assembler(code))
+
+    # language=fift
     t.set_stack([convert_assembler("""<{ 228 PUSHINT }>s""")])
-    final_stack = [i.get() for i in t.run()]
+    final_stack = t.run(True)
+
     assert isinstance(final_stack[0], Continuation)
     assert isinstance(final_stack[1], Continuation)
 
     t = TVM(code=convert_assembler(code))
+    # convert continuation to cellslice and run again
     t.set_stack([final_stack[1].serialize().begin_parse()])
-    final_stack = [i.get() for i in t.run()]
+
+    final_stack = t.run(True)
     assert isinstance(final_stack[0], Continuation)
     assert isinstance(final_stack[1], Continuation)
+
+
+def test_tvm_step_info():
+    # language=fift
+    code = """<{ BLESS 2 INT }>c"""
+    t = TVM(code=convert_assembler(code))
+    # language=fift
+    t.set_stack([convert_assembler("""<{ 228 PUSHINT }>s""")])
+    t.run()
+
+    info = t.vm_steps_detailed
+    assert len(info) == 3
+
+    step_0 = info[0]
+    assert step_0.next_op == 'execute BLESS\n'
+    assert len(step_0.stack) == 1
+    assert step_0.stack[0].get().get_hash() == '961254B41350A116E5DC3166307071F29DA1F3A286A144350289ACBE1A64C459'
+    assert step_0.gas_consumed == 0
+    assert step_0.gas_remaining == 9223372036854775807
+
+    step_1 = info[1]
+    assert step_1.next_op == 'execute PUSHINT 2\n'
+    assert len(step_1.stack) == 1
+    assert isinstance(step_1.stack[0].get(), Continuation)
+    assert step_1.gas_consumed == 26
+    assert step_1.gas_remaining == 9223372036854775781
+
