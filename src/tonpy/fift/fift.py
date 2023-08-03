@@ -3,6 +3,7 @@ import os
 
 from tonpy.libs.python_ton import PyFift
 
+from tonpy import Cell
 from tonpy.types import Stack
 
 libs_root = Path(__file__).parents[0]
@@ -34,7 +35,14 @@ class Fift:
         return self.fift.run(code_text)
 
     def get_stack(self) -> Stack:
-        return Stack(self.fift.get_stack())
+        return Stack(prev_stack=self.fift.get_stack())
 
     def last(self):
         return self.get_stack()[0].get()
+
+
+def convert_assembler(assembler_code: str) -> Cell:
+    f = Fift()
+    f.add_lib("Asm.fif")
+    f.run(assembler_code)
+    return f.last()

@@ -9,9 +9,12 @@ from tonpy.utils.bit_int import test_value_len
 
 
 class CellBuilder:
-    def __init__(self):
+    def __init__(self, builder=None):
         """CellBuilder class allow you to create cells"""
-        self.builder: PyCellBuilder = PyCellBuilder()
+        if builder is None:
+            self.builder: PyCellBuilder = PyCellBuilder()
+        else:
+            self.builder = builder
 
     @property
     def bits(self) -> int:

@@ -45,3 +45,11 @@ tonpy.types.tlb module
    :members:
    :undoc-members:
    :show-inheritance:
+
+tonpy.types.stack module
+----------------------
+
+.. automodule:: tonpy.types.stack
+   :members:
+   :undoc-members:
+   :show-inheritance:

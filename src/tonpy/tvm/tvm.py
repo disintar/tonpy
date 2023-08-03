@@ -1,5 +1,5 @@
 from tonpy.libs.python_ton import PyTVM
-from tonpy.types import Cell
+from tonpy.types import Cell, Stack, StackEntry
 
 
 class TVM:
@@ -9,7 +9,15 @@ class TVM:
                  allow_debug: bool = False,
                  same_c3: bool = True,
                  skip_c7: bool = False):
-        self.tvm = PyTVM(log_level, code, data, allow_debug, same_c3, skip_c7)
+        self.tvm = PyTVM(log_level,
+                         code.cell if code is not None else code,
+                         data.cell if data is not None else data,
+                         allow_debug,
+                         same_c3,
+                         skip_c7)
+
+    def set_stack(self, value: Stack):
+        self.tvm.set_stack(value.stack)
 
     def set_state_init(self, state_init: Cell):
         return self.tvm.set_state_init(state_init)
@@ -20,16 +28,16 @@ class TVM:
     def clear_stack(self):
         return self.tvm.clear_stack()
 
-    def run_vm(self):
-        return self.tvm.run_vm()
+    def run(self):
+        return Stack(prev_stack=self.tvm.run_vm())
 
     @property
-    def actions(self):
-        return self.tvm.actions
+    def c5_updated(self):
+        return Cell(self.tvm.actions)
 
     @property
-    def new_data(self):
-        return self.tvm.new_data
+    def c4_updated(self):
+        return Cell(self.tvm.new_data)
 
     @property
     def vm_final_state_hash(self):
@@ -61,7 +69,7 @@ class TVM:
 
     @property
     def code(self):
-        return self.tvm.code
+        return Cell(self.tvm.code)
 
     @code.setter
     def code(self, value):
@@ -69,7 +77,7 @@ class TVM:
 
     @property
     def data(self):
-        return self.tvm.data
+        return Cell(self.tvm.data)
 
     @data.setter
     def data(self, value):
