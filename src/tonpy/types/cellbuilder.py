@@ -16,6 +16,18 @@ class CellBuilder:
         else:
             self.builder = builder
 
+    def store_libref(self, hash_: "str | int"):
+        if isinstance(hash_, str):
+            hash_ = int(hash_, 16)
+
+        c = CellBuilder() \
+            .store_uint(CellSlice.SpecialType.Library.value, 8) \
+            .store_uint(hash_, 256) \
+            .end_cell(special=True)
+
+        self.builder.store_ref(c.cell)
+        return self
+
     @property
     def bits(self) -> int:
         """Bits num that been used in cell"""
@@ -252,10 +264,10 @@ class CellBuilder:
         self.builder.store_bitstring(bitstring)
         return self
 
-    def end_cell(self) -> Cell:
+    def end_cell(self, special=False) -> Cell:
         """Convert CellBuilder to Cell"""
 
-        return Cell(self.builder.get_cell())
+        return Cell(self.builder.get_cell(special))
 
     def to_boc(self) -> str:
         """Convert CellBuilder to BOC string"""

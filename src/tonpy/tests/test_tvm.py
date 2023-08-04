@@ -125,14 +125,21 @@ def test_tvm_set_libs():
     code_hash = int(cell_code.get_hash(), 16)
 
     # language=fift
-    code = """<{ %s hash>libref PUSHREF CTOS BLESS EXECUTE  }>c""" % hex(code_hash)
+    code = """<{ CTOS BLESS EXECUTE  }>c"""
     t = TVM(code=convert_assembler(code))
+
+    lib_cell = CellBuilder() \
+        .store_uint(CellSlice.SpecialType.Library.value, 8) \
+        .store_uint(code_hash, 256) \
+        .end_cell(special=True)
+
+    t.set_stack([lib_cell])
 
     libs = VmDict(256)
     libs[code_hash] = cell_code
     t.set_libs(libs)
 
     final_stack = t.run()
-    assert len(t.vm_steps_detailed) == 7
+    assert len(t.vm_steps_detailed) == 6
     assert len(final_stack) == 1
     assert final_stack[0].get() == 228
