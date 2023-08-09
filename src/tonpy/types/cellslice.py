@@ -287,16 +287,19 @@ class CellSlice:
 
         return val
 
-    def advance_ext(self, bits_refs: int) -> True:
-        """
-        Try to skip ``bits`` and ``refs``, return False if ``(refs > self.refs) or (bits > self.bits)``  |br|
+    def size_ext(self):
+        """Get size in ext format:  |br|
 
         .. code-block::
 
-            refs = bits_refs / (2 ** 16)
+            refs = bits_refs // (2 ** 16)
             bits = bits_refs % (2 ** 16)
+        """
+        return self.cell_slice.size_ext()
 
-         |br|
+    def advance_ext(self, bits_refs: int) -> True:
+        """
+        Try to skip ``bits`` and ``refs``, return False if ``(refs > self.refs) or (bits > self.bits)`` |br|
 
         :param bits_refs: ``num_bits * (2**16) + num_refs``
         :return: Is operation is success
@@ -439,8 +442,8 @@ class CellSlice:
 
         .. code-block::
 
-            refs = bits_refs % (2 ** 16)
-            bits = bits_refs / (2 ** 16)
+            refs = bits_refs // (2 ** 16)
+            bits = bits_refs % (2 ** 16)
 
         """
 
@@ -451,8 +454,8 @@ class CellSlice:
 
         .. code-block::
 
-            refs = bits_refs % (2 ** 16)
-            bits = bits_refs / (2 ** 16)
+            refs = bits_refs // (2 ** 16)
+            bits = bits_refs % (2 ** 16)
 
         """
 

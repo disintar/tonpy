@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, TYPE_CHECKING
 
 from tonpy.libs.python_ton import PyCellBuilder
 from tonpy.types.cell import Cell
@@ -6,6 +6,9 @@ from tonpy.types.cellslice import CellSlice
 from bitstring import BitArray
 
 from tonpy.utils.bit_int import test_value_len
+
+if TYPE_CHECKING:
+    from tonpy.types.tlb import TLB
 
 
 class CellBuilder:
@@ -17,6 +20,8 @@ class CellBuilder:
             self.builder = builder
 
     def store_libref(self, hash_: "str | int"):
+        """Create and store special library cell with hash of library cell"""
+
         if isinstance(hash_, str):
             hash_ = int(hash_, 16)
 
@@ -62,6 +67,12 @@ class CellBuilder:
         self.builder.store_ref(cell.cell)
         return self
 
+    def store_ref_or_tlb(self, cell: Union[Cell, "TLB.Record"]):
+        if not isinstance(cell, Cell):
+            cell = cell.cell_pack()
+
+        return self.store_ref(cell)
+
     def store_builder(self, b: "CellBuilder") -> "CellBuilder":
         """
         Append CellBuilder (bits & refs) ``b`` to current builder  |br|
@@ -90,7 +101,7 @@ class CellBuilder:
         test_value_len(uint_, uint_bits)
 
         # Large ints need to be converted to string to be parsed in C++
-        self.builder.store_uint_str(str(uint_), uint_bits)
+        self.builder.store_uint_str(str(int(uint_)), uint_bits)
         return self
 
     def store_uint_big(self, a, b):
@@ -131,6 +142,21 @@ class CellBuilder:
 
         self.builder.store_slice(cs.cell_slice)
         return self
+
+    def store_slice_or_tlb(self, cs: Union[CellSlice, "TLB.Record"]):
+        """Allow to append cell slice or TLB field"""
+
+        if not isinstance(cs, CellSlice):
+            cs = cs.cell_pack().begin_parse()
+
+        return self.store_slice(cs)
+
+    def store_slice_or_tlb_ext(self, cs: Union[CellSlice, "TLB.Record"], ext):
+        if not isinstance(cs, CellSlice):
+            cs = cs.cell_pack().begin_parse()
+
+        assert cs.size_ext() == ext, f"Expected: {hex(ext)}, got: {cs.size_ext()}"
+        return self.store_slice_or_tlb(cs)
 
     def store_zeroes(self, n: int) -> "CellBuilder":
         """
@@ -264,8 +290,18 @@ class CellBuilder:
         self.builder.store_bitstring(bitstring)
         return self
 
+    def store_bitstring_chk(self, bitstring: Union[str, BitArray], size):
+        assert len(bitstring) <= size
+        if isinstance(bitstring, BitArray):
+            bitstring = bitstring.bin
+
+        if len(bitstring) < size:
+            bitstring = bitstring.zfill(size)
+
+        return self.store_bitstring(bitstring)
+
     def end_cell(self, special=False) -> Cell:
-        """Convert CellBuilder to Cell"""
+        """Convert CellBuilder to Cell, if special is True - convert cell to special"""
 
         return Cell(self.builder.get_cell(special))
 

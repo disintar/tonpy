@@ -63,6 +63,12 @@ class RecordBase:
         """
         raise NotImplementedError
 
+    def pack(self, cb: CellBuilder) -> None:
+        raise NotImplementedError
+
+    def cell_pack(self) -> Cell:
+        raise NotImplementedError
+
     def add_r1(self, val: str, y: int, z: int) -> bool:
         if y > z:
             return False
@@ -138,7 +144,7 @@ class TLB(object):
 
     def store_enum_from(self, cb: CellBuilder, value: int = None) -> bool:
         """
-        Store enum from ``self.cons_tag`` on position ``value`` (if ``TLB.Tag`` not constant) to `cb: CellBuilder` |br|
+        Store enum ``value`` from ``self.cons_tag`` to `cb: CellBuilder` |br|
         If ``self.const_tag`` is exact (tags are matched positions in lexicographic order) then will store ``value`` |br|
         If ``value is None`` and ``TLB.Tag is constant`` will store constant ``TLB.Tag`` else will raise an error |br|
 
@@ -147,6 +153,9 @@ class TLB(object):
         :return: True
         """
         raise NotImplementedError
+
+    def store_from(self, cb, value):
+        cb.store_slice_or_tlb(value)
 
     def always_special(self) -> bool:
         """Is current type marked as special cell or not"""
@@ -267,3 +276,6 @@ class TLB(object):
 
     def nat_abs(self, x: int):
         return (x > 1) * 2 + (x & 1)
+
+    def store_ref_or_tlb(self, cb: CellBuilder, value):
+        cb.store_ref_or_tlb(value)

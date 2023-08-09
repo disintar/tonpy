@@ -23,6 +23,14 @@ class RefT(TLB):
 
         return self.type.fetch(cell_ref, rec_unpack, strict)
 
+    def store_from(self, cb: CellBuilder, value):
+        cb1 = CellBuilder()
+        self.type.store_from(cb, value)
+        cb.store_ref(cb1.end_cell())
+
+    def store_ref_or_tlb(self, cb: CellBuilder, value):
+        self.type.store_ref_or_tlb(cb, value)
+
 
 class FakeCell(TLB):
     def fetch(self, cell_ref: Cell, rec_unpack: bool = False, strict: bool = False, **kwargs) -> "Optional[TLB.Record]":

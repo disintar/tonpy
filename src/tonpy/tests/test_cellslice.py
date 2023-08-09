@@ -32,6 +32,20 @@ def test_refs():
         assert cs.refs == c_cnt
 
 
+def test_size_ext():
+    cb = CellBuilder()
+    cb.store_libref(0)
+    cb.store_uint(10, 64)
+    cs = cb.begin_parse()
+    refs = cs.size_ext() // (2 ** 16)
+    bits = cs.size_ext() % 2 ** 16
+    assert refs == 1
+    assert bits == 64
+    cs.load_subslice_ext(cs.size_ext())
+    assert cs.empty_ext() is True
+
+
+
 def test_load_int():
     for bits in range(2, 256):
         cb = CellBuilder()

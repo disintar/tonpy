@@ -1,6 +1,7 @@
 from tonpy.tlb_gen.py import add_tlb
 from tonpy.types import CellBuilder
 
+
 def test_builtin_unpack():
     # language=tl-b
     tlb_text = """
@@ -39,3 +40,5 @@ def test_builtin_unpack():
     assert rec.d.d.b == 5
     assert rec.d.d.c == 6
 
+    # Pack will create the same cell
+    assert rec.cell_pack().get_hash() == '8FC752179C5AD3870CD9A70A205548E8F7389B865316707339DFA33875F0808A'

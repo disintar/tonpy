@@ -3,6 +3,7 @@ from bitstring import BitArray
 from tonpy.types import TLB, CellBuilder
 from itertools import product
 
+
 def test_tag_multi_bits():
     # language=tl-b
     add_tlb("""
@@ -173,14 +174,15 @@ def test_tag_with_aug():
 
 
 def test_enum():
+    # TODO: fix
     # language=tl-b
     tlb_text = """
     test$_ = A; // simple Enum
     test$01 = B;
-    
+
     a$0 = C;
     b$1 = C;
-    
+
     a$0 = D;
     c$101 = D;
     b$11 = D;
@@ -219,19 +221,19 @@ def test_enum():
     assert D_record.fetch_enum(CellBuilder().store_bitstring('0').begin_parse()) == int('0', 2)
 
     cb = CellBuilder()
-    D_record.store_enum_from(cb, 0)
+    D_record.store_enum_from(cb, int('0', 2))
     assert D_record.fetch_enum(cb.begin_parse()) == D_record.cons_tag[0] == int('0', 2)
 
     assert D_record.fetch_enum(CellBuilder().store_bitstring('11').begin_parse()) == int('11', 2)
 
     cb = CellBuilder()
-    D_record.store_enum_from(cb, 2)
+    D_record.store_enum_from(cb, int('11', 2))
     assert D_record.fetch_enum(cb.begin_parse()) == D_record.cons_tag[2] == int('11', 2)
 
     assert D_record.fetch_enum(CellBuilder().store_bitstring('101').begin_parse()) == int('101', 2)
 
     cb = CellBuilder()
-    D_record.store_enum_from(cb, 1)
+    D_record.store_enum_from(cb, int('101', 2))
     assert D_record.fetch_enum(cb.begin_parse()) == D_record.cons_tag[1] == int('101', 2)
 
 
@@ -266,8 +268,8 @@ def test_records():
     test_record = T_record.Record(32)
     assert test_record.k == 32
 
-    empty_cell = CellBuilder().end_cell()
-    empty_cs = CellBuilder().begin_parse()
+    empty_cell = CellBuilder().store_uint(0, 32).end_cell()
+    empty_cs = CellBuilder().store_uint(0, 32).begin_parse()
 
     # Can create Record_a from params
     test_record = A_record.Record_a(1, 2, BitArray("0b11"), empty_cell, empty_cs)
@@ -276,6 +278,7 @@ def test_records():
     assert test_record.c.bin == '11'
     assert test_record.e == empty_cell
     assert test_record.f == empty_cs
+    assert test_record.cell_pack().get_hash() == '47277DEFA53A72F6C47E4A92498C24B69A11A9EACA915F8654A4724227F244AE'
 
     # Can create Record_b from params
     test_record = A_record.Record_b(3, 4, BitArray("0b01"), empty_cell, empty_cs)
@@ -284,3 +287,5 @@ def test_records():
     assert test_record.c.bin == '01'
     assert test_record.b == empty_cell
     assert test_record.a == empty_cs
+    assert test_record.cell_pack().get_hash() == '9E31F51F54F392AB927D2124E8209C9E1ADF2C28FB0A677DC3C82FFC790150FE'
+
