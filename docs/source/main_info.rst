@@ -27,11 +27,13 @@ What is supported?
    - `CellSlice`_
    - `CellBuilder`_
    - `VmDict`_
-   - StackEntry
+   - StackEntry (Tuple included)
    - Stack
+   - Continuation
 
 - TVM
    - Raw TVM
+   - Detailed TVM step info
    - Transaction Emulator
 
 - TLB
@@ -46,7 +48,7 @@ What is supported?
    - Token metadata parser
 
 - Fift
-   - Fift (with support Stack / StackEntry)
+   - Fift (with support of Stack / StackEntry)
 
 
 .. _Cell: https://tonpy.dton.io/tonpy.types.html#module-tonpy.types.cell

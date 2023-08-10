@@ -17,7 +17,7 @@ tonpy.tvm.tvm module
 tonpy.tvm.emulator module
 --------------------
 
-.. automodule:: tonpy.tvm.tvm
+.. automodule:: tonpy.tvm.emulator
    :members:
    :undoc-members:
    :show-inheritance:
