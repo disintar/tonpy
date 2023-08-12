@@ -29,7 +29,7 @@ class Unit(TLBComplex):
 
 
     def store_enum_from(self, cb: CellBuilder, value: int = None) -> bool:
-        return True
+        return not bool(value)
 
 
     class Record(RecordBase):
@@ -70,6 +70,16 @@ class Unit(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            return True            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -100,7 +110,7 @@ class Truet(TLBComplex):
 
 
     def store_enum_from(self, cb: CellBuilder, value: int = None) -> bool:
-        return True
+        return not bool(value)
 
 
     class Record(RecordBase):
@@ -140,6 +150,16 @@ class Truet(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            return True            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -218,6 +238,17 @@ class Bool(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 1)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_bool_true(RecordBase):
         def get_tag_enum(self):
             return Bool.Tag.bool_true
@@ -256,6 +287,17 @@ class Bool(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 1)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -332,6 +374,17 @@ class BoolFalse(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 1)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -407,6 +460,17 @@ class BoolTrue(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 1)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -477,6 +541,17 @@ class Maybe(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 1)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_just(RecordBase):
         def get_tag_enum(self):
             return Maybe.Tag.just
@@ -522,6 +597,18 @@ class Maybe(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 1)
+
+            self.X_.store_from(cb, self.value)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -603,6 +690,18 @@ class Either(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 1)
+
+            self.X_.store_from(cb, self.value)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_right(RecordBase):
         def get_tag_enum(self):
             return Either.Tag.right
@@ -648,6 +747,18 @@ class Either(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 1)
+
+            self.Y_.store_from(cb, self.value)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -731,6 +842,17 @@ class Both(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            self.X_.store_from(cb, self.first)
+            self.Y_.store_from(cb, self.second)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -800,6 +922,16 @@ class Bit(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(self.x, 1)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -901,6 +1033,19 @@ class Hashmap(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_slice_or_tlb(self.label)
+            assert self.add_r1("m", self.l, self.m_), 'Add_r1 failed'
+
+            self.HashmapNode(self.m, self.X_).store_from(cb, self.node)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -983,6 +1128,17 @@ class HashmapNode(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            self.m_ == 0
+            self.X_.store_from(cb, self.value)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_hmn_fork(RecordBase):
         def get_tag_enum(self):
             return HashmapNode.Tag.hmn_fork
@@ -1049,6 +1205,19 @@ class HashmapNode(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            assert self.add_r1("n", 1, self.m_), 'Add_r1 failed'
+
+            cb.store_ref_or_tlb(self.left)
+            cb.store_ref_or_tlb(self.right)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -1152,6 +1321,22 @@ class HmLabel(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 1)
+
+            cb.store_slice_or_tlb(self.len)
+            assert self.m_ <= self.n_, 'Params not equal: m_ and n_'
+
+            cb.store_bitstring_chk(self.s, self.m_)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_hml_long(RecordBase):
         def get_tag_enum(self):
             return HmLabel.Tag.hml_long
@@ -1216,6 +1401,24 @@ class HmLabel(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(2, 2)
+
+            cb.store_uint_leq(self.n_, self.n)
+            cb.store_bitstring_chk(self.s, self.n)
+
+            self.m_ = self.n
+            self.negate_params.append("m_")
+            assert self.n >= 0, 'Constraint check failed'
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_hml_same(RecordBase):
         def get_tag_enum(self):
             return HmLabel.Tag.hml_same
@@ -1278,6 +1481,23 @@ class HmLabel(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(3, 2)
+
+            cb.store_uint(self.v, 1)
+            cb.store_uint_leq(self.n_, self.n)
+            self.m_ = self.n
+            self.negate_params.append("m_")
+            assert self.n >= 0, 'Constraint check failed'
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -1350,6 +1570,21 @@ class Unary(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 1)
+
+            self.m_ = 0
+            self.negate_params.append("m_")
+            assert 0 >= 0, 'Constraint check failed'
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_unary_succ(RecordBase):
         def get_tag_enum(self):
             return Unary.Tag.unary_succ
@@ -1403,6 +1638,22 @@ class Unary(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 1)
+
+            cb.store_slice_or_tlb(self.x)
+            self.m_ = self.n + 1
+            self.negate_params.append("m_")
+            assert self.n + 1 >= 0, 'Constraint check failed'
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -1477,6 +1728,17 @@ class HashmapE(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 1)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_hme_root(RecordBase):
         def get_tag_enum(self):
             return HashmapE.Tag.hme_root
@@ -1536,6 +1798,18 @@ class HashmapE(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 1)
+
+            cb.store_ref_or_tlb(self.root)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -1618,6 +1892,16 @@ class BitstringSet(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            self.Hashmap(self.m_, TLBComplex.constants["t_Truet"]).store_from(cb, self.x)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False

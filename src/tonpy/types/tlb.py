@@ -85,6 +85,9 @@ class RecordBase:
         setattr(self, val, x)
         return x >= 0
 
+    def store_from(self, cb, value):
+        cb.store_slice_or_tlb(value)
+
 
 class TLB(object):
     class Tag(Enum):

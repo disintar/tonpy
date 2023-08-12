@@ -29,7 +29,7 @@ class Unit(TLBComplex):
 
 
     def store_enum_from(self, cb: CellBuilder, value: int = None) -> bool:
-        return True
+        return not bool(value)
 
 
     class Record(RecordBase):
@@ -70,6 +70,16 @@ class Unit(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            return True            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -100,7 +110,7 @@ class Truet(TLBComplex):
 
 
     def store_enum_from(self, cb: CellBuilder, value: int = None) -> bool:
-        return True
+        return not bool(value)
 
 
     class Record(RecordBase):
@@ -140,6 +150,16 @@ class Truet(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            return True            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -218,6 +238,17 @@ class Bool(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 1)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_bool_true(RecordBase):
         def get_tag_enum(self):
             return Bool.Tag.bool_true
@@ -256,6 +287,17 @@ class Bool(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 1)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -332,6 +374,17 @@ class BoolFalse(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 1)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -407,6 +460,17 @@ class BoolTrue(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 1)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -477,6 +541,17 @@ class Maybe(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 1)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_just(RecordBase):
         def get_tag_enum(self):
             return Maybe.Tag.just
@@ -522,6 +597,18 @@ class Maybe(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 1)
+
+            self.X_.store_from(cb, self.value)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -603,6 +690,18 @@ class Either(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 1)
+
+            self.X_.store_from(cb, self.value)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_right(RecordBase):
         def get_tag_enum(self):
             return Either.Tag.right
@@ -648,6 +747,18 @@ class Either(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 1)
+
+            self.Y_.store_from(cb, self.value)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -731,6 +842,17 @@ class Both(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            self.X_.store_from(cb, self.first)
+            self.Y_.store_from(cb, self.second)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -800,6 +922,16 @@ class Bit(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(self.x, 1)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -901,6 +1033,19 @@ class Hashmap(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_slice_or_tlb(self.label)
+            assert self.add_r1("m", self.l, self.m_), 'Add_r1 failed'
+
+            self.HashmapNode(self.m, self.X_).store_from(cb, self.node)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -983,6 +1128,17 @@ class HashmapNode(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            self.m_ == 0
+            self.X_.store_from(cb, self.value)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_hmn_fork(RecordBase):
         def get_tag_enum(self):
             return HashmapNode.Tag.hmn_fork
@@ -1049,6 +1205,19 @@ class HashmapNode(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            assert self.add_r1("n", 1, self.m_), 'Add_r1 failed'
+
+            cb.store_ref_or_tlb(self.left)
+            cb.store_ref_or_tlb(self.right)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -1152,6 +1321,22 @@ class HmLabel(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 1)
+
+            cb.store_slice_or_tlb(self.len)
+            assert self.m_ <= self.n_, 'Params not equal: m_ and n_'
+
+            cb.store_bitstring_chk(self.s, self.m_)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_hml_long(RecordBase):
         def get_tag_enum(self):
             return HmLabel.Tag.hml_long
@@ -1216,6 +1401,24 @@ class HmLabel(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(2, 2)
+
+            cb.store_uint_leq(self.n_, self.n)
+            cb.store_bitstring_chk(self.s, self.n)
+
+            self.m_ = self.n
+            self.negate_params.append("m_")
+            assert self.n >= 0, 'Constraint check failed'
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_hml_same(RecordBase):
         def get_tag_enum(self):
             return HmLabel.Tag.hml_same
@@ -1278,6 +1481,23 @@ class HmLabel(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(3, 2)
+
+            cb.store_uint(self.v, 1)
+            cb.store_uint_leq(self.n_, self.n)
+            self.m_ = self.n
+            self.negate_params.append("m_")
+            assert self.n >= 0, 'Constraint check failed'
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -1350,6 +1570,21 @@ class Unary(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 1)
+
+            self.m_ = 0
+            self.negate_params.append("m_")
+            assert 0 >= 0, 'Constraint check failed'
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_unary_succ(RecordBase):
         def get_tag_enum(self):
             return Unary.Tag.unary_succ
@@ -1403,6 +1638,22 @@ class Unary(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 1)
+
+            cb.store_slice_or_tlb(self.x)
+            self.m_ = self.n + 1
+            self.negate_params.append("m_")
+            assert self.n + 1 >= 0, 'Constraint check failed'
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -1477,6 +1728,17 @@ class HashmapE(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 1)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_hme_root(RecordBase):
         def get_tag_enum(self):
             return HashmapE.Tag.hme_root
@@ -1536,6 +1798,18 @@ class HashmapE(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 1)
+
+            cb.store_ref_or_tlb(self.root)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -1618,6 +1892,16 @@ class BitstringSet(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            self.Hashmap(self.m_, TLBComplex.constants["t_Truet"]).store_from(cb, self.x)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -1722,6 +2006,19 @@ class HashmapAug(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_slice_or_tlb(self.label)
+            assert self.add_r1("m", self.l, self.m_), 'Add_r1 failed'
+
+            self.HashmapAugNode(self.m, self.X_, self.Y_).store_from(cb, self.node)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -1812,6 +2109,18 @@ class HashmapAugNode(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            self.m_ == 0
+            self.Y_.store_from(cb, self.extra)
+            self.X_.store_from(cb, self.value)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_ahmn_fork(RecordBase):
         def get_tag_enum(self):
             return HashmapAugNode.Tag.ahmn_fork
@@ -1883,6 +2192,20 @@ class HashmapAugNode(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            assert self.add_r1("n", 1, self.m_), 'Add_r1 failed'
+
+            cb.store_ref_or_tlb(self.left)
+            cb.store_ref_or_tlb(self.right)
+            self.Y_.store_from(cb, self.extra)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -1967,6 +2290,18 @@ class HashmapAugE(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 1)
+
+            self.Y_.store_from(cb, self.extra)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_ahme_root(RecordBase):
         def get_tag_enum(self):
             return HashmapAugE.Tag.ahme_root
@@ -2031,6 +2366,19 @@ class HashmapAugE(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 1)
+
+            cb.store_ref_or_tlb(self.root)
+            self.Y_.store_from(cb, self.extra)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -2132,6 +2480,19 @@ class VarHashmap(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_slice_or_tlb(self.label)
+            assert self.add_r1("m", self.l, self.m_), 'Add_r1 failed'
+
+            self.VarHashmapNode(self.m, self.X_).store_from(cb, self.node)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -2213,6 +2574,18 @@ class VarHashmapNode(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 2)
+
+            self.X_.store_from(cb, self.value)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_vhmn_fork(RecordBase):
         def get_tag_enum(self):
             return VarHashmapNode.Tag.vhmn_fork
@@ -2287,6 +2660,22 @@ class VarHashmapNode(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 2)
+
+            assert self.add_r1("n", 1, self.m_), 'Add_r1 failed'
+
+            cb.store_ref_or_tlb(self.left)
+            cb.store_ref_or_tlb(self.right)
+            self.Maybe(self.X_).store_from(cb, self.value)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_vhmn_cont(RecordBase):
         def get_tag_enum(self):
             return VarHashmapNode.Tag.vhmn_cont
@@ -2354,6 +2743,22 @@ class VarHashmapNode(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 1)
+
+            assert self.add_r1("n", 1, self.m_), 'Add_r1 failed'
+
+            cb.store_uint(self.branch, 1)
+            cb.store_ref_or_tlb(self.child)
+            self.X_.store_from(cb, self.value)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -2428,6 +2833,17 @@ class VarHashmapE(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 1)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_vhme_root(RecordBase):
         def get_tag_enum(self):
             return VarHashmapE.Tag.vhme_root
@@ -2487,6 +2903,18 @@ class VarHashmapE(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 1)
+
+            cb.store_ref_or_tlb(self.root)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -2588,6 +3016,19 @@ class PfxHashmap(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_slice_or_tlb(self.label)
+            assert self.add_r1("m", self.l, self.m_), 'Add_r1 failed'
+
+            self.PfxHashmapNode(self.m, self.X_).store_from(cb, self.node)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -2668,6 +3109,18 @@ class PfxHashmapNode(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 1)
+
+            self.X_.store_from(cb, self.value)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_phmn_fork(RecordBase):
         def get_tag_enum(self):
             return PfxHashmapNode.Tag.phmn_fork
@@ -2736,6 +3189,21 @@ class PfxHashmapNode(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 1)
+
+            assert self.add_r1("n", 1, self.m_), 'Add_r1 failed'
+
+            cb.store_ref_or_tlb(self.left)
+            cb.store_ref_or_tlb(self.right)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -2810,6 +3278,17 @@ class PfxHashmapE(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 1)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_phme_root(RecordBase):
         def get_tag_enum(self):
             return PfxHashmapE.Tag.phme_root
@@ -2869,6 +3348,18 @@ class PfxHashmapE(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 1)
+
+            cb.store_ref_or_tlb(self.root)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -2935,6 +3426,17 @@ class MsgAddressExt(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 2)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_addr_extern(RecordBase):
         def get_tag_enum(self):
             return MsgAddressExt.Tag.addr_extern
@@ -2986,6 +3488,20 @@ class MsgAddressExt(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 2)
+
+            cb.store_uint(self.len, 9)
+            cb.store_bitstring_chk(self.external_address, self.len)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -3063,6 +3579,20 @@ class Anycast(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint_leq(30, self.depth)
+            assert 1 <= self.depth, 'Params not equal: 1 and depth'
+
+            cb.store_bitstring_chk(self.rewrite_pfx, self.depth)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -3146,6 +3676,20 @@ class MsgAddressInt(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(2, 2)
+
+            TLBComplex.constants["t_Maybe_Anycast"].store_from(cb, self.anycast)
+            cb.store_int(self.workchain_id, 8)
+            cb.store_bitstring_chk(self.address, 256)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_addr_var(RecordBase):
         def get_tag_enum(self):
             return MsgAddressInt.Tag.addr_var
@@ -3207,6 +3751,22 @@ class MsgAddressInt(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(3, 2)
+
+            TLBComplex.constants["t_Maybe_Anycast"].store_from(cb, self.anycast)
+            cb.store_uint(self.addr_len, 9)
+            cb.store_int(self.workchain_id, 32)
+            cb.store_bitstring_chk(self.address, self.addr_len)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -3278,6 +3838,16 @@ class MsgAddress(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_MsgAddressInt"].store_from(cb, self.x)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_cons2(RecordBase):
         def get_tag_enum(self):
             return MsgAddress.Tag.cons2
@@ -3321,6 +3891,16 @@ class MsgAddress(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_MsgAddressExt"].store_from(cb, self.x)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -3410,6 +3990,18 @@ class VarUInteger(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint_less(self.m_, self.len)
+            cb.store_uint(self.value, 8 * self.len)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -3498,6 +4090,18 @@ class VarInteger(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint_less(self.m_, self.len)
+            cb.store_int(self.value, 8 * self.len)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -3566,6 +4170,16 @@ class Grams(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_VarUInteger_16"].store_from(cb, self.amount)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -3636,6 +4250,16 @@ class Coins(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_Grams"].store_from(cb, self.grams)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -3704,6 +4328,16 @@ class ExtraCurrencyCollection(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_HashmapE_32_VarUInteger_32"].store_from(cb, self.dict)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -3778,6 +4412,17 @@ class CurrencyCollection(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_Grams"].store_from(cb, self.grams)
+            TLBComplex.constants["t_ExtraCurrencyCollection"].store_from(cb, self.other)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -3897,6 +4542,27 @@ class CommonMsgInfo(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 1)
+
+            cb.store_uint(self.ihr_disabled, 1)
+            cb.store_uint(self.bounce, 1)
+            cb.store_uint(self.bounced, 1)
+            TLBComplex.constants["t_MsgAddressInt"].store_from(cb, self.src)
+            TLBComplex.constants["t_MsgAddressInt"].store_from(cb, self.dest)
+            TLBComplex.constants["t_CurrencyCollection"].store_from(cb, self.value)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.ihr_fee)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.fwd_fee)
+            cb.store_uint(self.created_lt, 64)
+            cb.store_uint(self.created_at, 32)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_ext_in_msg_info(RecordBase):
         def get_tag_enum(self):
             return CommonMsgInfo.Tag.ext_in_msg_info
@@ -3952,6 +4618,20 @@ class CommonMsgInfo(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(2, 2)
+
+            TLBComplex.constants["t_MsgAddressExt"].store_from(cb, self.src)
+            TLBComplex.constants["t_MsgAddressInt"].store_from(cb, self.dest)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.import_fee)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_ext_out_msg_info(RecordBase):
         def get_tag_enum(self):
@@ -4013,6 +4693,21 @@ class CommonMsgInfo(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(3, 2)
+
+            TLBComplex.constants["t_MsgAddressInt"].store_from(cb, self.src)
+            TLBComplex.constants["t_MsgAddressExt"].store_from(cb, self.dest)
+            cb.store_uint(self.created_lt, 64)
+            cb.store_uint(self.created_at, 32)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -4131,6 +4826,27 @@ class CommonMsgInfoRelaxed(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 1)
+
+            cb.store_uint(self.ihr_disabled, 1)
+            cb.store_uint(self.bounce, 1)
+            cb.store_uint(self.bounced, 1)
+            TLBComplex.constants["t_MsgAddress"].store_from(cb, self.src)
+            TLBComplex.constants["t_MsgAddressInt"].store_from(cb, self.dest)
+            TLBComplex.constants["t_CurrencyCollection"].store_from(cb, self.value)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.ihr_fee)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.fwd_fee)
+            cb.store_uint(self.created_lt, 64)
+            cb.store_uint(self.created_at, 32)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_ext_out_msg_info(RecordBase):
         def get_tag_enum(self):
             return CommonMsgInfoRelaxed.Tag.ext_out_msg_info
@@ -4191,6 +4907,21 @@ class CommonMsgInfoRelaxed(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(3, 2)
+
+            TLBComplex.constants["t_MsgAddress"].store_from(cb, self.src)
+            TLBComplex.constants["t_MsgAddressExt"].store_from(cb, self.dest)
+            cb.store_uint(self.created_lt, 64)
+            cb.store_uint(self.created_at, 32)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -4265,6 +4996,17 @@ class TickTock(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(self.tick, 1)
+            cb.store_uint(self.tock, 1)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -4355,6 +5097,20 @@ class StateInit(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_Maybe_natwidth_5"].store_from(cb, self.split_depth)
+            TLBComplex.constants["t_Maybe_TickTock"].store_from(cb, self.special)
+            TLBComplex.constants["t_Maybe_Ref_Cell"].store_from(cb, self.code)
+            TLBComplex.constants["t_Maybe_Ref_Cell"].store_from(cb, self.data)
+            TLBComplex.constants["t_Maybe_Ref_Cell"].store_from(cb, self.library)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -4444,6 +5200,20 @@ class StateInitWithLibs(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_Maybe_natwidth_5"].store_from(cb, self.split_depth)
+            TLBComplex.constants["t_Maybe_TickTock"].store_from(cb, self.special)
+            TLBComplex.constants["t_Maybe_Ref_Cell"].store_from(cb, self.code)
+            TLBComplex.constants["t_Maybe_Ref_Cell"].store_from(cb, self.data)
+            TLBComplex.constants["t_HashmapE_256_SimpleLib"].store_from(cb, self.library)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -4523,6 +5293,17 @@ class SimpleLib(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(self.public, 1)
+            TLBComplex.constants["t_RefCell"].store_ref_or_tlb(cb, self.root)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -4608,6 +5389,18 @@ class Message(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_CommonMsgInfo"].store_from(cb, self.info)
+            TLBComplex.constants["t_Maybe_Either_StateInit_Ref_StateInit"].store_from(cb, self.init)
+            self.Either(self.X_, RefT(self.X_)).store_from(cb, self.body)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -4692,6 +5485,18 @@ class MessageRelaxed(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_CommonMsgInfoRelaxed"].store_from(cb, self.info)
+            TLBComplex.constants["t_Maybe_Either_StateInit_Ref_StateInit"].store_from(cb, self.init)
+            self.Either(self.X_, RefT(self.X_)).store_from(cb, self.body)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -4760,6 +5565,16 @@ class MessageAny(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_Message_Any"].store_from(cb, self.x)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -4834,6 +5649,18 @@ class IntermediateAddress(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 1)
+
+            cb.store_uint_leq(96, self.use_dest_bits)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_interm_addr_simple(RecordBase):
         def get_tag_enum(self):
             return IntermediateAddress.Tag.interm_addr_simple
@@ -4885,6 +5712,19 @@ class IntermediateAddress(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(2, 2)
+
+            cb.store_int(self.workchain_id, 8)
+            cb.store_uint(self.addr_pfx, 64)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_interm_addr_ext(RecordBase):
         def get_tag_enum(self):
             return IntermediateAddress.Tag.interm_addr_ext
@@ -4935,6 +5775,19 @@ class IntermediateAddress(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(3, 2)
+
+            cb.store_int(self.workchain_id, 32)
+            cb.store_uint(self.addr_pfx, 64)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -5027,6 +5880,21 @@ class MsgEnvelope(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(4, 4)
+
+            TLBComplex.constants["t_IntermediateAddress"].store_from(cb, self.cur_addr)
+            TLBComplex.constants["t_IntermediateAddress"].store_from(cb, self.next_addr)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.fwd_fee_remaining)
+            TLBComplex.constants["t_Ref_Message_Any"].store_ref_or_tlb(cb, self.msg)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -5122,6 +5990,19 @@ class InMsg(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 3)
+
+            TLBComplex.constants["t_Ref_Message_Any"].store_ref_or_tlb(cb, self.msg)
+            TLBComplex.constants["t_Ref_Transaction"].store_ref_or_tlb(cb, self.transaction)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_msg_import_ihr(RecordBase):
         def get_tag_enum(self):
             return InMsg.Tag.msg_import_ihr
@@ -5201,6 +6082,21 @@ class InMsg(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(2, 3)
+
+            TLBComplex.constants["t_Ref_Message_Any"].store_ref_or_tlb(cb, self.msg)
+            TLBComplex.constants["t_Ref_Transaction"].store_ref_or_tlb(cb, self.transaction)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.ihr_fee)
+            TLBComplex.constants["t_RefCell"].store_ref_or_tlb(cb, self.proof_created)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_msg_import_imm(RecordBase):
         def get_tag_enum(self):
             return InMsg.Tag.msg_import_imm
@@ -5268,6 +6164,20 @@ class InMsg(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(3, 3)
+
+            TLBComplex.constants["t_Ref_MsgEnvelope"].store_ref_or_tlb(cb, self.in_msg)
+            TLBComplex.constants["t_Ref_Transaction"].store_ref_or_tlb(cb, self.transaction)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.fwd_fee)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_msg_import_fin(RecordBase):
         def get_tag_enum(self):
@@ -5337,6 +6247,20 @@ class InMsg(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(4, 3)
+
+            TLBComplex.constants["t_Ref_MsgEnvelope"].store_ref_or_tlb(cb, self.in_msg)
+            TLBComplex.constants["t_Ref_Transaction"].store_ref_or_tlb(cb, self.transaction)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.fwd_fee)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_msg_import_tr(RecordBase):
         def get_tag_enum(self):
             return InMsg.Tag.msg_import_tr
@@ -5405,6 +6329,20 @@ class InMsg(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(5, 3)
+
+            TLBComplex.constants["t_Ref_MsgEnvelope"].store_ref_or_tlb(cb, self.in_msg)
+            TLBComplex.constants["t_Ref_MsgEnvelope"].store_ref_or_tlb(cb, self.out_msg)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.transit_fee)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_msg_discard_fin(RecordBase):
         def get_tag_enum(self):
             return InMsg.Tag.msg_discard_fin
@@ -5466,6 +6404,20 @@ class InMsg(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(6, 3)
+
+            TLBComplex.constants["t_Ref_MsgEnvelope"].store_ref_or_tlb(cb, self.in_msg)
+            cb.store_uint(self.transaction_id, 64)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.fwd_fee)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_msg_discard_tr(RecordBase):
         def get_tag_enum(self):
@@ -5539,6 +6491,21 @@ class InMsg(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(7, 3)
+
+            TLBComplex.constants["t_Ref_MsgEnvelope"].store_ref_or_tlb(cb, self.in_msg)
+            cb.store_uint(self.transaction_id, 64)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.fwd_fee)
+            TLBComplex.constants["t_RefCell"].store_ref_or_tlb(cb, self.proof_delivered)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -5614,6 +6581,17 @@ class ImportFees(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_Grams"].store_from(cb, self.fees_collected)
+            TLBComplex.constants["t_CurrencyCollection"].store_from(cb, self.value_imported)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -5682,6 +6660,16 @@ class InMsgDescr(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_HashmapAugE_256_InMsg_ImportFees"].store_from(cb, self.x)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -5778,6 +6766,19 @@ class OutMsg(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 3)
+
+            TLBComplex.constants["t_Ref_Message_Any"].store_ref_or_tlb(cb, self.msg)
+            TLBComplex.constants["t_Ref_Transaction"].store_ref_or_tlb(cb, self.transaction)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_msg_export_imm(RecordBase):
         def get_tag_enum(self):
             return OutMsg.Tag.msg_export_imm
@@ -5852,6 +6853,20 @@ class OutMsg(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(2, 3)
+
+            TLBComplex.constants["t_Ref_MsgEnvelope"].store_ref_or_tlb(cb, self.out_msg)
+            TLBComplex.constants["t_Ref_Transaction"].store_ref_or_tlb(cb, self.transaction)
+            TLBComplex.constants["t_Ref_InMsg"].store_ref_or_tlb(cb, self.reimport)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_msg_export_new(RecordBase):
         def get_tag_enum(self):
             return OutMsg.Tag.msg_export_new
@@ -5914,6 +6929,19 @@ class OutMsg(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 3)
+
+            TLBComplex.constants["t_Ref_MsgEnvelope"].store_ref_or_tlb(cb, self.out_msg)
+            TLBComplex.constants["t_Ref_Transaction"].store_ref_or_tlb(cb, self.transaction)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_msg_export_tr(RecordBase):
         def get_tag_enum(self):
@@ -5978,6 +7006,19 @@ class OutMsg(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(3, 3)
+
+            TLBComplex.constants["t_Ref_MsgEnvelope"].store_ref_or_tlb(cb, self.out_msg)
+            TLBComplex.constants["t_Ref_InMsg"].store_ref_or_tlb(cb, self.imported)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_msg_export_deq(RecordBase):
         def get_tag_enum(self):
             return OutMsg.Tag.msg_export_deq
@@ -6034,6 +7075,19 @@ class OutMsg(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(12, 4)
+
+            TLBComplex.constants["t_Ref_MsgEnvelope"].store_ref_or_tlb(cb, self.out_msg)
+            cb.store_uint(self.import_block_lt, 63)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_msg_export_deq_short(RecordBase):
         def get_tag_enum(self):
@@ -6095,6 +7149,21 @@ class OutMsg(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(13, 4)
+
+            cb.store_bitstring_chk(self.msg_env_hash, 256)
+            cb.store_int(self.next_workchain, 32)
+            cb.store_uint(self.next_addr_pfx, 64)
+            cb.store_uint(self.import_block_lt, 64)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_msg_export_tr_req(RecordBase):
         def get_tag_enum(self):
@@ -6159,6 +7228,19 @@ class OutMsg(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(7, 3)
+
+            TLBComplex.constants["t_Ref_MsgEnvelope"].store_ref_or_tlb(cb, self.out_msg)
+            TLBComplex.constants["t_Ref_InMsg"].store_ref_or_tlb(cb, self.imported)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_msg_export_deq_imm(RecordBase):
         def get_tag_enum(self):
             return OutMsg.Tag.msg_export_deq_imm
@@ -6221,6 +7303,19 @@ class OutMsg(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(4, 3)
+
+            TLBComplex.constants["t_Ref_MsgEnvelope"].store_ref_or_tlb(cb, self.out_msg)
+            TLBComplex.constants["t_Ref_InMsg"].store_ref_or_tlb(cb, self.reimport)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -6302,6 +7397,17 @@ class EnqueuedMsg(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(self.enqueued_lt, 64)
+            TLBComplex.constants["t_Ref_MsgEnvelope"].store_ref_or_tlb(cb, self.out_msg)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -6371,6 +7477,16 @@ class OutMsgDescr(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_HashmapAugE_256_OutMsg_CurrencyCollection"].store_from(cb, self.x)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -6439,6 +7555,16 @@ class OutMsgQueue(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_HashmapAugE_352_EnqueuedMsg_uint64"].store_from(cb, self.x)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -6514,6 +7640,17 @@ class ProcessedUpto(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(self.last_msg_lt, 64)
+            cb.store_bitstring_chk(self.last_msg_hash, 256)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -6582,6 +7719,16 @@ class ProcessedInfo(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_HashmapE_96_ProcessedUpto"].store_from(cb, self.x)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -6652,6 +7799,16 @@ class IhrPendingSince(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(self.import_lt, 64)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -6720,6 +7877,16 @@ class IhrPendingInfo(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_HashmapE_320_IhrPendingSince"].store_from(cb, self.x)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -6800,6 +7967,18 @@ class OutMsgQueueInfo(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_OutMsgQueue"].store_from(cb, self.out_queue)
+            TLBComplex.constants["t_ProcessedInfo"].store_from(cb, self.proc_info)
+            TLBComplex.constants["t_IhrPendingInfo"].store_from(cb, self.ihr_pending)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -6879,6 +8058,18 @@ class StorageUsed(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_VarUInteger_7"].store_from(cb, self.cells)
+            TLBComplex.constants["t_VarUInteger_7"].store_from(cb, self.bits)
+            TLBComplex.constants["t_VarUInteger_7"].store_from(cb, self.public_cells)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -6952,6 +8143,17 @@ class StorageUsedShort(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_VarUInteger_7"].store_from(cb, self.cells)
+            TLBComplex.constants["t_VarUInteger_7"].store_from(cb, self.bits)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -7032,6 +8234,18 @@ class StorageInfo(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_StorageUsed"].store_from(cb, self.used)
+            cb.store_uint(self.last_paid, 32)
+            TLBComplex.constants["t_Maybe_Grams"].store_from(cb, self.due_payment)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -7097,6 +8311,17 @@ class Account(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 1)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_account(RecordBase):
         def get_tag_enum(self):
             return Account.Tag.account
@@ -7152,6 +8377,20 @@ class Account(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 1)
+
+            TLBComplex.constants["t_MsgAddressInt"].store_from(cb, self.addr)
+            TLBComplex.constants["t_StorageInfo"].store_from(cb, self.storage_stat)
+            TLBComplex.constants["t_AccountStorage"].store_from(cb, self.storage)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -7232,6 +8471,18 @@ class AccountStorage(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(self.last_trans_lt, 64)
+            TLBComplex.constants["t_CurrencyCollection"].store_from(cb, self.balance)
+            TLBComplex.constants["t_AccountState"].store_from(cb, self.state)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -7298,6 +8549,17 @@ class AccountState(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 2)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_account_active(RecordBase):
         def get_tag_enum(self):
             return AccountState.Tag.account_active
@@ -7344,6 +8606,18 @@ class AccountState(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 1)
+
+            TLBComplex.constants["t_StateInit"].store_from(cb, self.x)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_account_frozen(RecordBase):
         def get_tag_enum(self):
             return AccountState.Tag.account_frozen
@@ -7389,6 +8663,18 @@ class AccountState(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 2)
+
+            cb.store_bitstring_chk(self.state_hash, 256)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -7469,6 +8755,17 @@ class AccountStatus(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 2)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_acc_state_frozen(RecordBase):
         def get_tag_enum(self):
             return AccountStatus.Tag.acc_state_frozen
@@ -7507,6 +8804,17 @@ class AccountStatus(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 2)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_acc_state_active(RecordBase):
         def get_tag_enum(self):
@@ -7547,6 +8855,17 @@ class AccountStatus(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(2, 2)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_acc_state_nonexist(RecordBase):
         def get_tag_enum(self):
             return AccountStatus.Tag.acc_state_nonexist
@@ -7585,6 +8904,17 @@ class AccountStatus(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(3, 2)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -7671,6 +9001,18 @@ class ShardAccount(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_Ref_Account"].store_ref_or_tlb(cb, self.account)
+            cb.store_bitstring_chk(self.last_trans_hash, 256)
+            cb.store_uint(self.last_trans_lt, 64)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -7745,6 +9087,17 @@ class DepthBalanceInfo(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint_leq(30, self.split_depth)
+            TLBComplex.constants["t_CurrencyCollection"].store_from(cb, self.balance)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -7813,6 +9166,16 @@ class ShardAccounts(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_HashmapAugE_256_ShardAccount_DepthBalanceInfo"].store_from(cb, self.x)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -7887,6 +9250,17 @@ class Transaction_aux(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_Maybe_Ref_Message_Any"].store_from(cb, self.in_msg)
+            TLBComplex.constants["t_HashmapE_15_Ref_Message_Any"].store_from(cb, self.out_msgs)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -8026,6 +9400,29 @@ class Transaction(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(7, 4)
+
+            cb.store_bitstring_chk(self.account_addr, 256)
+            cb.store_uint(self.lt, 64)
+            cb.store_bitstring_chk(self.prev_trans_hash, 256)
+            cb.store_uint(self.prev_trans_lt, 64)
+            cb.store_uint(self.now, 32)
+            cb.store_uint(self.outmsg_cnt, 15)
+            TLBComplex.constants["t_AccountStatus"].store_enum_from(cb, self.orig_status)
+            TLBComplex.constants["t_AccountStatus"].store_enum_from(cb, self.end_status)
+            cb.store_ref_or_tlb(self.r1)
+            TLBComplex.constants["t_CurrencyCollection"].store_from(cb, self.total_fees)
+            TLBComplex.constants["t_Ref_HASH_UPDATE_Account"].store_ref_or_tlb(cb, self.state_update)
+            TLBComplex.constants["t_Ref_TransactionDescr"].store_ref_or_tlb(cb, self.description)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -8129,6 +9526,21 @@ class MERKLE_UPDATE(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(4, 8)
+
+            cb.store_bitstring_chk(self.old_hash, 256)
+            cb.store_bitstring_chk(self.new_hash, 256)
+            cb.store_ref_or_tlb(self.old)
+            cb.store_ref_or_tlb(self.new)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return True
 
@@ -8209,6 +9621,19 @@ class HASH_UPDATE(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x72, 8)
+
+            cb.store_bitstring_chk(self.old_hash, 256)
+            cb.store_bitstring_chk(self.new_hash, 256)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -8302,6 +9727,20 @@ class MERKLE_PROOF(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(3, 8)
+
+            cb.store_bitstring_chk(self.virtual_hash, 256)
+            cb.store_uint(self.depth, 16)
+            cb.store_ref_or_tlb(self.virtual_root)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return True
 
@@ -8389,6 +9828,20 @@ class AccountBlock(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(5, 4)
+
+            cb.store_bitstring_chk(self.account_addr, 256)
+            TLBComplex.constants["t_HashmapAug_64_Ref_Transaction_CurrencyCollection"].store_from(cb, self.transactions)
+            TLBComplex.constants["t_Ref_HASH_UPDATE_Account"].store_ref_or_tlb(cb, self.state_update)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -8457,6 +9910,16 @@ class ShardAccountBlocks(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_HashmapAugE_256_AccountBlock_CurrencyCollection"].store_from(cb, self.x)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -8537,6 +10000,18 @@ class TrStoragePhase(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_Grams"].store_from(cb, self.storage_fees_collected)
+            TLBComplex.constants["t_Maybe_Grams"].store_from(cb, self.storage_fees_due)
+            TLBComplex.constants["t_AccStatusChange"].store_enum_from(cb, self.status_change)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -8571,8 +10046,8 @@ class AccStatusChange(TLBComplex):
 
 
     def store_enum_from(self, cb: CellBuilder, value: int = None) -> bool:
-        assert value is not None and value < 3, f'Value {value} must be < then 3'
-        cb.store_uint(self.cons_tag[value], self.cons_len[value])
+        assert value is not None and value in self.cons_tag, f'Value {value} must be inself.cons_tag'
+        cb.store_uint(value, self.cons_len[self.cons_tag.index(value)])
         return True
 
 
@@ -8615,6 +10090,17 @@ class AccStatusChange(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 1)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_acst_frozen(RecordBase):
         def get_tag_enum(self):
             return AccStatusChange.Tag.acst_frozen
@@ -8654,6 +10140,17 @@ class AccStatusChange(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(2, 2)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_acst_deleted(RecordBase):
         def get_tag_enum(self):
             return AccStatusChange.Tag.acst_deleted
@@ -8692,6 +10189,17 @@ class AccStatusChange(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(3, 2)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -8766,6 +10274,17 @@ class TrCreditPhase(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_Maybe_Grams"].store_from(cb, self.due_fees_collected)
+            TLBComplex.constants["t_CurrencyCollection"].store_from(cb, self.credit)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -8876,6 +10395,24 @@ class TrComputePhase_aux(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_VarUInteger_7"].store_from(cb, self.gas_used)
+            TLBComplex.constants["t_VarUInteger_7"].store_from(cb, self.gas_limit)
+            TLBComplex.constants["t_Maybe_VarUInteger_3"].store_from(cb, self.gas_credit)
+            cb.store_int(self.mode, 8)
+            cb.store_int(self.exit_code, 32)
+            TLBComplex.constants["t_Maybe_int32"].store_from(cb, self.exit_arg)
+            cb.store_uint(self.vm_steps, 32)
+            cb.store_bitstring_chk(self.vm_init_state_hash, 256)
+            cb.store_bitstring_chk(self.vm_final_state_hash, 256)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -8948,6 +10485,18 @@ class TrComputePhase(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 1)
+
+            TLBComplex.constants["t_ComputeSkipReason"].store_enum_from(cb, self.reason)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_tr_phase_compute_vm(RecordBase):
         def get_tag_enum(self):
             return TrComputePhase.Tag.tr_phase_compute_vm
@@ -9014,6 +10563,22 @@ class TrComputePhase(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 1)
+
+            cb.store_uint(self.success, 1)
+            cb.store_uint(self.msg_state_used, 1)
+            cb.store_uint(self.account_activated, 1)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.gas_fees)
+            cb.store_ref_or_tlb(self.r1)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -9050,8 +10615,8 @@ class ComputeSkipReason(TLBComplex):
 
 
     def store_enum_from(self, cb: CellBuilder, value: int = None) -> bool:
-        assert value is not None and value < 4, f'Value {value} must be < then 4'
-        cb.store_uint(self.cons_tag[value], self.cons_len[value])
+        assert value is not None and value in self.cons_tag, f'Value {value} must be inself.cons_tag'
+        cb.store_uint(value, self.cons_len[self.cons_tag.index(value)])
         return True
 
 
@@ -9094,6 +10659,17 @@ class ComputeSkipReason(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 2)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_cskip_bad_state(RecordBase):
         def get_tag_enum(self):
             return ComputeSkipReason.Tag.cskip_bad_state
@@ -9132,6 +10708,17 @@ class ComputeSkipReason(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 2)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_cskip_no_gas(RecordBase):
         def get_tag_enum(self):
@@ -9172,6 +10759,17 @@ class ComputeSkipReason(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(2, 2)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_cskip_suspended(RecordBase):
         def get_tag_enum(self):
             return ComputeSkipReason.Tag.cskip_suspended
@@ -9210,6 +10808,17 @@ class ComputeSkipReason(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(6, 3)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -9345,6 +10954,29 @@ class TrActionPhase(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(self.success, 1)
+            cb.store_uint(self.valid, 1)
+            cb.store_uint(self.no_funds, 1)
+            TLBComplex.constants["t_AccStatusChange"].store_enum_from(cb, self.status_change)
+            TLBComplex.constants["t_Maybe_Grams"].store_from(cb, self.total_fwd_fees)
+            TLBComplex.constants["t_Maybe_Grams"].store_from(cb, self.total_action_fees)
+            cb.store_int(self.result_code, 32)
+            TLBComplex.constants["t_Maybe_int32"].store_from(cb, self.result_arg)
+            cb.store_uint(self.tot_actions, 16)
+            cb.store_uint(self.spec_actions, 16)
+            cb.store_uint(self.skipped_actions, 16)
+            cb.store_uint(self.msgs_created, 16)
+            cb.store_bitstring_chk(self.action_list_hash, 256)
+            TLBComplex.constants["t_StorageUsedShort"].store_from(cb, self.tot_msg_size)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -9411,6 +11043,17 @@ class TrBouncePhase(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 2)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_tr_phase_bounce_nofunds(RecordBase):
         def get_tag_enum(self):
             return TrBouncePhase.Tag.tr_phase_bounce_nofunds
@@ -9461,6 +11104,19 @@ class TrBouncePhase(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 2)
+
+            TLBComplex.constants["t_StorageUsedShort"].store_from(cb, self.msg_size)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.req_fwd_fees)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_tr_phase_bounce_ok(RecordBase):
         def get_tag_enum(self):
@@ -9517,6 +11173,20 @@ class TrBouncePhase(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 1)
+
+            TLBComplex.constants["t_StorageUsedShort"].store_from(cb, self.msg_size)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.msg_fees)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.fwd_fees)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -9601,6 +11271,19 @@ class SplitMergeInfo(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(self.cur_shard_pfx_len, 6)
+            cb.store_uint(self.acc_split_depth, 6)
+            cb.store_bitstring_chk(self.this_addr, 256)
+            cb.store_bitstring_chk(self.sibling_addr, 256)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -9714,6 +11397,25 @@ class TransactionDescr(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 4)
+
+            cb.store_uint(self.credit_first, 1)
+            TLBComplex.constants["t_Maybe_TrStoragePhase"].store_from(cb, self.storage_ph)
+            TLBComplex.constants["t_Maybe_TrCreditPhase"].store_from(cb, self.credit_ph)
+            TLBComplex.constants["t_TrComputePhase"].store_from(cb, self.compute_ph)
+            TLBComplex.constants["t_Maybe_Ref_TrActionPhase"].store_from(cb, self.action)
+            cb.store_uint(self.aborted, 1)
+            TLBComplex.constants["t_Maybe_TrBouncePhase"].store_from(cb, self.bounce)
+            cb.store_uint(self.destroyed, 1)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_trans_storage(RecordBase):
         def get_tag_enum(self):
             return TransactionDescr.Tag.trans_storage
@@ -9759,6 +11461,18 @@ class TransactionDescr(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 4)
+
+            TLBComplex.constants["t_TrStoragePhase"].store_from(cb, self.storage_ph)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_trans_tick_tock(RecordBase):
         def get_tag_enum(self):
@@ -9830,6 +11544,23 @@ class TransactionDescr(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 3)
+
+            cb.store_uint(self.is_tock, 1)
+            TLBComplex.constants["t_TrStoragePhase"].store_from(cb, self.storage_ph)
+            TLBComplex.constants["t_TrComputePhase"].store_from(cb, self.compute_ph)
+            TLBComplex.constants["t_Maybe_Ref_TrActionPhase"].store_from(cb, self.action)
+            cb.store_uint(self.aborted, 1)
+            cb.store_uint(self.destroyed, 1)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_trans_split_prepare(RecordBase):
         def get_tag_enum(self):
@@ -9908,6 +11639,23 @@ class TransactionDescr(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(4, 4)
+
+            cb.store_slice_or_tlb_ext(self.split_info, 524)
+            TLBComplex.constants["t_Maybe_TrStoragePhase"].store_from(cb, self.storage_ph)
+            TLBComplex.constants["t_TrComputePhase"].store_from(cb, self.compute_ph)
+            TLBComplex.constants["t_Maybe_Ref_TrActionPhase"].store_from(cb, self.action)
+            cb.store_uint(self.aborted, 1)
+            cb.store_uint(self.destroyed, 1)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_trans_split_install(RecordBase):
         def get_tag_enum(self):
             return TransactionDescr.Tag.trans_split_install
@@ -9976,6 +11724,20 @@ class TransactionDescr(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(5, 4)
+
+            cb.store_slice_or_tlb_ext(self.split_info, 524)
+            TLBComplex.constants["t_Ref_Transaction"].store_ref_or_tlb(cb, self.prepare_transaction)
+            cb.store_uint(self.installed, 1)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_trans_merge_prepare(RecordBase):
         def get_tag_enum(self):
             return TransactionDescr.Tag.trans_merge_prepare
@@ -10037,6 +11799,20 @@ class TransactionDescr(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(6, 4)
+
+            cb.store_slice_or_tlb_ext(self.split_info, 524)
+            TLBComplex.constants["t_TrStoragePhase"].store_from(cb, self.storage_ph)
+            cb.store_uint(self.aborted, 1)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_trans_merge_install(RecordBase):
         def get_tag_enum(self):
@@ -10130,6 +11906,25 @@ class TransactionDescr(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(7, 4)
+
+            cb.store_slice_or_tlb_ext(self.split_info, 524)
+            TLBComplex.constants["t_Ref_Transaction"].store_ref_or_tlb(cb, self.prepare_transaction)
+            TLBComplex.constants["t_Maybe_TrStoragePhase"].store_from(cb, self.storage_ph)
+            TLBComplex.constants["t_Maybe_TrCreditPhase"].store_from(cb, self.credit_ph)
+            TLBComplex.constants["t_TrComputePhase"].store_from(cb, self.compute_ph)
+            TLBComplex.constants["t_Maybe_Ref_TrActionPhase"].store_from(cb, self.action)
+            cb.store_uint(self.aborted, 1)
+            cb.store_uint(self.destroyed, 1)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -10242,6 +12037,26 @@ class SmartContractInfo(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x76ef1ea, 32)
+
+            cb.store_uint(self.actions, 16)
+            cb.store_uint(self.msgs_sent, 16)
+            cb.store_uint(self.unixtime, 32)
+            cb.store_uint(self.block_lt, 64)
+            cb.store_uint(self.trans_lt, 64)
+            cb.store_bitstring_chk(self.rand_seed, 256)
+            TLBComplex.constants["t_CurrencyCollection"].store_from(cb, self.balance_remaining)
+            TLBComplex.constants["t_MsgAddressInt"].store_from(cb, self.myself)
+            TLBComplex.constants["t_Maybe_Cell"].store_from(cb, self.global_config)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -10314,6 +12129,16 @@ class OutList(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            self.m_ == 0            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_out_list(RecordBase):
         def get_tag_enum(self):
             return OutList.Tag.out_list
@@ -10374,6 +12199,19 @@ class OutList(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            assert self.add_r1("n", 1, self.m_), 'Add_r1 failed'
+
+            cb.store_ref_or_tlb(self.prev)
+            TLBComplex.constants["t_OutAction"].store_from(cb, self.action)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -10447,6 +12285,18 @@ class LibRef(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 1)
+
+            cb.store_bitstring_chk(self.lib_hash, 256)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_libref_ref(RecordBase):
         def get_tag_enum(self):
             return LibRef.Tag.libref_ref
@@ -10498,6 +12348,18 @@ class LibRef(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 1)
+
+            TLBComplex.constants["t_RefCell"].store_ref_or_tlb(cb, self.library)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -10584,6 +12446,19 @@ class OutAction(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0xec3c86d, 32)
+
+            cb.store_uint(self.mode, 8)
+            TLBComplex.constants["t_Ref_MessageRelaxed_Any"].store_ref_or_tlb(cb, self.out_msg)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_action_set_code(RecordBase):
         def get_tag_enum(self):
             return OutAction.Tag.action_set_code
@@ -10636,6 +12511,18 @@ class OutAction(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0xad4de08e, 32)
+
+            TLBComplex.constants["t_RefCell"].store_ref_or_tlb(cb, self.new_code)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_action_reserve_currency(RecordBase):
         def get_tag_enum(self):
             return OutAction.Tag.action_reserve_currency
@@ -10687,6 +12574,19 @@ class OutAction(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x36e6b809, 32)
+
+            cb.store_uint(self.mode, 8)
+            TLBComplex.constants["t_CurrencyCollection"].store_from(cb, self.currency)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_action_change_library(RecordBase):
         def get_tag_enum(self):
             return OutAction.Tag.action_change_library
@@ -10737,6 +12637,19 @@ class OutAction(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x26fa1dd4, 32)
+
+            cb.store_uint(self.mode, 7)
+            TLBComplex.constants["t_LibRef"].store_from(cb, self.libref)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -10818,6 +12731,17 @@ class OutListNode(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_RefCell"].store_ref_or_tlb(cb, self.prev)
+            TLBComplex.constants["t_OutAction"].store_from(cb, self.action)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -10898,6 +12822,20 @@ class ShardIdent(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 2)
+
+            cb.store_uint_leq(60, self.shard_pfx_bits)
+            cb.store_int(self.workchain_id, 32)
+            cb.store_uint(self.shard_prefix, 64)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -10982,6 +12920,19 @@ class ExtBlkRef(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(self.end_lt, 64)
+            cb.store_uint(self.seq_no, 32)
+            cb.store_bitstring_chk(self.root_hash, 256)
+            cb.store_bitstring_chk(self.file_hash, 256)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -11073,6 +13024,19 @@ class BlockIdExt(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_slice_or_tlb_ext(self.shard_id, 104)
+            cb.store_uint(self.seq_no, 32)
+            cb.store_bitstring_chk(self.root_hash, 256)
+            cb.store_bitstring_chk(self.file_hash, 256)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -11147,6 +13111,16 @@ class BlkMasterInfo(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_slice_or_tlb_ext(self.master, 608)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -11241,6 +13215,21 @@ class ShardStateUnsplit_aux(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(self.overload_history, 64)
+            cb.store_uint(self.underload_history, 64)
+            TLBComplex.constants["t_CurrencyCollection"].store_from(cb, self.total_balance)
+            TLBComplex.constants["t_CurrencyCollection"].store_from(cb, self.total_validator_fees)
+            TLBComplex.constants["t_HashmapE_256_LibDescr"].store_from(cb, self.libraries)
+            TLBComplex.constants["t_Maybe_BlkMasterInfo"].store_from(cb, self.master_ref)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -11388,6 +13377,29 @@ class ShardStateUnsplit(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x9023afe2, 32)
+
+            cb.store_int(self.global_id, 32)
+            cb.store_slice_or_tlb_ext(self.shard_id, 104)
+            cb.store_uint(self.seq_no, 32)
+            cb.store_uint(self.vert_seq_no, 32)
+            cb.store_uint(self.gen_utime, 32)
+            cb.store_uint(self.gen_lt, 64)
+            cb.store_uint(self.min_ref_mc_seqno, 32)
+            TLBComplex.constants["t_Ref_OutMsgQueueInfo"].store_ref_or_tlb(cb, self.out_msg_queue_info)
+            cb.store_uint(self.before_split, 1)
+            TLBComplex.constants["t_Ref_ShardAccounts"].store_ref_or_tlb(cb, self.accounts)
+            cb.store_ref_or_tlb(self.r1)
+            TLBComplex.constants["t_Maybe_Ref_McStateExtra"].store_from(cb, self.custom)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -11458,6 +13470,16 @@ class ShardState(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_ShardStateUnsplit"].store_from(cb, self.x)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_split_state(RecordBase):
         def get_tag_enum(self):
             return ShardState.Tag.split_state
@@ -11520,6 +13542,19 @@ class ShardState(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x5f327da5, 32)
+
+            TLBComplex.constants["t_Ref_ShardStateUnsplit"].store_ref_or_tlb(cb, self.left)
+            TLBComplex.constants["t_Ref_ShardStateUnsplit"].store_ref_or_tlb(cb, self.right)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -11602,6 +13637,19 @@ class LibDescr(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 2)
+
+            TLBComplex.constants["t_RefCell"].store_ref_or_tlb(cb, self.lib)
+            TLBComplex.constants["t_Hashmap_256_Truet"].store_from(cb, self.publishers)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -11842,6 +13890,53 @@ class BlockInfo(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x9bc7a987, 32)
+
+            cb.store_uint(self.version, 32)
+            cb.store_uint(self.not_master, 1)
+            cb.store_uint(self.after_merge, 1)
+            cb.store_uint(self.before_split, 1)
+            cb.store_uint(self.after_split, 1)
+            cb.store_uint(self.want_split, 1)
+            cb.store_uint(self.want_merge, 1)
+            cb.store_uint(self.key_block, 1)
+            cb.store_uint(self.vert_seqno_incr, 1)
+            cb.store_uint(self.flags, 8)
+            assert self.flags <= 1, 'Params not equal: flags and 1'
+
+            cb.store_uint(self.seq_no, 32)
+            cb.store_uint(self.vert_seq_no, 32)
+            assert self.vert_seqno_incr <= self.vert_seq_no, 'Params not equal: vert_seqno_incr and vert_seq_no'
+
+            assert self.add_r1("prev_seq_no", 1, self.seq_no), 'Add_r1 failed'
+
+            cb.store_slice_or_tlb_ext(self.shard, 104)
+            cb.store_uint(self.gen_utime, 32)
+            cb.store_uint(self.start_lt, 64)
+            cb.store_uint(self.end_lt, 64)
+            cb.store_uint(self.gen_validator_list_hash_short, 32)
+            cb.store_uint(self.gen_catchain_seqno, 32)
+            cb.store_uint(self.min_ref_mc_seqno, 32)
+            cb.store_uint(self.prev_key_block_seqno, 32)
+            if ((self.flags & (1 << 0)) != 0):
+                cb.store_slice_or_tlb_ext(self.gen_software, 104)
+
+            if (self.not_master > 0):
+                
+                cb.store_ref_or_tlb(self.master_ref)
+            cb.store_ref_or_tlb(self.prev_ref)
+            if (self.vert_seqno_incr > 0):
+                
+                cb.store_ref_or_tlb(self.prev_vert_ref)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -11932,6 +14027,17 @@ class BlkPrevInfo(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_slice_or_tlb_ext(self.prev, 608)
+            self.m_ == 0            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_prev_blks_info(RecordBase):
         def get_tag_enum(self):
             return BlkPrevInfo.Tag.prev_blks_info
@@ -11993,6 +14099,18 @@ class BlkPrevInfo(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_Ref_ExtBlkRef"].store_ref_or_tlb(cb, self.prev1)
+            TLBComplex.constants["t_Ref_ExtBlkRef"].store_ref_or_tlb(cb, self.prev2)
+            self.m_ == 1            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -12109,6 +14227,22 @@ class Block(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x11ef55aa, 32)
+
+            cb.store_int(self.global_id, 32)
+            TLBComplex.constants["t_Ref_BlockInfo"].store_ref_or_tlb(cb, self.info)
+            TLBComplex.constants["t_Ref_ValueFlow"].store_ref_or_tlb(cb, self.value_flow)
+            TLBComplex.constants["t_Ref_MERKLE_UPDATE_ShardState"].store_ref_or_tlb(cb, self.state_update)
+            TLBComplex.constants["t_Ref_BlockExtra"].store_ref_or_tlb(cb, self.extra)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -12223,6 +14357,23 @@ class BlockExtra(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x4a33f6fd, 32)
+
+            TLBComplex.constants["t_Ref_InMsgDescr"].store_ref_or_tlb(cb, self.in_msg_descr)
+            TLBComplex.constants["t_Ref_OutMsgDescr"].store_ref_or_tlb(cb, self.out_msg_descr)
+            TLBComplex.constants["t_Ref_ShardAccountBlocks"].store_ref_or_tlb(cb, self.account_blocks)
+            cb.store_bitstring_chk(self.rand_seed, 256)
+            cb.store_bitstring_chk(self.created_by, 256)
+            TLBComplex.constants["t_Maybe_Ref_McBlockExtra"].store_from(cb, self.custom)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -12306,6 +14457,19 @@ class TYPE_1653(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_CurrencyCollection"].store_from(cb, self.from_prev_blk)
+            TLBComplex.constants["t_CurrencyCollection"].store_from(cb, self.to_next_blk)
+            TLBComplex.constants["t_CurrencyCollection"].store_from(cb, self.imported)
+            TLBComplex.constants["t_CurrencyCollection"].store_from(cb, self.exported)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -12391,6 +14555,19 @@ class TYPE_1654(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_CurrencyCollection"].store_from(cb, self.fees_imported)
+            TLBComplex.constants["t_CurrencyCollection"].store_from(cb, self.recovered)
+            TLBComplex.constants["t_CurrencyCollection"].store_from(cb, self.created)
+            TLBComplex.constants["t_CurrencyCollection"].store_from(cb, self.minted)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -12473,6 +14650,20 @@ class ValueFlow(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0xb8e48dfb, 32)
+
+            cb.store_ref_or_tlb(self.r1)
+            TLBComplex.constants["t_CurrencyCollection"].store_from(cb, self.fees_collected)
+            cb.store_ref_or_tlb(self.r2)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_value_flow_v2(RecordBase):
         def get_tag_enum(self):
             return ValueFlow.Tag.value_flow_v2
@@ -12533,6 +14724,21 @@ class ValueFlow(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x3ebf98b7, 32)
+
+            cb.store_ref_or_tlb(self.r1)
+            TLBComplex.constants["t_CurrencyCollection"].store_from(cb, self.fees_collected)
+            TLBComplex.constants["t_CurrencyCollection"].store_from(cb, self.burned)
+            cb.store_ref_or_tlb(self.r2)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -12611,6 +14817,18 @@ class BinTree(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 1)
+
+            self.X_.store_from(cb, self.leaf)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_bt_fork(RecordBase):
         def get_tag_enum(self):
             return BinTree.Tag.bt_fork
@@ -12673,6 +14891,19 @@ class BinTree(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 1)
+
+            cb.store_ref_or_tlb(self.left)
+            cb.store_ref_or_tlb(self.right)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -12740,6 +14971,17 @@ class FutureSplitMerge(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 1)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_fsm_split(RecordBase):
         def get_tag_enum(self):
             return FutureSplitMerge.Tag.fsm_split
@@ -12791,6 +15033,19 @@ class FutureSplitMerge(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(2, 2)
+
+            cb.store_uint(self.split_utime, 32)
+            cb.store_uint(self.interval, 32)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_fsm_merge(RecordBase):
         def get_tag_enum(self):
             return FutureSplitMerge.Tag.fsm_merge
@@ -12841,6 +15096,19 @@ class FutureSplitMerge(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(3, 2)
+
+            cb.store_uint(self.merge_utime, 32)
+            cb.store_uint(self.interval, 32)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -12915,6 +15183,17 @@ class ShardDescr_aux(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_CurrencyCollection"].store_from(cb, self.fees_collected)
+            TLBComplex.constants["t_CurrencyCollection"].store_from(cb, self.funds_created)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -13080,6 +15359,38 @@ class ShardDescr(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(11, 4)
+
+            cb.store_uint(self.seq_no, 32)
+            cb.store_uint(self.reg_mc_seqno, 32)
+            cb.store_uint(self.start_lt, 64)
+            cb.store_uint(self.end_lt, 64)
+            cb.store_bitstring_chk(self.root_hash, 256)
+            cb.store_bitstring_chk(self.file_hash, 256)
+            cb.store_uint(self.before_split, 1)
+            cb.store_uint(self.before_merge, 1)
+            cb.store_uint(self.want_split, 1)
+            cb.store_uint(self.want_merge, 1)
+            cb.store_uint(self.nx_cc_updated, 1)
+            cb.store_uint(self.flags, 3)
+            assert self.flags == 0, 'Params not equal: flags and 0'
+
+            cb.store_uint(self.next_catchain_seqno, 32)
+            cb.store_uint(self.next_validator_shard, 64)
+            cb.store_uint(self.min_ref_mc_seqno, 32)
+            cb.store_uint(self.gen_utime, 32)
+            TLBComplex.constants["t_FutureSplitMerge"].store_from(cb, self.split_merge_at)
+            TLBComplex.constants["t_CurrencyCollection"].store_from(cb, self.fees_collected)
+            TLBComplex.constants["t_CurrencyCollection"].store_from(cb, self.funds_created)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_shard_descr_new(RecordBase):
         def get_tag_enum(self):
             return ShardDescr.Tag.shard_descr_new
@@ -13213,6 +15524,37 @@ class ShardDescr(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(10, 4)
+
+            cb.store_uint(self.seq_no, 32)
+            cb.store_uint(self.reg_mc_seqno, 32)
+            cb.store_uint(self.start_lt, 64)
+            cb.store_uint(self.end_lt, 64)
+            cb.store_bitstring_chk(self.root_hash, 256)
+            cb.store_bitstring_chk(self.file_hash, 256)
+            cb.store_uint(self.before_split, 1)
+            cb.store_uint(self.before_merge, 1)
+            cb.store_uint(self.want_split, 1)
+            cb.store_uint(self.want_merge, 1)
+            cb.store_uint(self.nx_cc_updated, 1)
+            cb.store_uint(self.flags, 3)
+            assert self.flags == 0, 'Params not equal: flags and 0'
+
+            cb.store_uint(self.next_catchain_seqno, 32)
+            cb.store_uint(self.next_validator_shard, 64)
+            cb.store_uint(self.min_ref_mc_seqno, 32)
+            cb.store_uint(self.gen_utime, 32)
+            TLBComplex.constants["t_FutureSplitMerge"].store_from(cb, self.split_merge_at)
+            cb.store_ref_or_tlb(self.r1)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -13281,6 +15623,16 @@ class ShardHashes(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_HashmapE_32_Ref_BinTree_ShardDescr"].store_from(cb, self.x)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -13367,6 +15719,19 @@ class BinTreeAug(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 1)
+
+            self.Y_.store_from(cb, self.extra)
+            self.X_.store_from(cb, self.leaf)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_bta_fork(RecordBase):
         def get_tag_enum(self):
             return BinTreeAug.Tag.bta_fork
@@ -13434,6 +15799,20 @@ class BinTreeAug(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 1)
+
+            cb.store_ref_or_tlb(self.left)
+            cb.store_ref_or_tlb(self.right)
+            self.Y_.store_from(cb, self.extra)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -13509,6 +15888,17 @@ class ShardFeeCreated(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_CurrencyCollection"].store_from(cb, self.fees)
+            TLBComplex.constants["t_CurrencyCollection"].store_from(cb, self.create)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -13577,6 +15967,16 @@ class ShardFees(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_HashmapAugE_96_ShardFeeCreated_ShardFeeCreated"].store_from(cb, self.x)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -13658,6 +16058,17 @@ class ConfigParams(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_bitstring_chk(self.config_addr, 256)
+            TLBComplex.constants["t_Ref_Hashmap_32_Ref_Cell"].store_ref_or_tlb(cb, self.config)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -13737,6 +16148,18 @@ class ValidatorInfo(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(self.validator_list_hash_short, 32)
+            cb.store_uint(self.catchain_seqno, 32)
+            cb.store_uint(self.nx_cc_updated, 1)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -13811,6 +16234,17 @@ class ValidatorBaseInfo(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(self.validator_list_hash_short, 32)
+            cb.store_uint(self.catchain_seqno, 32)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -13884,6 +16318,17 @@ class KeyMaxLt(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(self.key, 1)
+            cb.store_uint(self.max_end_lt, 64)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -13965,6 +16410,17 @@ class KeyExtBlkRef(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(self.key, 1)
+            cb.store_slice_or_tlb_ext(self.blk_ref, 608)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -14033,6 +16489,16 @@ class OldMcBlocksInfo(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_HashmapAugE_32_KeyExtBlkRef_KeyMaxLt"].store_from(cb, self.x)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -14117,6 +16583,19 @@ class Counters(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(self.last_updated, 32)
+            cb.store_uint(self.total, 64)
+            cb.store_uint(self.cnt2048, 64)
+            cb.store_uint(self.cnt65536, 64)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -14206,6 +16685,19 @@ class CreatorStats(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(4, 4)
+
+            cb.store_slice_or_tlb_ext(self.mc_blocks, 224)
+            cb.store_slice_or_tlb_ext(self.shard_blocks, 224)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -14278,6 +16770,18 @@ class BlockCreateStats(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(23, 8)
+
+            TLBComplex.constants["t_HashmapE_256_CreatorStats"].store_from(cb, self.counters)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_block_create_stats_ext(RecordBase):
         def get_tag_enum(self):
             return BlockCreateStats.Tag.block_create_stats_ext
@@ -14323,6 +16827,18 @@ class BlockCreateStats(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x34, 8)
+
+            TLBComplex.constants["t_HashmapAugE_256_CreatorStats_uint32"].store_from(cb, self.counters)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -14428,6 +16944,24 @@ class McStateExtra_aux(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(self.flags, 16)
+            assert self.flags <= 1, 'Params not equal: flags and 1'
+
+            cb.store_slice_or_tlb_ext(self.validator_info, 65)
+            TLBComplex.constants["t_OldMcBlocksInfo"].store_from(cb, self.prev_blocks)
+            cb.store_uint(self.after_key_block, 1)
+            TLBComplex.constants["t_Maybe_ExtBlkRef"].store_from(cb, self.last_key_block)
+            if ((self.flags & (1 << 0)) != 0):
+                TLBComplex.constants["t_BlockCreateStats"].store_from(cb, self.block_create_stats)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -14520,6 +17054,21 @@ class McStateExtra(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0xcc26, 16)
+
+            TLBComplex.constants["t_ShardHashes"].store_from(cb, self.shard_hashes)
+            cb.store_slice_or_tlb_ext(self.config, 0x10100)
+            cb.store_ref_or_tlb(self.r1)
+            TLBComplex.constants["t_CurrencyCollection"].store_from(cb, self.global_balance)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -14590,6 +17139,18 @@ class SigPubKey(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x8e81278a, 32)
+
+            cb.store_bitstring_chk(self.pubkey, 256)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -14667,6 +17228,19 @@ class CryptoSignatureSimple(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(5, 4)
+
+            cb.store_bitstring_chk(self.R, 256)
+            cb.store_bitstring_chk(self.s, 256)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -14740,6 +17314,17 @@ class CryptoSignaturePair(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_bitstring_chk(self.node_id_short, 256)
+            TLBComplex.constants["t_CryptoSignature"].store_from(cb, self.sign)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -14828,6 +17413,20 @@ class Certificate(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(4, 4)
+
+            cb.store_slice_or_tlb_ext(self.temp_key, 288)
+            cb.store_uint(self.valid_since, 32)
+            cb.store_uint(self.valid_until, 32)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -14904,6 +17503,18 @@ class CertificateEnv(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0xa419b7d, 28)
+
+            cb.store_slice_or_tlb_ext(self.certificate, 356)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -14985,6 +17596,17 @@ class SignedCertificate(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_slice_or_tlb_ext(self.certificate, 356)
+            TLBComplex.constants["t_CryptoSignature"].store_from(cb, self.certificate_signature)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -15061,6 +17683,16 @@ class CryptoSignature(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_slice_or_tlb_ext(self.x, 516)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_chained_signature(RecordBase):
         def get_tag_enum(self):
             return CryptoSignature.Tag.chained_signature
@@ -15123,6 +17755,19 @@ class CryptoSignature(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(15, 4)
+
+            TLBComplex.constants["t_Ref_SignedCertificate"].store_ref_or_tlb(cb, self.signed_cert)
+            cb.store_slice_or_tlb_ext(self.temp_key_signature, 516)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -15202,6 +17847,18 @@ class McBlockExtra_aux(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_HashmapE_16_CryptoSignaturePair"].store_from(cb, self.prev_blk_signatures)
+            TLBComplex.constants["t_Maybe_Ref_InMsg"].store_from(cb, self.recover_create_msg)
+            TLBComplex.constants["t_Maybe_Ref_InMsg"].store_from(cb, self.mint_msg)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -15297,6 +17954,23 @@ class McBlockExtra(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0xcca5, 16)
+
+            cb.store_uint(self.key_block, 1)
+            TLBComplex.constants["t_ShardHashes"].store_from(cb, self.shard_hashes)
+            TLBComplex.constants["t_ShardFees"].store_from(cb, self.shard_fees)
+            cb.store_ref_or_tlb(self.r1)
+            if (self.key_block > 0):
+                TLBComplex.constants["t_ConfigParams"].store_from(cb, self.config)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -15380,6 +18054,19 @@ class ValidatorDescr(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x53, 8)
+
+            cb.store_slice_or_tlb_ext(self.public_key, 288)
+            cb.store_uint(self.weight, 64)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_validator_addr(RecordBase):
         def get_tag_enum(self):
             return ValidatorDescr.Tag.validator_addr
@@ -15441,6 +18128,20 @@ class ValidatorDescr(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x73, 8)
+
+            cb.store_slice_or_tlb_ext(self.public_key, 288)
+            cb.store_uint(self.weight, 64)
+            cb.store_bitstring_chk(self.adnl_addr, 256)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -15542,6 +18243,26 @@ class ValidatorSet(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(17, 8)
+
+            cb.store_uint(self.utime_since, 32)
+            cb.store_uint(self.utime_until, 32)
+            cb.store_uint(self.total, 16)
+            cb.store_uint(self.main, 16)
+            assert self.main <= self.total, 'Params not equal: main and total'
+
+            assert 1 <= self.main, 'Params not equal: 1 and main'
+
+            TLBComplex.constants["t_Hashmap_16_ValidatorDescr"].store_from(cb, self.list)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_validators_ext(RecordBase):
         def get_tag_enum(self):
             return ValidatorSet.Tag.validators_ext
@@ -15616,6 +18337,27 @@ class ValidatorSet(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(18, 8)
+
+            cb.store_uint(self.utime_since, 32)
+            cb.store_uint(self.utime_until, 32)
+            cb.store_uint(self.total, 16)
+            cb.store_uint(self.main, 16)
+            assert self.main <= self.total, 'Params not equal: main and total'
+
+            assert 1 <= self.main, 'Params not equal: 1 and main'
+
+            cb.store_uint(self.total_weight, 64)
+            TLBComplex.constants["t_HashmapE_16_ValidatorDescr"].store_from(cb, self.list)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -15704,6 +18446,24 @@ class BurningConfig(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 8)
+
+            TLBComplex.constants["t_Maybe_bits256"].store_from(cb, self.blackhole_addr)
+            cb.store_uint(self.fee_burn_num, 32)
+            cb.store_uint(self.fee_burn_denom, 32)
+            assert self.fee_burn_num <= self.fee_burn_denom, 'Params not equal: fee_burn_num and fee_burn_denom'
+
+            assert 1 <= self.fee_burn_denom, 'Params not equal: 1 and fee_burn_denom'
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -15779,6 +18539,19 @@ class GlobalVersion(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0xc4, 8)
+
+            cb.store_uint(self.version, 32)
+            cb.store_uint(self.capabilities, 64)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -15886,6 +18659,25 @@ class ConfigProposalSetup(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x36, 8)
+
+            cb.store_uint(self.min_tot_rounds, 8)
+            cb.store_uint(self.max_tot_rounds, 8)
+            cb.store_uint(self.min_wins, 8)
+            cb.store_uint(self.max_losses, 8)
+            cb.store_uint(self.min_store_sec, 32)
+            cb.store_uint(self.max_store_sec, 32)
+            cb.store_uint(self.bit_price, 32)
+            cb.store_uint(self.cell_price, 32)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -15974,6 +18766,19 @@ class ConfigVotingSetup(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x91, 8)
+
+            TLBComplex.constants["t_Ref_ConfigProposalSetup"].store_ref_or_tlb(cb, self.normal_params)
+            TLBComplex.constants["t_Ref_ConfigProposalSetup"].store_ref_or_tlb(cb, self.critical_params)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -16054,6 +18859,20 @@ class ConfigProposal(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0xf3, 8)
+
+            cb.store_int(self.param_id, 32)
+            TLBComplex.constants["t_Maybe_Ref_Cell"].store_from(cb, self.param_value)
+            TLBComplex.constants["t_Maybe_uint256"].store_from(cb, self.if_hash_equal)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -16172,6 +18991,26 @@ class ConfigProposalStatus(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0xce, 8)
+
+            cb.store_uint(self.expires, 32)
+            TLBComplex.constants["t_Ref_ConfigProposal"].store_ref_or_tlb(cb, self.proposal)
+            cb.store_uint(self.is_critical, 1)
+            TLBComplex.constants["t_HashmapE_16_Truet"].store_from(cb, self.voters)
+            cb.store_int(self.remaining_weight, 64)
+            cb.store_uint(self.validator_set_id, 256)
+            cb.store_uint(self.rounds_remaining, 8)
+            cb.store_uint(self.wins, 8)
+            cb.store_uint(self.losses, 8)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -16255,6 +19094,20 @@ class WorkchainFormat(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 4)
+
+            cb.store_int(self.vm_version, 32)
+            cb.store_uint(self.vm_mode, 64)
+            self.m_ == 1            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_wfmt_ext(RecordBase):
         def get_tag_enum(self):
             return WorkchainFormat.Tag.wfmt_ext
@@ -16326,6 +19179,32 @@ class WorkchainFormat(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 4)
+
+            cb.store_uint(self.min_addr_len, 12)
+            cb.store_uint(self.max_addr_len, 12)
+            cb.store_uint(self.addr_len_step, 12)
+            assert 64 <= self.min_addr_len, 'Params not equal: 64 and min_addr_len'
+
+            assert self.min_addr_len <= self.max_addr_len, 'Params not equal: min_addr_len and max_addr_len'
+
+            assert self.max_addr_len <= 1023, 'Params not equal: max_addr_len and 1023'
+
+            assert self.addr_len_step <= 1023, 'Params not equal: addr_len_step and 1023'
+
+            cb.store_uint(self.workchain_type_id, 32)
+            assert 1 <= self.workchain_type_id, 'Params not equal: 1 and workchain_type_id'
+
+            self.m_ == 0            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -16412,6 +19291,21 @@ class WcSplitMergeTimings(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 4)
+
+            cb.store_uint(self.split_merge_delay, 32)
+            cb.store_uint(self.split_merge_interval, 32)
+            cb.store_uint(self.min_split_merge_interval, 32)
+            cb.store_uint(self.max_split_merge_delay, 32)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -16549,6 +19443,33 @@ class WorkchainDescr(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0xa6, 8)
+
+            cb.store_uint(self.enabled_since, 32)
+            cb.store_uint(self.actual_min_split, 8)
+            cb.store_uint(self.min_split, 8)
+            cb.store_uint(self.max_split, 8)
+            assert self.actual_min_split <= self.min_split, 'Params not equal: actual_min_split and min_split'
+
+            cb.store_uint(self.basic, 1)
+            cb.store_uint(self.active, 1)
+            cb.store_uint(self.accept_msgs, 1)
+            cb.store_uint(self.flags, 13)
+            assert self.flags == 0, 'Params not equal: flags and 0'
+
+            cb.store_bitstring_chk(self.zerostate_root_hash, 256)
+            cb.store_bitstring_chk(self.zerostate_file_hash, 256)
+            cb.store_uint(self.version, 32)
+            self.WorkchainFormat(self.basic).store_from(cb, self.format)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_workchain_v2(RecordBase):
         def get_tag_enum(self):
             return WorkchainDescr.Tag.workchain_v2
@@ -16666,6 +19587,34 @@ class WorkchainDescr(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0xa7, 8)
+
+            cb.store_uint(self.enabled_since, 32)
+            cb.store_uint(self.actual_min_split, 8)
+            cb.store_uint(self.min_split, 8)
+            cb.store_uint(self.max_split, 8)
+            assert self.actual_min_split <= self.min_split, 'Params not equal: actual_min_split and min_split'
+
+            cb.store_uint(self.basic, 1)
+            cb.store_uint(self.active, 1)
+            cb.store_uint(self.accept_msgs, 1)
+            cb.store_uint(self.flags, 13)
+            assert self.flags == 0, 'Params not equal: flags and 0'
+
+            cb.store_bitstring_chk(self.zerostate_root_hash, 256)
+            cb.store_bitstring_chk(self.zerostate_file_hash, 256)
+            cb.store_uint(self.version, 32)
+            self.WorkchainFormat(self.basic).store_from(cb, self.format)
+            cb.store_slice_or_tlb_ext(self.split_merge_timings, 132)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -16747,6 +19696,20 @@ class ComplaintPricing(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(26, 8)
+
+            TLBComplex.constants["t_Grams"].store_from(cb, self.deposit)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.bit_price)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.cell_price)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -16822,6 +19785,19 @@ class BlockCreateFees(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x6b, 8)
+
+            TLBComplex.constants["t_Grams"].store_from(cb, self.masterchain_block_fee)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.basechain_block_fee)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -16913,6 +19889,22 @@ class StoragePrices(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0xcc, 8)
+
+            cb.store_uint(self.utime_since, 32)
+            cb.store_uint(self.bit_price_ps, 64)
+            cb.store_uint(self.cell_price_ps, 64)
+            cb.store_uint(self.mc_bit_price_ps, 64)
+            cb.store_uint(self.mc_cell_price_ps, 64)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -17019,6 +20011,23 @@ class GasLimitsPrices(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0xdd, 8)
+
+            cb.store_uint(self.gas_price, 64)
+            cb.store_uint(self.gas_limit, 64)
+            cb.store_uint(self.gas_credit, 64)
+            cb.store_uint(self.block_gas_limit, 64)
+            cb.store_uint(self.freeze_due_limit, 64)
+            cb.store_uint(self.delete_due_limit, 64)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_gas_prices_ext(RecordBase):
         def get_tag_enum(self):
             return GasLimitsPrices.Tag.gas_prices_ext
@@ -17095,6 +20104,24 @@ class GasLimitsPrices(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0xde, 8)
+
+            cb.store_uint(self.gas_price, 64)
+            cb.store_uint(self.gas_limit, 64)
+            cb.store_uint(self.special_gas_limit, 64)
+            cb.store_uint(self.gas_credit, 64)
+            cb.store_uint(self.block_gas_limit, 64)
+            cb.store_uint(self.freeze_due_limit, 64)
+            cb.store_uint(self.delete_due_limit, 64)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_gas_flat_pfx(RecordBase):
         def get_tag_enum(self):
             return GasLimitsPrices.Tag.gas_flat_pfx
@@ -17150,6 +20177,20 @@ class GasLimitsPrices(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0xd1, 8)
+
+            cb.store_uint(self.flat_gas_limit, 64)
+            cb.store_uint(self.flat_gas_price, 64)
+            self.store_from(cb, self.other)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -17238,6 +20279,24 @@ class ParamLimits(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0xc3, 8)
+
+            cb.store_uint(self.underload, 32)
+            cb.store_uint(self.soft_limit, 32)
+            assert self.underload <= self.soft_limit, 'Params not equal: underload and soft_limit'
+
+            cb.store_uint(self.hard_limit, 32)
+            assert self.soft_limit <= self.hard_limit, 'Params not equal: soft_limit and hard_limit'
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -17338,6 +20397,20 @@ class BlockLimits(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x5d, 8)
+
+            cb.store_slice_or_tlb_ext(self.bytes, 104)
+            cb.store_slice_or_tlb_ext(self.gas, 104)
+            cb.store_slice_or_tlb_ext(self.lt_delta, 104)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -17434,6 +20507,23 @@ class MsgForwardPrices(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0xea, 8)
+
+            cb.store_uint(self.lump_price, 64)
+            cb.store_uint(self.bit_price, 64)
+            cb.store_uint(self.cell_price, 64)
+            cb.store_uint(self.ihr_price_factor, 32)
+            cb.store_uint(self.first_frac, 16)
+            cb.store_uint(self.next_frac, 16)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -17525,6 +20615,21 @@ class CatchainConfig(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0xc1, 8)
+
+            cb.store_uint(self.mc_catchain_lifetime, 32)
+            cb.store_uint(self.shard_catchain_lifetime, 32)
+            cb.store_uint(self.shard_validators_lifetime, 32)
+            cb.store_uint(self.shard_validators_num, 32)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_catchain_config_new(RecordBase):
         def get_tag_enum(self):
             return CatchainConfig.Tag.catchain_config_new
@@ -17597,6 +20702,25 @@ class CatchainConfig(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0xc2, 8)
+
+            cb.store_uint(self.flags, 7)
+            assert self.flags == 0, 'Params not equal: flags and 0'
+
+            cb.store_uint(self.shuffle_mc_validators, 1)
+            cb.store_uint(self.mc_catchain_lifetime, 32)
+            cb.store_uint(self.shard_catchain_lifetime, 32)
+            cb.store_uint(self.shard_validators_lifetime, 32)
+            cb.store_uint(self.shard_validators_num, 32)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -17716,6 +20840,27 @@ class ConsensusConfig(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0xd6, 8)
+
+            cb.store_uint(self.round_candidates, 32)
+            assert 1 <= self.round_candidates, 'Params not equal: 1 and round_candidates'
+
+            cb.store_uint(self.next_candidate_delay_ms, 32)
+            cb.store_uint(self.consensus_timeout_ms, 32)
+            cb.store_uint(self.fast_attempts, 32)
+            cb.store_uint(self.attempt_duration, 32)
+            cb.store_uint(self.catchain_max_deps, 32)
+            cb.store_uint(self.max_block_bytes, 32)
+            cb.store_uint(self.max_collated_bytes, 32)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_consensus_config_new(RecordBase):
         def get_tag_enum(self):
             return ConsensusConfig.Tag.consensus_config_new
@@ -17810,6 +20955,31 @@ class ConsensusConfig(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0xd7, 8)
+
+            cb.store_uint(self.flags, 7)
+            assert self.flags == 0, 'Params not equal: flags and 0'
+
+            cb.store_uint(self.new_catchain_ids, 1)
+            cb.store_uint(self.round_candidates, 8)
+            assert 1 <= self.round_candidates, 'Params not equal: 1 and round_candidates'
+
+            cb.store_uint(self.next_candidate_delay_ms, 32)
+            cb.store_uint(self.consensus_timeout_ms, 32)
+            cb.store_uint(self.fast_attempts, 32)
+            cb.store_uint(self.attempt_duration, 32)
+            cb.store_uint(self.catchain_max_deps, 32)
+            cb.store_uint(self.max_block_bytes, 32)
+            cb.store_uint(self.max_collated_bytes, 32)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_consensus_config_v3(RecordBase):
         def get_tag_enum(self):
@@ -17910,6 +21080,32 @@ class ConsensusConfig(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0xd8, 8)
+
+            cb.store_uint(self.flags, 7)
+            assert self.flags == 0, 'Params not equal: flags and 0'
+
+            cb.store_uint(self.new_catchain_ids, 1)
+            cb.store_uint(self.round_candidates, 8)
+            assert 1 <= self.round_candidates, 'Params not equal: 1 and round_candidates'
+
+            cb.store_uint(self.next_candidate_delay_ms, 32)
+            cb.store_uint(self.consensus_timeout_ms, 32)
+            cb.store_uint(self.fast_attempts, 32)
+            cb.store_uint(self.attempt_duration, 32)
+            cb.store_uint(self.catchain_max_deps, 32)
+            cb.store_uint(self.max_block_bytes, 32)
+            cb.store_uint(self.max_collated_bytes, 32)
+            cb.store_uint(self.proto_version, 16)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_consensus_config_v4(RecordBase):
         def get_tag_enum(self):
@@ -18016,6 +21212,33 @@ class ConsensusConfig(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0xd9, 8)
+
+            cb.store_uint(self.flags, 7)
+            assert self.flags == 0, 'Params not equal: flags and 0'
+
+            cb.store_uint(self.new_catchain_ids, 1)
+            cb.store_uint(self.round_candidates, 8)
+            assert 1 <= self.round_candidates, 'Params not equal: 1 and round_candidates'
+
+            cb.store_uint(self.next_candidate_delay_ms, 32)
+            cb.store_uint(self.consensus_timeout_ms, 32)
+            cb.store_uint(self.fast_attempts, 32)
+            cb.store_uint(self.attempt_duration, 32)
+            cb.store_uint(self.catchain_max_deps, 32)
+            cb.store_uint(self.max_block_bytes, 32)
+            cb.store_uint(self.max_collated_bytes, 32)
+            cb.store_uint(self.proto_version, 16)
+            cb.store_uint(self.catchain_max_blocks_coeff, 32)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -18109,6 +21332,21 @@ class ValidatorTempKey(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(3, 4)
+
+            cb.store_bitstring_chk(self.adnl_addr, 256)
+            cb.store_slice_or_tlb_ext(self.temp_public_key, 288)
+            cb.store_uint(self.seqno, 32)
+            cb.store_uint(self.valid_until, 32)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -18190,6 +21428,19 @@ class ValidatorSignedTempKey(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(4, 4)
+
+            TLBComplex.constants["t_Ref_ValidatorTempKey"].store_ref_or_tlb(cb, self.key)
+            TLBComplex.constants["t_CryptoSignature"].store_from(cb, self.signature)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -18312,6 +21563,28 @@ class MisbehaviourPunishmentConfig(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 8)
+
+            TLBComplex.constants["t_Grams"].store_from(cb, self.default_flat_fine)
+            cb.store_uint(self.default_proportional_fine, 32)
+            cb.store_uint(self.severity_flat_mult, 16)
+            cb.store_uint(self.severity_proportional_mult, 16)
+            cb.store_uint(self.unpunishable_interval, 16)
+            cb.store_uint(self.long_interval, 16)
+            cb.store_uint(self.long_flat_mult, 16)
+            cb.store_uint(self.long_proportional_mult, 16)
+            cb.store_uint(self.medium_interval, 16)
+            cb.store_uint(self.medium_flat_mult, 16)
+            cb.store_uint(self.medium_proportional_mult, 16)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -18413,6 +21686,23 @@ class SizeLimitsConfig(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 8)
+
+            cb.store_uint(self.max_msg_bits, 32)
+            cb.store_uint(self.max_msg_cells, 32)
+            cb.store_uint(self.max_library_cells, 32)
+            cb.store_uint(self.max_vm_data_depth, 16)
+            cb.store_uint(self.max_ext_msg_size, 32)
+            cb.store_uint(self.max_ext_msg_depth, 16)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_size_limits_config_v2(RecordBase):
         def get_tag_enum(self):
             return SizeLimitsConfig.Tag.size_limits_config_v2
@@ -18494,6 +21784,25 @@ class SizeLimitsConfig(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(2, 8)
+
+            cb.store_uint(self.max_msg_bits, 32)
+            cb.store_uint(self.max_msg_cells, 32)
+            cb.store_uint(self.max_library_cells, 32)
+            cb.store_uint(self.max_vm_data_depth, 16)
+            cb.store_uint(self.max_ext_msg_size, 32)
+            cb.store_uint(self.max_ext_msg_depth, 16)
+            cb.store_uint(self.max_acc_state_cells, 32)
+            cb.store_uint(self.max_acc_state_bits, 32)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -18569,6 +21878,19 @@ class SuspendedAddressList(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 8)
+
+            TLBComplex.constants["t_HashmapE_288_Unit"].store_from(cb, self.addresses)
+            cb.store_uint(self.suspended_until, 32)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -18653,6 +21975,19 @@ class OracleBridgeParams(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_bitstring_chk(self.bridge_address, 256)
+            cb.store_bitstring_chk(self.oracle_mutlisig_address, 256)
+            TLBComplex.constants["t_HashmapE_256_uint256"].store_from(cb, self.oracles)
+            cb.store_bitstring_chk(self.external_chain_address, 256)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -18747,6 +22082,21 @@ class JettonBridgePrices(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_Coins"].store_from(cb, self.bridge_burn_fee)
+            TLBComplex.constants["t_Coins"].store_from(cb, self.bridge_mint_fee)
+            TLBComplex.constants["t_Coins"].store_from(cb, self.wallet_min_tons_for_storage)
+            TLBComplex.constants["t_Coins"].store_from(cb, self.wallet_gas_consumption)
+            TLBComplex.constants["t_Coins"].store_from(cb, self.minter_min_tons_for_storage)
+            TLBComplex.constants["t_Coins"].store_from(cb, self.discover_gas_consumption)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -18844,6 +22194,22 @@ class JettonBridgeParams(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 8)
+
+            cb.store_bitstring_chk(self.bridge_address, 256)
+            cb.store_bitstring_chk(self.oracles_address, 256)
+            TLBComplex.constants["t_HashmapE_256_uint256"].store_from(cb, self.oracles)
+            cb.store_uint(self.state_flags, 8)
+            TLBComplex.constants["t_Coins"].store_from(cb, self.burn_bridge_fee)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_jetton_bridge_params_v1(RecordBase):
         def get_tag_enum(self):
             return JettonBridgeParams.Tag.jetton_bridge_params_v1
@@ -18920,6 +22286,23 @@ class JettonBridgeParams(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 8)
+
+            cb.store_bitstring_chk(self.bridge_address, 256)
+            cb.store_bitstring_chk(self.oracles_address, 256)
+            TLBComplex.constants["t_HashmapE_256_uint256"].store_from(cb, self.oracles)
+            cb.store_uint(self.state_flags, 8)
+            TLBComplex.constants["t_Ref_JettonBridgePrices"].store_ref_or_tlb(cb, self.prices)
+            cb.store_bitstring_chk(self.external_chain_address, 256)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -19177,6 +22560,17 @@ class ConfigParam(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_bitstring_chk(self.config_addr, 256)
+            self.m_ == 0            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_cons1(RecordBase):
         def get_tag_enum(self):
             return ConfigParam.Tag.cons1
@@ -19221,6 +22615,17 @@ class ConfigParam(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_bitstring_chk(self.elector_addr, 256)
+            self.m_ == 1            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_cons2(RecordBase):
         def get_tag_enum(self):
@@ -19267,6 +22672,17 @@ class ConfigParam(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_bitstring_chk(self.minter_addr, 256)
+            self.m_ == 2            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_cons3(RecordBase):
         def get_tag_enum(self):
             return ConfigParam.Tag.cons3
@@ -19311,6 +22727,17 @@ class ConfigParam(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_bitstring_chk(self.fee_collector_addr, 256)
+            self.m_ == 3            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_cons4(RecordBase):
         def get_tag_enum(self):
@@ -19357,6 +22784,17 @@ class ConfigParam(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_bitstring_chk(self.dns_root_addr, 256)
+            self.m_ == 4            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_cons5(RecordBase):
         def get_tag_enum(self):
             return ConfigParam.Tag.cons5
@@ -19401,6 +22839,17 @@ class ConfigParam(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_BurningConfig"].store_from(cb, self.x)
+            self.m_ == 5            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_cons6(RecordBase):
         def get_tag_enum(self):
@@ -19452,6 +22901,18 @@ class ConfigParam(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_Grams"].store_from(cb, self.mint_new_price)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.mint_add_price)
+            self.m_ == 6            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_cons7(RecordBase):
         def get_tag_enum(self):
             return ConfigParam.Tag.cons7
@@ -19496,6 +22957,17 @@ class ConfigParam(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_ExtraCurrencyCollection"].store_from(cb, self.to_mint)
+            self.m_ == 7            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_cons8(RecordBase):
         def get_tag_enum(self):
@@ -19548,6 +23020,17 @@ class ConfigParam(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_slice_or_tlb_ext(self.x, 104)
+            self.m_ == 8            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_cons9(RecordBase):
         def get_tag_enum(self):
             return ConfigParam.Tag.cons9
@@ -19593,6 +23076,17 @@ class ConfigParam(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_Hashmap_32_Truet"].store_from(cb, self.mandatory_params)
+            self.m_ == 9            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_cons10(RecordBase):
         def get_tag_enum(self):
             return ConfigParam.Tag.cons10
@@ -19637,6 +23131,17 @@ class ConfigParam(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_Hashmap_32_Truet"].store_from(cb, self.critical_params)
+            self.m_ == 10            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_cons11(RecordBase):
         def get_tag_enum(self):
@@ -19689,6 +23194,17 @@ class ConfigParam(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_slice_or_tlb_ext(self.x, 0x20008)
+            self.m_ == 11            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_cons12(RecordBase):
         def get_tag_enum(self):
             return ConfigParam.Tag.cons12
@@ -19733,6 +23249,17 @@ class ConfigParam(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_HashmapE_32_WorkchainDescr"].store_from(cb, self.workchains)
+            self.m_ == 12            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_cons13(RecordBase):
         def get_tag_enum(self):
@@ -19779,6 +23306,17 @@ class ConfigParam(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_ComplaintPricing"].store_from(cb, self.x)
+            self.m_ == 13            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_cons14(RecordBase):
         def get_tag_enum(self):
             return ConfigParam.Tag.cons14
@@ -19823,6 +23361,17 @@ class ConfigParam(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_BlockCreateFees"].store_from(cb, self.x)
+            self.m_ == 14            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_cons15(RecordBase):
         def get_tag_enum(self):
@@ -19883,6 +23432,20 @@ class ConfigParam(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(self.validators_elected_for, 32)
+            cb.store_uint(self.elections_start_before, 32)
+            cb.store_uint(self.elections_end_before, 32)
+            cb.store_uint(self.stake_held_for, 32)
+            self.m_ == 15            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_cons16(RecordBase):
         def get_tag_enum(self):
@@ -19945,6 +23508,25 @@ class ConfigParam(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(self.max_validators, 16)
+            cb.store_uint(self.max_main_validators, 16)
+            cb.store_uint(self.min_validators, 16)
+            assert self.max_main_validators <= self.max_validators, 'Params not equal: max_main_validators and max_validators'
+
+            assert self.min_validators <= self.max_main_validators, 'Params not equal: min_validators and max_main_validators'
+
+            assert 1 <= self.min_validators, 'Params not equal: 1 and min_validators'
+
+            self.m_ == 16            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_cons17(RecordBase):
         def get_tag_enum(self):
             return ConfigParam.Tag.cons17
@@ -20005,6 +23587,20 @@ class ConfigParam(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_Grams"].store_from(cb, self.min_stake)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.max_stake)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.min_total_stake)
+            cb.store_uint(self.max_stake_factor, 32)
+            self.m_ == 17            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_cons18(RecordBase):
         def get_tag_enum(self):
             return ConfigParam.Tag.cons18
@@ -20049,6 +23645,17 @@ class ConfigParam(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_Hashmap_32_StoragePrices"].store_from(cb, self.x)
+            self.m_ == 18            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_cons19(RecordBase):
         def get_tag_enum(self):
@@ -20095,6 +23702,17 @@ class ConfigParam(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_int(self.global_id, 32)
+            self.m_ == 19            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_config_mc_gas_prices(RecordBase):
         def get_tag_enum(self):
             return ConfigParam.Tag.config_mc_gas_prices
@@ -20140,6 +23758,17 @@ class ConfigParam(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_GasLimitsPrices"].store_from(cb, self.x)
+            self.m_ == 20            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_config_gas_prices(RecordBase):
         def get_tag_enum(self):
             return ConfigParam.Tag.config_gas_prices
@@ -20184,6 +23813,17 @@ class ConfigParam(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_GasLimitsPrices"].store_from(cb, self.x)
+            self.m_ == 21            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_config_mc_block_limits(RecordBase):
         def get_tag_enum(self):
@@ -20236,6 +23876,17 @@ class ConfigParam(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_slice_or_tlb_ext(self.x, 320)
+            self.m_ == 22            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_config_block_limits(RecordBase):
         def get_tag_enum(self):
             return ConfigParam.Tag.config_block_limits
@@ -20286,6 +23937,17 @@ class ConfigParam(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_slice_or_tlb_ext(self.x, 320)
+            self.m_ == 23            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_config_mc_fwd_prices(RecordBase):
         def get_tag_enum(self):
@@ -20338,6 +24000,17 @@ class ConfigParam(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_slice_or_tlb_ext(self.x, 264)
+            self.m_ == 24            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_config_fwd_prices(RecordBase):
         def get_tag_enum(self):
             return ConfigParam.Tag.config_fwd_prices
@@ -20389,6 +24062,17 @@ class ConfigParam(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_slice_or_tlb_ext(self.x, 264)
+            self.m_ == 25            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_cons28(RecordBase):
         def get_tag_enum(self):
             return ConfigParam.Tag.cons28
@@ -20433,6 +24117,17 @@ class ConfigParam(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_CatchainConfig"].store_from(cb, self.x)
+            self.m_ == 28            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_cons29(RecordBase):
         def get_tag_enum(self):
@@ -20479,6 +24174,17 @@ class ConfigParam(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_ConsensusConfig"].store_from(cb, self.x)
+            self.m_ == 29            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_cons31(RecordBase):
         def get_tag_enum(self):
             return ConfigParam.Tag.cons31
@@ -20523,6 +24229,17 @@ class ConfigParam(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_HashmapE_256_Truet"].store_from(cb, self.fundamental_smc_addr)
+            self.m_ == 31            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_cons32(RecordBase):
         def get_tag_enum(self):
@@ -20569,6 +24286,17 @@ class ConfigParam(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_ValidatorSet"].store_from(cb, self.prev_validators)
+            self.m_ == 32            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_cons33(RecordBase):
         def get_tag_enum(self):
             return ConfigParam.Tag.cons33
@@ -20613,6 +24341,17 @@ class ConfigParam(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_ValidatorSet"].store_from(cb, self.prev_temp_validators)
+            self.m_ == 33            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_cons34(RecordBase):
         def get_tag_enum(self):
@@ -20659,6 +24398,17 @@ class ConfigParam(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_ValidatorSet"].store_from(cb, self.cur_validators)
+            self.m_ == 34            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_cons35(RecordBase):
         def get_tag_enum(self):
             return ConfigParam.Tag.cons35
@@ -20703,6 +24453,17 @@ class ConfigParam(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_ValidatorSet"].store_from(cb, self.cur_temp_validators)
+            self.m_ == 35            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_cons36(RecordBase):
         def get_tag_enum(self):
@@ -20749,6 +24510,17 @@ class ConfigParam(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_ValidatorSet"].store_from(cb, self.next_validators)
+            self.m_ == 36            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_cons37(RecordBase):
         def get_tag_enum(self):
             return ConfigParam.Tag.cons37
@@ -20793,6 +24565,17 @@ class ConfigParam(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_ValidatorSet"].store_from(cb, self.next_temp_validators)
+            self.m_ == 37            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_cons39(RecordBase):
         def get_tag_enum(self):
@@ -20839,6 +24622,17 @@ class ConfigParam(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_HashmapE_256_ValidatorSignedTempKey"].store_from(cb, self.x)
+            self.m_ == 39            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_cons40(RecordBase):
         def get_tag_enum(self):
             return ConfigParam.Tag.cons40
@@ -20883,6 +24677,17 @@ class ConfigParam(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_MisbehaviourPunishmentConfig"].store_from(cb, self.x)
+            self.m_ == 40            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_cons43(RecordBase):
         def get_tag_enum(self):
@@ -20929,6 +24734,17 @@ class ConfigParam(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_SizeLimitsConfig"].store_from(cb, self.x)
+            self.m_ == 43            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_cons44(RecordBase):
         def get_tag_enum(self):
             return ConfigParam.Tag.cons44
@@ -20973,6 +24789,17 @@ class ConfigParam(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_SuspendedAddressList"].store_from(cb, self.x)
+            self.m_ == 44            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_cons71(RecordBase):
         def get_tag_enum(self):
@@ -21019,6 +24846,17 @@ class ConfigParam(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_OracleBridgeParams"].store_from(cb, self.x)
+            self.m_ == 71            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_cons72(RecordBase):
         def get_tag_enum(self):
             return ConfigParam.Tag.cons72
@@ -21063,6 +24901,17 @@ class ConfigParam(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_OracleBridgeParams"].store_from(cb, self.x)
+            self.m_ == 72            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_cons73(RecordBase):
         def get_tag_enum(self):
@@ -21109,6 +24958,17 @@ class ConfigParam(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_OracleBridgeParams"].store_from(cb, self.x)
+            self.m_ == 73            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_cons79(RecordBase):
         def get_tag_enum(self):
             return ConfigParam.Tag.cons79
@@ -21153,6 +25013,17 @@ class ConfigParam(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_JettonBridgeParams"].store_from(cb, self.x)
+            self.m_ == 79            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_cons81(RecordBase):
         def get_tag_enum(self):
@@ -21199,6 +25070,17 @@ class ConfigParam(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_JettonBridgeParams"].store_from(cb, self.x)
+            self.m_ == 81            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_cons82(RecordBase):
         def get_tag_enum(self):
             return ConfigParam.Tag.cons82
@@ -21243,6 +25125,17 @@ class ConfigParam(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_JettonBridgeParams"].store_from(cb, self.x)
+            self.m_ == 82            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -21322,6 +25215,18 @@ class BlockSignaturesPure(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(self.sig_count, 32)
+            cb.store_uint(self.sig_weight, 64)
+            TLBComplex.constants["t_HashmapE_16_CryptoSignaturePair"].store_from(cb, self.signatures)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -21404,6 +25309,19 @@ class BlockSignatures(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(17, 8)
+
+            cb.store_slice_or_tlb_ext(self.validator_info, 64)
+            TLBComplex.constants["t_BlockSignaturesPure"].store_from(cb, self.pure_signatures)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -21498,6 +25416,20 @@ class BlockProof(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0xc3, 8)
+
+            cb.store_slice_or_tlb_ext(self.proof_for, 648)
+            TLBComplex.constants["t_RefCell"].store_ref_or_tlb(cb, self.root)
+            TLBComplex.constants["t_Maybe_Ref_BlockSignatures"].store_from(cb, self.signatures)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -21570,6 +25502,16 @@ class ProofChain(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            self.m_ == 0            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_chain_link(RecordBase):
         def get_tag_enum(self):
             return ProofChain.Tag.chain_link
@@ -21633,6 +25575,21 @@ class ProofChain(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            assert self.add_r1("n", 1, self.m_), 'Add_r1 failed'
+
+            TLBComplex.constants["t_RefCell"].store_ref_or_tlb(cb, self.root)
+            if (self.n > 0):
+                
+                cb.store_ref_or_tlb(self.prev)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -21730,6 +25687,25 @@ class TopBlockDescr(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0xd5, 8)
+
+            cb.store_slice_or_tlb_ext(self.proof_for, 648)
+            TLBComplex.constants["t_Maybe_Ref_BlockSignatures"].store_from(cb, self.signatures)
+            cb.store_uint(self.len, 8)
+            assert 1 <= self.len, 'Params not equal: 1 and len'
+
+            assert self.len <= 8, 'Params not equal: len and 8'
+
+            self.ProofChain(self.len).store_from(cb, self.chain)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -21800,6 +25776,18 @@ class TopBlockDescrSet(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x4ac789f3, 32)
+
+            TLBComplex.constants["t_HashmapE_96_Ref_TopBlockDescr"].store_from(cb, self.collection)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -21905,6 +25893,21 @@ class ProducerInfo(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x34, 8)
+
+            cb.store_uint(self.utime, 32)
+            cb.store_slice_or_tlb_ext(self.mc_blk_ref, 608)
+            TLBComplex.constants["t_Ref_MERKLE_PROOF_Block"].store_ref_or_tlb(cb, self.state_proof)
+            TLBComplex.constants["t_Ref_MERKLE_PROOF_ShardState"].store_ref_or_tlb(cb, self.prod_proof)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -21988,6 +25991,19 @@ class ComplaintDescr(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x450e8bd9, 32)
+
+            cb.store_uint(self.from_utime, 32)
+            TLBComplex.constants["t_Ref_ProducerInfo"].store_ref_or_tlb(cb, self.prod_info)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_no_blk_gen_diff(RecordBase):
         def get_tag_enum(self):
             return ComplaintDescr.Tag.no_blk_gen_diff
@@ -22050,6 +26066,19 @@ class ComplaintDescr(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0xc737b0ca, 32)
+
+            TLBComplex.constants["t_Ref_ProducerInfo"].store_ref_or_tlb(cb, self.prod_info_old)
+            TLBComplex.constants["t_Ref_ProducerInfo"].store_ref_or_tlb(cb, self.prod_info_new)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -22163,6 +26192,25 @@ class ValidatorComplaint(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0xbc, 8)
+
+            cb.store_bitstring_chk(self.validator_pubkey, 256)
+            TLBComplex.constants["t_Ref_ComplaintDescr"].store_ref_or_tlb(cb, self.description)
+            cb.store_uint(self.created_at, 32)
+            cb.store_uint(self.severity, 8)
+            cb.store_uint(self.reward_addr, 256)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.paid)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.suggested_fine)
+            cb.store_uint(self.suggested_fine_part, 32)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -22254,6 +26302,21 @@ class ValidatorComplaintStatus(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x2d, 8)
+
+            TLBComplex.constants["t_Ref_ValidatorComplaint"].store_ref_or_tlb(cb, self.complaint)
+            TLBComplex.constants["t_HashmapE_16_Truet"].store_from(cb, self.voters)
+            cb.store_uint(self.vset_id, 256)
+            cb.store_int(self.weight_remaining, 64)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -22354,6 +26417,24 @@ class VmCellSlice(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_RefCell"].store_ref_or_tlb(cb, self.cell)
+            cb.store_uint(self.st_bits, 10)
+            cb.store_uint(self.end_bits, 10)
+            assert self.st_bits <= self.end_bits, 'Params not equal: st_bits and end_bits'
+
+            cb.store_uint_leq(4, self.st_ref)
+            cb.store_uint_leq(4, self.end_ref)
+            assert self.st_ref <= self.end_ref, 'Params not equal: st_ref and end_ref'
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -22427,6 +26508,16 @@ class VmTupleRef(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            self.m_ == 0            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_vm_tupref_single(RecordBase):
         def get_tag_enum(self):
             return VmTupleRef.Tag.vm_tupref_single
@@ -22477,6 +26568,17 @@ class VmTupleRef(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_Ref_VmStackValue"].store_ref_or_tlb(cb, self.entry)
+            self.m_ == 1            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_vm_tupref_any(RecordBase):
         def get_tag_enum(self):
@@ -22533,6 +26635,18 @@ class VmTupleRef(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            assert self.add_r1("n", 2, self.m_), 'Add_r1 failed'
+
+            cb.store_ref_or_tlb(self.ref)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -22606,6 +26720,16 @@ class VmTuple(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            self.m_ == 0            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_vm_tuple_tcons(RecordBase):
         def get_tag_enum(self):
             return VmTuple.Tag.vm_tuple_tcons
@@ -22666,6 +26790,19 @@ class VmTuple(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            assert self.add_r1("n", 1, self.m_), 'Add_r1 failed'
+
+            self.VmTupleRef(self.n).store_from(cb, self.head)
+            TLBComplex.constants["t_Ref_VmStackValue"].store_ref_or_tlb(cb, self.tail)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -22757,6 +26894,17 @@ class VmStackValue(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 8)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_vm_stk_tinyint(RecordBase):
         def get_tag_enum(self):
             return VmStackValue.Tag.vm_stk_tinyint
@@ -22802,6 +26950,18 @@ class VmStackValue(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 8)
+
+            cb.store_int(self.value, 64)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_vm_stk_int(RecordBase):
         def get_tag_enum(self):
@@ -22849,6 +27009,18 @@ class VmStackValue(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x100, 15)
+
+            cb.store_int(self.value, 257)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_vm_stk_nan(RecordBase):
         def get_tag_enum(self):
             return VmStackValue.Tag.vm_stk_nan
@@ -22887,6 +27059,17 @@ class VmStackValue(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x2ff, 16)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_vm_stk_cell(RecordBase):
         def get_tag_enum(self):
@@ -22940,6 +27123,18 @@ class VmStackValue(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(3, 8)
+
+            TLBComplex.constants["t_RefCell"].store_ref_or_tlb(cb, self.cell)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_vm_stk_slice(RecordBase):
         def get_tag_enum(self):
             return VmStackValue.Tag.vm_stk_slice
@@ -22991,6 +27186,18 @@ class VmStackValue(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(4, 8)
+
+            cb.store_slice_or_tlb_ext(self.x, 0x1001a)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_vm_stk_builder(RecordBase):
         def get_tag_enum(self):
@@ -23044,6 +27251,18 @@ class VmStackValue(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(5, 8)
+
+            TLBComplex.constants["t_RefCell"].store_ref_or_tlb(cb, self.cell)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_vm_stk_cont(RecordBase):
         def get_tag_enum(self):
             return VmStackValue.Tag.vm_stk_cont
@@ -23089,6 +27308,18 @@ class VmStackValue(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(6, 8)
+
+            TLBComplex.constants["t_VmCont"].store_from(cb, self.cont)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_vm_stk_tuple(RecordBase):
         def get_tag_enum(self):
@@ -23140,6 +27371,19 @@ class VmStackValue(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(7, 8)
+
+            cb.store_uint(self.len, 16)
+            self.VmTuple(self.len).store_from(cb, self.data)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -23214,6 +27458,17 @@ class VmStack(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(self.depth, 24)
+            self.VmStackList(self.depth).store_from(cb, self.stack)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -23310,6 +27565,19 @@ class VmStackList(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            assert self.add_r1("n", 1, self.m_), 'Add_r1 failed'
+
+            cb.store_ref_or_tlb(self.rest)
+            TLBComplex.constants["t_VmStackValue"].store_from(cb, self.tos)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_vm_stk_nil(RecordBase):
         def get_tag_enum(self):
             return VmStackList.Tag.vm_stk_nil
@@ -23347,6 +27615,16 @@ class VmStackList(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            self.m_ == 0            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -23416,6 +27694,16 @@ class VmSaveList(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_HashmapE_4_VmStackValue"].store_from(cb, self.cregs)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -23496,6 +27784,18 @@ class VmGasLimits_aux(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_int(self.max_limit, 64)
+            cb.store_int(self.cur_limit, 64)
+            cb.store_int(self.credit, 64)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -23570,6 +27870,17 @@ class VmGasLimits(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_int(self.remaining, 64)
+            cb.store_ref_or_tlb(self.r1)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -23638,6 +27949,16 @@ class VmLibraries(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_HashmapE_256_Ref_Cell"].store_from(cb, self.libraries)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -23722,6 +28043,19 @@ class VmControlData(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_Maybe_uint13"].store_from(cb, self.nargs)
+            TLBComplex.constants["t_Maybe_VmStack"].store_from(cb, self.stack)
+            TLBComplex.constants["t_VmSaveList"].store_from(cb, self.save)
+            TLBComplex.constants["t_Maybe_int16"].store_from(cb, self.cp)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -23814,6 +28148,19 @@ class VmCont(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 2)
+
+            TLBComplex.constants["t_VmControlData"].store_from(cb, self.cdata)
+            cb.store_slice_or_tlb_ext(self.code, 0x1001a)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_vmc_envelope(RecordBase):
         def get_tag_enum(self):
             return VmCont.Tag.vmc_envelope
@@ -23871,6 +28218,19 @@ class VmCont(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 2)
+
+            TLBComplex.constants["t_VmControlData"].store_from(cb, self.cdata)
+            TLBComplex.constants["t_Ref_VmCont"].store_ref_or_tlb(cb, self.next)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_vmc_quit(RecordBase):
         def get_tag_enum(self):
             return VmCont.Tag.vmc_quit
@@ -23917,6 +28277,18 @@ class VmCont(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(8, 4)
+
+            cb.store_int(self.exit_code, 32)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_vmc_quit_exc(RecordBase):
         def get_tag_enum(self):
             return VmCont.Tag.vmc_quit_exc
@@ -23955,6 +28327,17 @@ class VmCont(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(9, 4)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_vmc_repeat(RecordBase):
         def get_tag_enum(self):
@@ -24024,6 +28407,20 @@ class VmCont(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(20, 5)
+
+            cb.store_uint(self.count, 63)
+            TLBComplex.constants["t_Ref_VmCont"].store_ref_or_tlb(cb, self.body)
+            TLBComplex.constants["t_Ref_VmCont"].store_ref_or_tlb(cb, self.after)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_vmc_until(RecordBase):
         def get_tag_enum(self):
             return VmCont.Tag.vmc_until
@@ -24087,6 +28484,19 @@ class VmCont(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x30, 6)
+
+            TLBComplex.constants["t_Ref_VmCont"].store_ref_or_tlb(cb, self.body)
+            TLBComplex.constants["t_Ref_VmCont"].store_ref_or_tlb(cb, self.after)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_vmc_again(RecordBase):
         def get_tag_enum(self):
             return VmCont.Tag.vmc_again
@@ -24138,6 +28548,18 @@ class VmCont(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x31, 6)
+
+            TLBComplex.constants["t_Ref_VmCont"].store_ref_or_tlb(cb, self.body)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_vmc_while_cond(RecordBase):
         def get_tag_enum(self):
@@ -24213,6 +28635,20 @@ class VmCont(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x32, 6)
+
+            TLBComplex.constants["t_Ref_VmCont"].store_ref_or_tlb(cb, self.cond)
+            TLBComplex.constants["t_Ref_VmCont"].store_ref_or_tlb(cb, self.body)
+            TLBComplex.constants["t_Ref_VmCont"].store_ref_or_tlb(cb, self.after)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_vmc_while_body(RecordBase):
         def get_tag_enum(self):
             return VmCont.Tag.vmc_while_body
@@ -24287,6 +28723,20 @@ class VmCont(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x33, 6)
+
+            TLBComplex.constants["t_Ref_VmCont"].store_ref_or_tlb(cb, self.cond)
+            TLBComplex.constants["t_Ref_VmCont"].store_ref_or_tlb(cb, self.body)
+            TLBComplex.constants["t_Ref_VmCont"].store_ref_or_tlb(cb, self.after)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_vmc_pushint(RecordBase):
         def get_tag_enum(self):
             return VmCont.Tag.vmc_pushint
@@ -24343,6 +28793,19 @@ class VmCont(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(15, 4)
+
+            cb.store_int(self.value, 32)
+            TLBComplex.constants["t_Ref_VmCont"].store_ref_or_tlb(cb, self.next)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -24412,6 +28875,16 @@ class DNS_RecordSet(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_HashmapE_256_Ref_DNSRecord"].store_from(cb, self.x)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -24503,6 +28976,18 @@ class TextChunkRef(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            assert self.add_r1("n", 1, self.m_), 'Add_r1 failed'
+
+            cb.store_ref_or_tlb(self.ref)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_chunk_ref_empty(RecordBase):
         def get_tag_enum(self):
             return TextChunkRef.Tag.chunk_ref_empty
@@ -24540,6 +29025,16 @@ class TextChunkRef(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            self.m_ == 0            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -24636,6 +29131,21 @@ class TextChunks(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            assert self.add_r1("n", 1, self.m_), 'Add_r1 failed'
+
+            cb.store_uint(self.len, 8)
+            cb.store_bitstring_chk(self.data, 8 * self.len)
+
+            self.TextChunkRef(self.n).store_from(cb, self.next)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_text_chunk_empty(RecordBase):
         def get_tag_enum(self):
             return TextChunks.Tag.text_chunk_empty
@@ -24673,6 +29183,16 @@ class TextChunks(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            self.m_ == 0            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -24748,6 +29268,17 @@ class Text(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(self.chunks, 8)
+            self.TextChunks(self.chunks).store_from(cb, self.rest)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -24813,6 +29344,17 @@ class ProtoList(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 1)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_proto_list_next(RecordBase):
         def get_tag_enum(self):
             return ProtoList.Tag.proto_list_next
@@ -24863,6 +29405,19 @@ class ProtoList(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 1)
+
+            TLBComplex.constants["t_Protocol"].store_enum_from(cb, self.head)
+            self.store_from(cb, self.tail)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -24939,6 +29494,17 @@ class Protocol(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x4854, 16)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -25004,6 +29570,17 @@ class SmcCapList(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 1)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_cap_list_next(RecordBase):
         def get_tag_enum(self):
             return SmcCapList.Tag.cap_list_next
@@ -25054,6 +29631,19 @@ class SmcCapList(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 1)
+
+            TLBComplex.constants["t_SmcCapability"].store_from(cb, self.head)
+            self.store_from(cb, self.tail)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -25122,6 +29712,17 @@ class SmcCapability(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x5371, 16)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_cap_method_pubkey(RecordBase):
         def get_tag_enum(self):
             return SmcCapability.Tag.cap_method_pubkey
@@ -25161,6 +29762,17 @@ class SmcCapability(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x71f4, 16)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_cap_is_wallet(RecordBase):
         def get_tag_enum(self):
             return SmcCapability.Tag.cap_is_wallet
@@ -25199,6 +29811,17 @@ class SmcCapability(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x2177, 16)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_cap_name(RecordBase):
         def get_tag_enum(self):
@@ -25245,6 +29868,18 @@ class SmcCapability(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0xff, 8)
+
+            TLBComplex.constants["t_Text"].store_from(cb, self.name)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -25321,6 +29956,18 @@ class DNSRecord(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x1eda, 16)
+
+            TLBComplex.constants["t_Text"].store_from(cb, self.x)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_dns_next_resolver(RecordBase):
         def get_tag_enum(self):
             return DNSRecord.Tag.dns_next_resolver
@@ -25366,6 +30013,18 @@ class DNSRecord(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0xba93, 16)
+
+            TLBComplex.constants["t_MsgAddressInt"].store_from(cb, self.resolver)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     class Record_dns_adnl_address(RecordBase):
         def get_tag_enum(self):
@@ -25427,6 +30086,23 @@ class DNSRecord(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0xad01, 16)
+
+            cb.store_bitstring_chk(self.adnl_addr, 256)
+            cb.store_uint(self.flags, 8)
+            assert self.flags <= 1, 'Params not equal: flags and 1'
+
+            if ((self.flags & (1 << 0)) != 0):
+                TLBComplex.constants["t_ProtoList"].store_from(cb, self.proto_list)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_dns_smc_address(RecordBase):
         def get_tag_enum(self):
             return DNSRecord.Tag.dns_smc_address
@@ -25487,6 +30163,23 @@ class DNSRecord(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x9fd3, 16)
+
+            TLBComplex.constants["t_MsgAddressInt"].store_from(cb, self.smc_addr)
+            cb.store_uint(self.flags, 8)
+            assert self.flags <= 1, 'Params not equal: flags and 1'
+
+            if ((self.flags & (1 << 0)) != 0):
+                TLBComplex.constants["t_SmcCapList"].store_from(cb, self.cap_list)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_dns_storage_address(RecordBase):
         def get_tag_enum(self):
             return DNSRecord.Tag.dns_storage_address
@@ -25532,6 +30225,18 @@ class DNSRecord(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x7473, 16)
+
+            cb.store_bitstring_chk(self.bag_id, 256)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -25649,6 +30354,23 @@ class ChanConfig(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(self.init_timeout, 32)
+            cb.store_uint(self.close_timeout, 32)
+            cb.store_bitstring_chk(self.a_key, 256)
+            cb.store_bitstring_chk(self.b_key, 256)
+            TLBComplex.constants["t_Ref_MsgAddressInt"].store_ref_or_tlb(cb, self.a_addr)
+            TLBComplex.constants["t_Ref_MsgAddressInt"].store_ref_or_tlb(cb, self.b_addr)
+            cb.store_uint(self.channel_id, 64)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.min_A_extra)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -25752,6 +30474,24 @@ class ChanState(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 3)
+
+            cb.store_uint(self.signed_A, 1)
+            cb.store_uint(self.signed_B, 1)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.min_A)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.min_B)
+            cb.store_uint(self.expire_at, 32)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.A)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.B)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_chan_state_close(RecordBase):
         def get_tag_enum(self):
             return ChanState.Tag.chan_state_close
@@ -25828,6 +30568,24 @@ class ChanState(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 3)
+
+            cb.store_uint(self.signed_A, 1)
+            cb.store_uint(self.signed_B, 1)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.promise_A)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.promise_B)
+            cb.store_uint(self.expire_at, 32)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.A)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.B)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_chan_state_payout(RecordBase):
         def get_tag_enum(self):
             return ChanState.Tag.chan_state_payout
@@ -25878,6 +30636,19 @@ class ChanState(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(2, 3)
+
+            TLBComplex.constants["t_Grams"].store_from(cb, self.A)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.B)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -25958,6 +30729,18 @@ class ChanPromise(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(self.channel_id, 64)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.promise_A)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.promise_B)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -26031,6 +30814,17 @@ class ChanSignedPromise(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_Maybe_Ref_bits512"].store_from(cb, self.sig)
+            TLBComplex.constants["t_ChanPromise"].store_from(cb, self.promise)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -26126,6 +30920,22 @@ class ChanMsg(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x27317822, 32)
+
+            TLBComplex.constants["t_Grams"].store_from(cb, self.inc_A)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.inc_B)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.min_A)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.min_B)
+            cb.store_uint(self.channel_id, 64)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_chan_msg_close(RecordBase):
         def get_tag_enum(self):
             return ChanMsg.Tag.chan_msg_close
@@ -26182,6 +30992,20 @@ class ChanMsg(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0xf28ae183, 32)
+
+            TLBComplex.constants["t_Grams"].store_from(cb, self.extra_A)
+            TLBComplex.constants["t_Grams"].store_from(cb, self.extra_B)
+            TLBComplex.constants["t_ChanSignedPromise"].store_from(cb, self.promise)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_chan_msg_timeout(RecordBase):
         def get_tag_enum(self):
             return ChanMsg.Tag.chan_msg_timeout
@@ -26221,6 +31045,17 @@ class ChanMsg(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x43278a28, 32)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     class Record_chan_msg_payout(RecordBase):
         def get_tag_enum(self):
             return ChanMsg.Tag.chan_msg_payout
@@ -26259,6 +31094,17 @@ class ChanMsg(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x37fe7810, 32)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -26339,6 +31185,18 @@ class ChanSignedMsg(TLBComplex):
                 return False
             return True
 
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_Maybe_Ref_bits512"].store_from(cb, self.sig_A)
+            TLBComplex.constants["t_Maybe_Ref_bits512"].store_from(cb, self.sig_B)
+            TLBComplex.constants["t_ChanMsg"].store_from(cb, self.msg)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
     def always_special(self):
         return False
 
@@ -26409,6 +31267,18 @@ class ChanOp(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0x912838d1, 32)
+
+            TLBComplex.constants["t_ChanSignedMsg"].store_from(cb, self.msg)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
@@ -26495,6 +31365,17 @@ class ChanData(TLBComplex):
             except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
                 return False
             return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_Ref_ChanConfig"].store_ref_or_tlb(cb, self.config)
+            TLBComplex.constants["t_Ref_ChanState"].store_ref_or_tlb(cb, self.state)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
 
     def always_special(self):
         return False
