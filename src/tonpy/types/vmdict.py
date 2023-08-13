@@ -1,4 +1,4 @@
-from typing import Union, Iterable, Optional
+from typing import Union, Iterable, Optional, Tuple
 
 from tonpy.libs.python_ton import PyDict, PyCellSlice, PyAugmentationCheckData
 
@@ -7,6 +7,7 @@ from tonpy.types.cellslice import CellSlice
 from tonpy.types.cellbuilder import CellBuilder
 from tonpy.utils.bit_converter import convert_str_to_int
 from tonpy.utils.bit_int import test_value_len
+from tonpy.types.tlb import TLB
 
 
 class AugmentedData:
@@ -57,6 +58,18 @@ class AugmentedData:
                                        self._eval_fork, self._eval_empty)
 
 
+class TypedAugmentedData(AugmentedData):
+    def __init__(self, value_type: TLB, extra_type: TLB):
+        super(TypedAugmentedData, self).__init__()
+        self.value_type = value_type
+        self.extra_type = extra_type
+
+    def skip_extra(self, cs: CellSlice) -> (bool, Optional[CellSlice]):
+        # TODO: this is slow, use autogen skip when it will be done
+        self.extra_type.fetch(cs)
+        return True, cs
+
+
 class DataWithExtra:
     def __init__(self, cs: CellSlice, aug: AugmentedData):
         self.cs_extra = cs
@@ -82,10 +95,19 @@ class DataWithExtra:
             raise ValueError
 
     def __repr__(self):
-        return f"<DataWithExtra: {str(self.cs)}>"
+        return f"<DataWithExtra: {str(self.cs_extra)} {str(self.cs_value)}>"
+
+
+class TypedDataWithExtra(DataWithExtra):
+    def __init__(self, cs: CellSlice, aug: TypedAugmentedData, rec_unpack=False):
+        super().__init__(cs, aug)
+        self.cs_extra = aug.extra_type.fetch(self.cs_extra, rec_unpack)
+        self.cs_value = aug.value_type.fetch(self.cs_value, rec_unpack)
 
 
 class VmDict:
+    # TODO: bind for_each / for_each_extra for speed up
+
     def __init__(self, key_len: int,
                  signed: bool = False,
                  cell_root: Union[Union[str, Cell], CellSlice] = None,
@@ -170,7 +192,8 @@ class VmDict:
         return Cell(self.dict.get_pycell())
 
     def lookup_nearest_key(self, key: int, fetch_next: bool = True, allow_eq: bool = False,
-                           invert_first: bool = True, signed: bool = None) -> tuple[int, CellSlice]:
+                           invert_first: bool = True, signed: bool = None) -> tuple[
+        int, Union[CellSlice, DataWithExtra]]:
         """
         Compute the nearest key to ``key``  |br|
 
@@ -185,10 +208,15 @@ class VmDict:
         signed = self._process_sgnd(key, signed)
 
         key, value = self.dict.lookup_nearest_key(str(key), fetch_next, allow_eq, invert_first, 0, signed)
-        return int(key), CellSlice(value)
+        cs = CellSlice(value)
+
+        if self.is_augmented:
+            return int(key), DataWithExtra(cs, self.aug)
+
+        return int(key), cs
 
     def get_minmax_key(self, fetch_max: bool = True, invert_first: bool = True, signed: bool = None) -> tuple[
-        int, CellSlice]:
+        int, Union[CellSlice, DataWithExtra]]:
         """
         Fetch max / min ``key, value``  |br|
 
@@ -200,7 +228,11 @@ class VmDict:
         signed = self._process_sgnd(signed=signed)
 
         key, value = self.dict.get_minmax_key(fetch_max, invert_first, 0, signed)
-        return int(key), CellSlice(value)
+        cs = CellSlice(value)
+
+        if self.is_augmented:
+            return int(key), DataWithExtra(cs, self.aug)
+        return int(key), cs
 
     def get_minmax_key_ref(self, fetch_max: bool = True, inver_first: bool = False, signed: bool = None) -> tuple[
         int, Cell]:
@@ -361,3 +393,72 @@ class VmDict:
 
     def __reversed__(self):
         return self.get_iter(True)
+
+
+class TypedVmDict(VmDict):
+    def __init__(self, tlb_type: Union[Tuple[TLB, TLB], TLB],
+                 key_len: int,
+                 signed: bool = False,
+                 cell_root: Union[Union[str, Cell], CellSlice] = None,
+                 aug: TypedAugmentedData = None,
+                 rec_unpack: bool = False):
+
+        self.rec_unpack = rec_unpack
+
+        if isinstance(tlb_type, list) or isinstance(tlb_type, tuple):
+            self.value_type = tlb_type[0]
+            self.extra_type = tlb_type[1]
+
+            if cell_root:
+                csr = cell_root.begin_parse()
+                is_empty = not csr.load_bool()
+                self.total_extra = self.extra_type.fetch(csr)
+
+                if is_empty:
+                    cell_root = None
+                else:
+                    cell_root = csr.load_ref()
+
+            if aug is None:
+                aug = TypedAugmentedData(self.value_type, self.extra_type)
+
+        else:
+            self.value_type = tlb_type
+            self.extra_type = None
+
+        super().__init__(key_len, signed, cell_root, aug)
+
+    def lookup(self, key: int, signed: bool = None) -> Union[CellSlice, TypedDataWithExtra]:
+        test_value_len(key, self.key_len)
+        signed = self._process_sgnd(key, signed)
+
+        cs = CellSlice(self.dict.lookup_str(str(key), 0, signed))
+        if self.is_augmented:
+            return TypedDataWithExtra(cs, self.aug, rec_unpack=self.rec_unpack)
+        else:
+            return self.value_type.fetch(cs, rec_unpack=self.rec_unpack)
+
+    def get_minmax_key(self, fetch_max: bool = True, invert_first: bool = True, signed: bool = None) -> tuple[
+        int, Union[CellSlice, TypedDataWithExtra]]:
+        signed = self._process_sgnd(signed=signed)
+
+        key, value = self.dict.get_minmax_key(fetch_max, invert_first, 0, signed)
+        cs = CellSlice(value)
+
+        if self.is_augmented:
+            return int(key), TypedDataWithExtra(cs, self.aug, rec_unpack=self.rec_unpack)
+        return int(key), cs
+
+    def lookup_nearest_key(self, key: int, fetch_next: bool = True, allow_eq: bool = False,
+                           invert_first: bool = True, signed: bool = None) -> tuple[
+        int, Union[CellSlice, DataWithExtra]]:
+        test_value_len(key, self.key_len)
+        signed = self._process_sgnd(key, signed)
+
+        key, value = self.dict.lookup_nearest_key(str(key), fetch_next, allow_eq, invert_first, 0, signed)
+        cs = CellSlice(value)
+
+        if self.is_augmented:
+            return int(key), TypedDataWithExtra(cs, self.aug, rec_unpack=self.rec_unpack)
+
+        return int(key), cs

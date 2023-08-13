@@ -27,6 +27,7 @@ What is supported?
    - `CellSlice`_
    - `CellBuilder`_
    - `VmDict`_ (HashmapE, HashmapAugE)
+   - TypedVmDict (same as VmDict but allow to unpack values / extra with TLB types)
    - StackEntry (Tuple included)
    - Stack
    - Continuation
