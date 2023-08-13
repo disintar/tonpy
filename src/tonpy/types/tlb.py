@@ -5,6 +5,17 @@ from typing import Optional, List, Union, Callable
 from tonpy.types import CellSlice, CellBuilder, Cell
 
 
+def rec_dump(item):
+    output = {}
+    for name in item.field_names:
+        value = getattr(item, name)
+        if issubclass(type(value), RecordBase):
+            output[name] = rec_dump(value)
+        else:
+            output[name] = value
+    return output
+
+
 class RecordBase:
     """
     Each TLB type have ``Record`` subclass means instance of TLB type |br|
@@ -86,7 +97,12 @@ class RecordBase:
         return x >= 0
 
     def store_from(self, cb, value):
+        """Recursively pack TLB type to CellBuilder"""
         cb.store_slice_or_tlb(value)
+
+    def dump(self):
+        """Recursively convert TLB to dict"""
+        return rec_dump(self)
 
 
 class TLB(object):

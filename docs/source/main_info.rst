@@ -11,6 +11,9 @@ that `takes`_ pre-built binaries compiled
 by `workflow`_ and creates complete python package with
 some python code on top of C++ bindings.
 
+We try to provide 100% test coverage on all structures and functions. Github workflow automatically run tests on all supported systems (Linux, Windows, MacOS) / (x86_64 / aarch64) / (py39, py310, py311 and publish package to pypi.
+
+
 .. _TON blockchain: https://github.com/ton-blockchain/ton
 .. _C++ bindings: https://github.com/disintar/ton/tree/master/tvm-python
 .. _main package: https://github.com/disintar/tonpy
@@ -68,8 +71,4 @@ What is supported?
 
 Test examples may show you how to work with library, `check tests examples here`_
 
-Tests
------
-
-We try to provide 100% test coverage on all function.
 
