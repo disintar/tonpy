@@ -1,6 +1,6 @@
-from typing import Union, Iterable
+from typing import Union, Iterable, Optional
 
-from tonpy.libs.python_ton import PyDict
+from tonpy.libs.python_ton import PyDict, PyCellSlice, PyAugmentationCheckData
 
 from tonpy.types.cell import Cell
 from tonpy.types.cellslice import CellSlice
@@ -9,8 +9,59 @@ from tonpy.utils.bit_converter import convert_str_to_int
 from tonpy.utils.bit_int import test_value_len
 
 
+class AugmentedData:
+    def eval_leaf(self, cs: CellSlice) -> (bool, Optional[CellSlice]):
+        """Extract extra from leaf value ``cs``"""
+        raise NotImplementedError
+
+    def skip_extra(self, cs: CellSlice) -> (bool, Optional[CellSlice]):
+        """Skip extra from leaf, return updated ``cs``"""
+        raise NotImplementedError
+
+    def eval_fork(self, left: CellSlice, right: CellSlice) -> (bool, Optional[CellSlice]):
+        raise NotImplementedError
+
+    def eval_empty(self) -> (bool, Optional[CellSlice]):
+        raise NotImplementedError
+
+    def _eval_leaf(self, cs: PyCellSlice):
+        answer = list(self.eval_leaf(CellSlice(cs)))
+
+        if len(answer) > 1:
+            answer[1] = answer[1].cell_slice
+        return tuple(answer)
+
+    def _skip_extra(self, cs: PyCellSlice):
+        answer = list(self.skip_extra(CellSlice(cs)))
+
+        if len(answer) > 1:
+            answer[1] = answer[1].cell_slice
+        return tuple(answer)
+
+    def _eval_fork(self, left: PyCellSlice, right: PyCellSlice):
+        answer = list(self.eval_fork(CellSlice(left), CellSlice(right)))
+
+        if len(answer) > 1:
+            answer[1] = answer[1].cell_slice
+        return tuple(answer)
+
+    def _eval_empty(self):
+        answer = list(self.eval_empty())
+
+        if len(answer) > 1:
+            answer[1] = answer[1].cell_slice
+        return tuple(answer)
+
+    def get_base_aug(self):
+        return PyAugmentationCheckData(self._eval_leaf, self._skip_extra,
+                                       self._eval_fork, self._eval_empty)
+
+
 class VmDict:
-    def __init__(self, key_len: int, signed: bool = False, cell_root: Union[Union[str, Cell], CellSlice] = None):
+    def __init__(self, key_len: int,
+                 signed: bool = False,
+                 cell_root: Union[Union[str, Cell], CellSlice] = None,
+                 aug: AugmentedData = None):
         """
         Wrapper of HashmapE (dictionary type of TON)  |br|
 
@@ -39,7 +90,12 @@ class VmDict:
 
             cell_root = cs.cell_slice
 
-        self.dict = PyDict(key_len, signed, cell_root)
+        if aug is None:
+            self.dict = PyDict(key_len, signed, cell_root)
+            self.is_augmented = False
+        else:
+            self.dict = PyDict(key_len, aug.get_base_aug(), signed, cell_root)
+            self.is_augmented = True
 
     def _process_sgnd(self, key: int = None, signed: bool = None) -> bool:
         """Check ``key`` to be ``signed`` or if ``signed`` is None will use current dict ``self.signed``"""
