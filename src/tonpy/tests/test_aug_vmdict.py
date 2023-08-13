@@ -17,9 +17,12 @@ from typing import Optional
 from tonpy.types.vmdict import AugmentedData
 
 
+# Example of augment usage
 class BasicAug(AugmentedData):
     def eval_leaf(self, cs: CellSlice) -> (bool, Optional[CellSlice]):
-        cs = CellBuilder().store_uint(1, 64).begin_parse()
+        # on leaf creation automatically extract needed data and store as extra
+        value = cs.load_uint(32) + 10
+        cs = CellBuilder().store_uint(value, 64).begin_parse()
         return True, cs
 
     def skip_extra(self, cs: CellSlice) -> (bool, Optional[CellSlice]):
@@ -40,8 +43,11 @@ def test_set_get_item():
     d = VmDict(256, aug=BasicAug())
     d[0] = CellBuilder().store_uint(0, 32).end_cell().begin_parse()
     d[1] = CellBuilder().store_uint(1, 32).end_cell().begin_parse()
-    print(d[0], d[1])
 
+    v1 = d[0]
+    assert v1.data.load_uint(32) == 0
+    assert v1.extra.load_uint(64) == 10
 
-if __name__ == "__main__":
-    test_set_get_item()
+    v2 = d[1]
+    assert v2.data.load_uint(32) == 1
+    assert v2.extra.load_uint(64) == 11

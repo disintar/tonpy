@@ -26,10 +26,11 @@ What is supported?
    - `Cell`_
    - `CellSlice`_
    - `CellBuilder`_
-   - `VmDict`_
+   - `VmDict`_ (HashmapE, HashmapAugE)
    - StackEntry (Tuple included)
    - Stack
    - Continuation
+   - Augmented data (eval_leaf / skip_extra / eval_fork / eval_empty for HashmapAugE)
 
 - TVM
    - Raw TVM

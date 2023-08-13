@@ -57,6 +57,34 @@ class AugmentedData:
                                        self._eval_fork, self._eval_empty)
 
 
+class DataWithExtra:
+    def __init__(self, cs: CellSlice, aug: AugmentedData):
+        self.cs_extra = cs
+        self.cs_value = cs.copy()
+        self.aug = aug
+        self.aug.skip_extra(self.cs_value)
+        self.cs_extra.cut_tail(self.cs_value)
+
+    @property
+    def extra(self):
+        return self.cs_extra
+
+    @property
+    def data(self):
+        return self.cs_value
+
+    def __getitem__(self, item):
+        if item == 0 or item == 'extra':
+            return self.extra
+        elif item == 1 or item == 'data':
+            return self.data
+        else:
+            raise ValueError
+
+    def __repr__(self):
+        return f"<DataWithExtra: {str(self.cs)}>"
+
+
 class VmDict:
     def __init__(self, key_len: int,
                  signed: bool = False,
@@ -94,6 +122,7 @@ class VmDict:
             self.dict = PyDict(key_len, signed, cell_root)
             self.is_augmented = False
         else:
+            self.aug = aug
             self.dict = PyDict(key_len, aug.get_base_aug(), signed, cell_root)
             self.is_augmented = True
 
@@ -227,7 +256,7 @@ class VmDict:
         self.dict.set_builder_str(str(key), value.builder, mode, 0, signed)
         return self
 
-    def lookup(self, key: int, signed: bool = None) -> CellSlice:
+    def lookup(self, key: int, signed: bool = None) -> Union[CellSlice, DataWithExtra]:
         """
         Fetch CellSlice stored in ``key``  |br|
 
@@ -238,9 +267,13 @@ class VmDict:
         test_value_len(key, self.key_len)
         signed = self._process_sgnd(key, signed)
 
-        return CellSlice(self.dict.lookup_str(str(key), 0, signed))
+        cs = CellSlice(self.dict.lookup_str(str(key), 0, signed))
+        if self.is_augmented:
+            return DataWithExtra(cs, self.aug)
+        else:
+            return cs
 
-    def lookup_delete(self, key: int, signed: bool = None) -> CellSlice:
+    def lookup_delete(self, key: int, signed: bool = None) -> Union[CellSlice, DataWithExtra]:
         """
         Same as lookup, but delete ``(key, value)`` from VmDict  |br|
 
@@ -250,8 +283,11 @@ class VmDict:
         """
         test_value_len(key, self.key_len)
         signed = self._process_sgnd(key, signed)
-
-        return CellSlice(self.dict.lookup_delete_str(str(key), 0, signed))
+        cs = CellSlice(self.dict.lookup_delete_str(str(key), 0, signed))
+        if self.is_augmented:
+            return DataWithExtra(cs, self.aug)
+        else:
+            return cs
 
     def lookup_ref(self, key, signed: bool = None) -> Cell:
         """

@@ -461,5 +461,13 @@ class CellSlice:
 
         return CellSlice(self.cell_slice.preload_subslice_ext(bits_refs))
 
+    def cut_tail(self, cs: "CellSlice") -> bool:
+        """Skip ``bits`` & ``refs`` of ``cs`` from current ``CellSlice``"""
+        return self.cell_slice.cut_tail(cs.cell_slice)
+
+    def copy(self) -> "CellSlice":
+        """Make independent copy of current ``CellSlice``"""
+        return CellSlice(self.cell_slice.copy())
+
     def __repr__(self):
         return self.cell_slice.__repr__()

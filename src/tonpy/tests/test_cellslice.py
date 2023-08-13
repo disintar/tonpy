@@ -45,7 +45,6 @@ def test_size_ext():
     assert cs.empty_ext() is True
 
 
-
 def test_load_int():
     for bits in range(2, 256):
         cb = CellBuilder()
@@ -491,3 +490,12 @@ def test_preload_subslice_ext():
     assert cs.refs == 1
     assert cs2.bits == 16
     assert cs2.refs == 1
+
+
+def test_copy_cut_tail():
+    cs = CellBuilder().store_bitstring("11100").begin_parse()
+    tmp_cs = cs.copy()
+    tmp_cs.skip_bits(3)
+    cs.cut_tail(tmp_cs)
+    assert cs.load_uint(3) == 0b111
+    assert tmp_cs.load_uint(2) == 0b00
