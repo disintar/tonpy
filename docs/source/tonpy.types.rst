@@ -3,8 +3,16 @@ tonpy.types package
 
 .. |br| raw:: html
 
-   <br />
+Subpackages
+-----------
 
+.. toctree::
+   :maxdepth: 4
+
+   tonpy.types.tlb_types
+
+Submodules
+----------
 
 tonpy.types.cell module
 -----------------------
@@ -30,10 +38,10 @@ tonpy.types.cellslice module
    :undoc-members:
    :show-inheritance:
 
-tonpy.types.vmdict module
--------------------------
+tonpy.types.stack module
+------------------------
 
-.. automodule:: tonpy.types.vmdict
+.. automodule:: tonpy.types.stack
    :members:
    :undoc-members:
    :show-inheritance:
@@ -46,10 +54,18 @@ tonpy.types.tlb module
    :undoc-members:
    :show-inheritance:
 
-tonpy.types.stack module
-----------------------
+tonpy.types.vmdict module
+-------------------------
 
-.. automodule:: tonpy.types.stack
+.. automodule:: tonpy.types.vmdict
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: tonpy.types
    :members:
    :undoc-members:
    :show-inheritance:

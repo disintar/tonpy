@@ -1,10 +1,18 @@
 tonpy.tvm package
-===================
+=================
 
 .. |br| raw:: html
 
-   <br />
+Submodules
+----------
 
+tonpy.tvm.emulator module
+-------------------------
+
+.. automodule:: tonpy.tvm.emulator
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 tonpy.tvm.tvm module
 --------------------
@@ -14,10 +22,10 @@ tonpy.tvm.tvm module
    :undoc-members:
    :show-inheritance:
 
-tonpy.tvm.emulator module
---------------------
+Module contents
+---------------
 
-.. automodule:: tonpy.tvm.emulator
+.. automodule:: tonpy.tvm
    :members:
    :undoc-members:
    :show-inheritance:

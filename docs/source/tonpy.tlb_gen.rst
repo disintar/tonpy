@@ -1,15 +1,23 @@
-tonpy.tlb_gen package
-===================
+tonpy.tlb\_gen package
+======================
 
 .. |br| raw:: html
 
-   <br />
+Submodules
+----------
 
+tonpy.tlb\_gen.py module
+------------------------
 
-tonpy.tlb_gen.py module
------------------------
+.. automodule:: tonpy.tlb_gen.py
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
-.. autofunction:: tonpy.tlb_gen.py.parse_tlb
+Module contents
+---------------
 
-.. autofunction:: tonpy.tlb_gen.py.add_tlb
-
+.. automodule:: tonpy.tlb_gen
+   :members:
+   :undoc-members:
+   :show-inheritance:
