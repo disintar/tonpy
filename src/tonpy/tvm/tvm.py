@@ -5,10 +5,15 @@ from tonpy.types import Cell, Stack, StackEntry, VmDict
 
 
 class StepInfo:
+    stack: Stack = None
+    gas_consumed: int = None
+    gas_remaining: int = None
+    next_op: str = None
+
     def __init__(self, stack_info):
         self.stack = Stack(prev_stack=stack_info.stack)
-        self.gas_consumed = stack_info.gas_consumed
-        self.gas_remaining = stack_info.gas_remaining
+        self.gas_consumed = int(stack_info.gas_consumed)
+        self.gas_remaining = int(stack_info.gas_remaining)
         self.next_op = None
 
 

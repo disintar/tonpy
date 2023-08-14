@@ -14,13 +14,6 @@ tonpy.autogen.block module
    :undoc-members:
    :show-inheritance:
 
-tonpy.autogen.hashmap module
-----------------------------
-
-.. automodule:: tonpy.autogen.hashmap
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 Module contents
 ---------------
