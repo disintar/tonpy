@@ -37,7 +37,7 @@ class TVM:
 
     def set_stack(self, value: Union[Stack, List]):
         if isinstance(value, list):
-            self.tvm.set_stack(Stack(value).stack)
+            self.tvm.set_stack(Stack(list(reversed(value))).stack)
         else:
             self.tvm.set_stack(value.stack)
 
