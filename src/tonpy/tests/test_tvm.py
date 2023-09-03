@@ -1,5 +1,5 @@
 from tonpy.fift.fift import convert_assembler
-from tonpy.tvm.tvm import TVM
+from tonpy.tvm.tvm import TVM, method_name_to_id
 from tonpy.types import Cell, CellSlice, CellBuilder, Stack, StackEntry, Continuation, VmDict
 
 
@@ -143,3 +143,7 @@ def test_tvm_set_libs():
     assert len(t.vm_steps_detailed) == 6
     assert len(final_stack) == 1
     assert final_stack[0].get() == 228
+
+
+def test_method_name_to_id():
+    assert method_name_to_id('get_sale_data') == 72748

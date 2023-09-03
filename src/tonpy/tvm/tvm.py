@@ -1,7 +1,13 @@
 from typing import Union, List, Optional
 
-from tonpy.libs.python_ton import PyTVM
+from tonpy.libs.python_ton import PyTVM, method_name_to_id as py_method_name_to_id
 from tonpy.types import Cell, Stack, StackEntry, VmDict
+
+
+def method_name_to_id(method_name: str):
+    """Compute crc for method name, to pass to TVM"""
+
+    return py_method_name_to_id(method_name)
 
 
 class StepInfo:

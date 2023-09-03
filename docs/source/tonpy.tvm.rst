@@ -17,6 +17,9 @@ tonpy.tvm.emulator module
 tonpy.tvm.tvm module
 --------------------
 
+.. autofunction:: tonpy.tvm.tvm.method_name_to_id
+
+
 .. automodule:: tonpy.tvm.tvm
    :members:
    :undoc-members:
