@@ -29,8 +29,10 @@ class CellSlice:
         :return:
         """
 
+        self.allow_special = allow_special
+
         if isinstance(cs, str):
-            self.cell_slice: PyCellSlice = load_as_cell_slice(parse_string_to_cell(cs), allow_special)
+            self.cell_slice: PyCellSlice = load_as_cell_slice(parse_string_to_cell(cs), self.allow_special)
         elif isinstance(cs, PyCellSlice):
             self.cell_slice: PyCellSlice = cs
         else:
@@ -468,6 +470,15 @@ class CellSlice:
     def copy(self) -> "CellSlice":
         """Make independent copy of current ``CellSlice``"""
         return CellSlice(self.cell_slice.copy())
+
+    def __getstate__(self):
+        return [self.to_boc(), self.allow_special]
+
+    def __setstate__(self, boc_special):
+        boc, allow_special = boc_special
+
+        self.allow_special = allow_special
+        self.cell_slice: PyCellSlice = load_as_cell_slice(parse_string_to_cell(boc), self.allow_special)
 
     def __repr__(self):
         return self.cell_slice.__repr__()

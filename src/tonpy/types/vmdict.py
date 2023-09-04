@@ -107,6 +107,7 @@ class TypedDataWithExtra(DataWithExtra):
 
 class VmDict:
     # TODO: bind for_each / for_each_extra for speed up
+    # TODO: made pickable
 
     def __init__(self, key_len: int,
                  signed: bool = False,

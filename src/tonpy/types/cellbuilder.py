@@ -16,8 +16,13 @@ class CellBuilder:
         """CellBuilder class allow you to create cells"""
         if builder is None:
             self.builder: PyCellBuilder = PyCellBuilder()
-        else:
+        elif isinstance(builder, str):
+            self.builder: PyCellBuilder = PyCellBuilder()
+            self.store_slice(CellSlice(builder))
+        elif isinstance(builder, PyCellBuilder):
             self.builder = builder
+        else:
+            raise ValueError(f"{type(builder)} for CellBuilder is not supported")
 
     def store_libref(self, hash_: "str | int"):
         """Create and store special library cell with hash of library cell"""
@@ -394,6 +399,13 @@ class CellBuilder:
             self.store_uint(0, 1)
 
         return self
+
+    def __getstate__(self):
+        return self.to_boc()
+
+    def __setstate__(self, boc):
+        self.builder: PyCellBuilder = PyCellBuilder()
+        self.store_slice(Cell(boc).begin_parse())
 
     def __repr__(self):
         return self.builder.__repr__()

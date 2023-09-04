@@ -53,5 +53,11 @@ class Cell:
 
         return Cell(self.cell.copy())
 
+    def __getstate__(self):
+        return self.to_boc()
+
+    def __setstate__(self, boc):
+        self.cell: PyCell = parse_string_to_cell(boc)
+
     def __repr__(self):
         return self.cell.__repr__()
