@@ -104,6 +104,21 @@ class RecordBase:
         """Recursively convert TLB to dict"""
         return rec_dump(self)
 
+    def to_dict(self, rec_unpack=False, convert_cells_to_bocs=False):
+        answer = {}
+
+        for field in self.field_names:
+            value = getattr(self, field)
+
+            if rec_unpack and issubclass(type(value), RecordBase):
+                answer[field] = value.to_dict(rec_unpack=rec_unpack, convert_cells_to_bocs=convert_cells_to_bocs)
+            else:
+                if convert_cells_to_bocs and isinstance(value, (Cell, CellSlice, CellBuilder)):
+                    value = value.to_boc()
+
+                answer[field] = value
+        return answer
+
 
 class TLB(object):
     class Tag(Enum):
