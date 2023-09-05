@@ -87,8 +87,8 @@ class Unit(TLBComplex):
 tlb_classes.append("Unit")
 
 
-# class for type `True`
-class True(TLBComplex):
+# class for type `TrueT`
+class TrueT(TLBComplex):
     class Tag(Enum):
         true = 0
 
@@ -99,10 +99,10 @@ class True(TLBComplex):
     def __init__(self):
         super().__init__()
 
-        self.tag_to_class = {True.Tag.true: True.Record}
+        self.tag_to_class = {TrueT.Tag.true: TrueT.Record}
 
-    def get_tag(self, cs: CellSlice) -> Optional["True.Tag"]:
-        return True.Tag(0)
+    def get_tag(self, cs: CellSlice) -> Optional["TrueT.Tag"]:
+        return TrueT.Tag(0)
 
 
     def fetch_enum(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> int:
@@ -115,16 +115,16 @@ class True(TLBComplex):
 
     class Record(RecordBase):
         def get_tag_enum(self):
-            return True.Tag.true
+            return TrueT.Tag.true
 
         def get_tag(self):
-            return True.cons_tag[self.get_tag_enum().value]
+            return TrueT.cons_tag[self.get_tag_enum().value]
 
         def get_tag_len(self):
-            return True.cons_len_exact[self.get_tag_enum().value] if isinstance(True.cons_len_exact, list) else True.cons_len_exact
+            return TrueT.cons_len_exact[self.get_tag_enum().value] if isinstance(TrueT.cons_len_exact, list) else TrueT.cons_len_exact
 
         def get_type_class(self):
-            return True
+            return TrueT
 
 
         def __init__(self):
@@ -165,7 +165,7 @@ class True(TLBComplex):
         return False
 
 
-tlb_classes.append("True")
+tlb_classes.append("TrueT")
 
 
 # class for type `Bool`
@@ -1856,7 +1856,7 @@ class BitstringSet(TLBComplex):
 
         # n : #
         n: "int" = None
-        # Hashmap n True
+        # Hashmap n TrueT
         x: "CellSlice" = None
 
         def __init__(self, x: "CellSlice" = None):
@@ -1873,7 +1873,7 @@ class BitstringSet(TLBComplex):
 
                 assert self.n >= 0, 'Field is leq than zero'
 
-                self.x = Hashmap(self.m_, TLBComplex.constants["t_True"]).fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
+                self.x = Hashmap(self.m_, TLBComplex.constants["t_TrueT"]).fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
@@ -1894,7 +1894,7 @@ class BitstringSet(TLBComplex):
             return True
 
         def pack(self, cb: CellBuilder):
-            self.Hashmap(self.m_, TLBComplex.constants["t_True"]).store_from(cb, self.x)            
+            self.Hashmap(self.m_, TLBComplex.constants["t_TrueT"]).store_from(cb, self.x)            
 
 
 
@@ -13991,7 +13991,7 @@ class LibDescr(TLBComplex):
 
         # lib : ^Cell
         lib: "Cell" = None
-        # publishers : Hashmap 256 True
+        # publishers : Hashmap 256 TrueT
         publishers: "CellSlice" = None
 
         def __init__(self, lib: "Cell" = None, publishers: "CellSlice" = None):
@@ -14013,7 +14013,7 @@ class LibDescr(TLBComplex):
                     if strict:
                         assert self.lib is not None
 
-                self.publishers = TLBComplex.constants["t_Hashmap_256_True"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
+                self.publishers = TLBComplex.constants["t_Hashmap_256_TrueT"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
@@ -14037,7 +14037,7 @@ class LibDescr(TLBComplex):
             cb.store_uint(0, 2)
 
             TLBComplex.constants["t_RefCell"].store_ref_or_tlb(cb, self.lib)
-            TLBComplex.constants["t_Hashmap_256_True"].store_from(cb, self.publishers)            
+            TLBComplex.constants["t_Hashmap_256_TrueT"].store_from(cb, self.publishers)            
 
 
 
@@ -23439,7 +23439,7 @@ class ConfigParam(TLBComplex):
         def get_type_class(self):
             return ConfigParam
 
-        # mandatory_params : Hashmap 32 True
+        # mandatory_params : Hashmap 32 TrueT
         mandatory_params: "CellSlice" = None
 
         def __init__(self, mandatory_params: "CellSlice" = None):
@@ -23450,7 +23450,7 @@ class ConfigParam(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.mandatory_params = TLBComplex.constants["t_Hashmap_32_True"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.mandatory_params = TLBComplex.constants["t_Hashmap_32_TrueT"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.m_ == 9                
                 if strict:
                     for i in self.field_names:
@@ -23472,7 +23472,7 @@ class ConfigParam(TLBComplex):
             return True
 
         def pack(self, cb: CellBuilder):
-            TLBComplex.constants["t_Hashmap_32_True"].store_from(cb, self.mandatory_params)
+            TLBComplex.constants["t_Hashmap_32_TrueT"].store_from(cb, self.mandatory_params)
             self.m_ == 9            
 
 
@@ -23495,7 +23495,7 @@ class ConfigParam(TLBComplex):
         def get_type_class(self):
             return ConfigParam
 
-        # critical_params : Hashmap 32 True
+        # critical_params : Hashmap 32 TrueT
         critical_params: "CellSlice" = None
 
         def __init__(self, critical_params: "CellSlice" = None):
@@ -23506,7 +23506,7 @@ class ConfigParam(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.critical_params = TLBComplex.constants["t_Hashmap_32_True"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.critical_params = TLBComplex.constants["t_Hashmap_32_TrueT"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.m_ == 10                
                 if strict:
                     for i in self.field_names:
@@ -23528,7 +23528,7 @@ class ConfigParam(TLBComplex):
             return True
 
         def pack(self, cb: CellBuilder):
-            TLBComplex.constants["t_Hashmap_32_True"].store_from(cb, self.critical_params)
+            TLBComplex.constants["t_Hashmap_32_TrueT"].store_from(cb, self.critical_params)
             self.m_ == 10            
 
 
@@ -24593,7 +24593,7 @@ class ConfigParam(TLBComplex):
         def get_type_class(self):
             return ConfigParam
 
-        # fundamental_smc_addr : HashmapE 256 True
+        # fundamental_smc_addr : HashmapE 256 TrueT
         fundamental_smc_addr: "CellSlice" = None
 
         def __init__(self, fundamental_smc_addr: "CellSlice" = None):
@@ -24604,7 +24604,7 @@ class ConfigParam(TLBComplex):
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
-                self.fundamental_smc_addr = TLBComplex.constants["t_HashmapE_256_True"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.fundamental_smc_addr = TLBComplex.constants["t_HashmapE_256_TrueT"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.m_ == 31                
                 if strict:
                     for i in self.field_names:
@@ -24626,7 +24626,7 @@ class ConfigParam(TLBComplex):
             return True
 
         def pack(self, cb: CellBuilder):
-            TLBComplex.constants["t_HashmapE_256_True"].store_from(cb, self.fundamental_smc_addr)
+            TLBComplex.constants["t_HashmapE_256_TrueT"].store_from(cb, self.fundamental_smc_addr)
             self.m_ == 31            
 
 
@@ -26646,7 +26646,7 @@ class ValidatorComplaintStatus(TLBComplex):
 
         # complaint : ^ValidatorComplaint
         complaint: "Cell" = None
-        # voters : HashmapE 16 True
+        # voters : HashmapE 16 TrueT
         voters: "CellSlice" = None
         # vset_id : uint256
         vset_id: "int" = None
@@ -26676,7 +26676,7 @@ class ValidatorComplaintStatus(TLBComplex):
                     if strict:
                         assert self.complaint is not None
 
-                self.voters = TLBComplex.constants["t_HashmapE_16_True"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.voters = TLBComplex.constants["t_HashmapE_16_TrueT"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.vset_id = cs.load_uint(256)
                 self.weight_remaining = cs.load_int(64)                
                 if strict:
@@ -26702,7 +26702,7 @@ class ValidatorComplaintStatus(TLBComplex):
             cb.store_uint(0x2d, 8)
 
             TLBComplex.constants["t_Ref_ValidatorComplaint"].store_ref_or_tlb(cb, self.complaint)
-            TLBComplex.constants["t_HashmapE_16_True"].store_from(cb, self.voters)
+            TLBComplex.constants["t_HashmapE_16_TrueT"].store_from(cb, self.voters)
             cb.store_uint(self.vset_id, 256)
             cb.store_int(self.weight_remaining, 64)            
 
@@ -31780,7 +31780,7 @@ tlb_classes.append("ChanData")
 
 # definitions of constants
 TLBComplex.constants["t_Unit"] = Unit()
-TLBComplex.constants["t_True"] = True()
+TLBComplex.constants["t_TrueT"] = TrueT()
 TLBComplex.constants["t_Bool"] = Bool()
 TLBComplex.constants["t_BoolFalse"] = BoolFalse()
 TLBComplex.constants["t_BoolTrue"] = BoolTrue()
@@ -32020,7 +32020,7 @@ TLBComplex.constants["t_Ref_TYPE_1647"] = RefT(TLBComplex.constants["t_ShardStat
 TLBComplex.constants["t_Ref_McStateExtra"] = RefT(TLBComplex.constants["t_McStateExtra"])
 TLBComplex.constants["t_Maybe_Ref_McStateExtra"] = Maybe(TLBComplex.constants["t_Ref_McStateExtra"])
 TLBComplex.constants["t_Ref_ShardStateUnsplit"] = RefT(TLBComplex.constants["t_ShardStateUnsplit"])
-TLBComplex.constants["t_Hashmap_256_True"] = Hashmap(256, TLBComplex.constants["t_True"])
+TLBComplex.constants["t_Hashmap_256_TrueT"] = Hashmap(256, TLBComplex.constants["t_TrueT"])
 TLBComplex.constants["t_Ref_BlkMasterInfo"] = RefT(TLBComplex.constants["t_BlkMasterInfo"])
 TLBComplex.constants["t_BlkPrevInfo_0"] = BlkPrevInfo(0)
 TLBComplex.constants["t_Ref_BlkPrevInfo_0"] = RefT(TLBComplex.constants["t_BlkPrevInfo_0"])
@@ -32058,7 +32058,7 @@ TLBComplex.constants["t_Ref_TYPE_1685"] = RefT(TLBComplex.constants["t_McBlockEx
 TLBComplex.constants["t_Hashmap_16_ValidatorDescr"] = Hashmap(16, TLBComplex.constants["t_ValidatorDescr"])
 TLBComplex.constants["t_HashmapE_16_ValidatorDescr"] = HashmapE(16, TLBComplex.constants["t_ValidatorDescr"])
 TLBComplex.constants["t_Maybe_bits256"] = Maybe(TLBComplex.constants["t_bits256"])
-TLBComplex.constants["t_Hashmap_32_True"] = Hashmap(32, TLBComplex.constants["t_True"])
+TLBComplex.constants["t_Hashmap_32_TrueT"] = Hashmap(32, TLBComplex.constants["t_TrueT"])
 TLBComplex.constants["t_uint8"] = UInt(8)
 TLBComplex.constants["t_Ref_ConfigProposalSetup"] = RefT(TLBComplex.constants["t_ConfigProposalSetup"])
 TLBComplex.constants["t_uint256"] = UInt(256)
@@ -32071,7 +32071,7 @@ TLBComplex.constants["t_natwidth_32"] = NatWidth(32)
 TLBComplex.constants["t_natwidth_13"] = NatWidth(13)
 TLBComplex.constants["t_HashmapE_32_WorkchainDescr"] = HashmapE(32, TLBComplex.constants["t_WorkchainDescr"])
 TLBComplex.constants["t_Hashmap_32_StoragePrices"] = Hashmap(32, TLBComplex.constants["t_StoragePrices"])
-TLBComplex.constants["t_HashmapE_256_True"] = HashmapE(256, TLBComplex.constants["t_True"])
+TLBComplex.constants["t_HashmapE_256_TrueT"] = HashmapE(256, TLBComplex.constants["t_TrueT"])
 TLBComplex.constants["t_Ref_ValidatorTempKey"] = RefT(TLBComplex.constants["t_ValidatorTempKey"])
 TLBComplex.constants["t_HashmapE_256_ValidatorSignedTempKey"] = HashmapE(256, TLBComplex.constants["t_ValidatorSignedTempKey"])
 TLBComplex.constants["t_HashmapE_288_Unit"] = HashmapE(288, TLBComplex.constants["t_Unit"])
@@ -32088,7 +32088,7 @@ TLBComplex.constants["t_Ref_MERKLE_PROOF_ShardState"] = RefT(TLBComplex.constant
 TLBComplex.constants["t_Ref_ProducerInfo"] = RefT(TLBComplex.constants["t_ProducerInfo"])
 TLBComplex.constants["t_Ref_ComplaintDescr"] = RefT(TLBComplex.constants["t_ComplaintDescr"])
 TLBComplex.constants["t_Ref_ValidatorComplaint"] = RefT(TLBComplex.constants["t_ValidatorComplaint"])
-TLBComplex.constants["t_HashmapE_16_True"] = HashmapE(16, TLBComplex.constants["t_True"])
+TLBComplex.constants["t_HashmapE_16_TrueT"] = HashmapE(16, TLBComplex.constants["t_TrueT"])
 TLBComplex.constants["t_int257"] = Int(257)
 TLBComplex.constants["t_natwidth_10"] = NatWidth(10)
 TLBComplex.constants["t_natleq_4"] = NatLeq(4)
