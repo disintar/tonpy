@@ -20553,7 +20553,7 @@ class GasLimitsPrices(TLBComplex):
 
                 self.flat_gas_limit = cs.load_uint(64)
                 self.flat_gas_price = cs.load_uint(64)
-                self.other = self.fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
+                self.other = self.get_type_class()().fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
@@ -29781,7 +29781,7 @@ class ProtoList(TLBComplex):
                 assert cs.load_uint(1) == 1, 'Cons tag check failed'
 
                 self.head = TLBComplex.constants["t_Protocol"].fetch_enum(cs, rec_unpack=rec_unpack, strict=strict)
-                self.tail = self.fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
+                self.tail = self.get_type_class()().fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
@@ -30007,7 +30007,7 @@ class SmcCapList(TLBComplex):
                 assert cs.load_uint(1) == 1, 'Cons tag check failed'
 
                 self.head = TLBComplex.constants["t_SmcCapability"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
-                self.tail = self.fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
+                self.tail = self.get_type_class()().fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:

@@ -112,3 +112,14 @@ def test_typed_solo():
                                                  'zerostate_root_hash': '0101010110110001001111110110110100001110000111010000110000110100110010011100001000010110000011110110111110010001100011101001001011011000001010111111100111011101110011111000110111100010111001001100100101001010001111111101111100111001110100010101010001000110',
                                                  'zerostate_file_hash': '1110111000001011111011011111111001001011001100100111011000011111101100110101111010011110000111011000100000011000111010100111001000001100101011010001101000001110011110110100110100101110110101100111001111000100100010001110011100101110100100010000001101000010',
                                                  'version': 0, 'format': {'vm_version': -1, 'vm_mode': 0}}
+
+
+def test_param_20():
+    from tonpy.autogen.block import ConfigParam, WorkchainDescr
+    a = 'te6ccuEBAQEATACYAJTRAAAAAAAAAGQAAAAAAA9CQN4AAAAAJxAAAAAAAAAAD0JAAAAAAAIWDsAAAAAAAAAnEAAAAAACNJNAAAAAAAX14QAAAAAAO5rKAD0ju+Y='
+    c = ConfigParam(20).fetch(Cell(a), rec_unpack=True)
+    assert c.to_dict(rec_unpack=True) == {'x': {'flat_gas_limit': 100, 'flat_gas_price': 1000000,
+                                                'other': {'gas_price': 655360000, 'gas_limit': 1000000,
+                                                          'special_gas_limit': 35000000, 'gas_credit': 10000,
+                                                          'block_gas_limit': 37000000, 'freeze_due_limit': 100000000,
+                                                          'delete_due_limit': 1000000000}}}
