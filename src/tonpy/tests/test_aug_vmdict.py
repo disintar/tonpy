@@ -55,12 +55,9 @@ def test_set_get_item():
 
 def test_config():
     from tonpy.utils.global_config import CFG_TEST
-    from tonpy.autogen.block import ConfigParam
+    from tonpy.autogen.block import ConfigParam, WorkchainDescr
 
     config_data = VmDict(32, False, CFG_TEST)
-
-    for i in config_data:
-        print(i)
 
     # _ config_addr:bits256 = ConfigParam 0;
     config_addr = hex(int(ConfigParam(0).fetch(config_data[0].load_ref()).config_addr, 2))[2:].upper()
@@ -88,3 +85,30 @@ def test_config():
     assert hex(int(burning_config.blackhole_addr.value, 2))[2:].upper() \
            == 'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'
 
+
+def test_typed_solo():
+    from tonpy.autogen.block import ConfigParam, WorkchainDescr
+
+    # check for iterator
+    items = list(TypedVmDict(WorkchainDescr(), 32, False,
+                             'te6ccuEBAQEAXgC8ALfQUy7nTs8AAAJwACrYn7aHDoYaZOELB7fIx0lsFfzu58bxcmSlH++c6KojdwX2/yWZOw/Zr08OxAx1OQZWjQc9ppdrOeJEc5dIgaEAAAAAD/////gAAAAAAAAABEhiGEM='))
+
+    assert len(items) == 1
+    a = items[0]
+
+    # check for __getitem__
+    b = TypedVmDict(WorkchainDescr(), 32, False,
+                    'te6ccuEBAQEAXgC8ALfQUy7nTs8AAAJwACrYn7aHDoYaZOELB7fIx0lsFfzu58bxcmSlH++c6KojdwX2/yWZOw/Zr08OxAx1OQZWjQc9ppdrOeJEc5dIgaEAAAAAD/////gAAAAAAAAABEhiGEM=')
+    b = [0, b[0]]
+
+    for j in [a, b]:
+        assert j[0] == 0
+
+        from tonpy import RecordBase
+        assert issubclass(type(j[1]), RecordBase)
+        assert j[1].to_dict(rec_unpack=True) == {'enabled_since': 1573821854, 'actual_min_split': 0, 'min_split': 0,
+                                                 'max_split': 4, 'basic': True, 'active': True, 'accept_msgs': True,
+                                                 'flags': 0,
+                                                 'zerostate_root_hash': '0101010110110001001111110110110100001110000111010000110000110100110010011100001000010110000011110110111110010001100011101001001011011000001010111111100111011101110011111000110111100010111001001100100101001010001111111101111100111001110100010101010001000110',
+                                                 'zerostate_file_hash': '1110111000001011111011011111111001001011001100100111011000011111101100110101111010011110000111011000100000011000111010100111001000001100101011010001101000001110011110110100110100101110110101100111001111000100100010001110011100101110100100010000001101000010',
+                                                 'version': 0, 'format': {'vm_version': -1, 'vm_mode': 0}}

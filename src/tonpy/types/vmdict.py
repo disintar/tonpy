@@ -448,7 +448,8 @@ class TypedVmDict(VmDict):
 
         if self.is_augmented:
             return int(key), TypedDataWithExtra(cs, self.aug, rec_unpack=self.rec_unpack)
-        return int(key), cs
+        else:
+            return int(key), self.value_type.fetch(cs, rec_unpack=self.rec_unpack)
 
     def lookup_nearest_key(self, key: int, fetch_next: bool = True, allow_eq: bool = False,
                            invert_first: bool = True, signed: bool = None) -> tuple[
@@ -461,5 +462,5 @@ class TypedVmDict(VmDict):
 
         if self.is_augmented:
             return int(key), TypedDataWithExtra(cs, self.aug, rec_unpack=self.rec_unpack)
-
-        return int(key), cs
+        else:
+            return int(key), self.value_type.fetch(cs, rec_unpack=self.rec_unpack)
