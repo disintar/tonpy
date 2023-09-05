@@ -1,5 +1,5 @@
 unit$_ = Unit;
-true$_ = True;
+true$_ = TrueT;
 // EMPTY False;
 bool_false$0 = Bool;
 bool_true$1 = Bool;
@@ -36,8 +36,8 @@ unary_succ$1 {n:#} x:(Unary ~n) = Unary ~(n + 1);
 hme_empty$0 {n:#} {X:Type} = HashmapE n X;
 hme_root$1 {n:#} {X:Type} root:^(Hashmap n X) = HashmapE n X;
 
-// true#_ = True;
-_ {n:#} _:(Hashmap n True) = BitstringSet n;
+// true#_ = TrueT;
+_ {n:#} _:(Hashmap n TrueT) = BitstringSet n;
 
 //  HashmapAug, hashmap with an extra value
 //   (augmentation) of type Y at every node
@@ -428,7 +428,7 @@ shard_state#9023afe2 global_id:int32
 _ ShardStateUnsplit = ShardState;
 split_state#5f327da5 left:^ShardStateUnsplit right:^ShardStateUnsplit = ShardState;
 
-shared_lib_descr$00 lib:^Cell publishers:(Hashmap 256 True)
+shared_lib_descr$00 lib:^Cell publishers:(Hashmap 256 TrueT)
   = LibDescr;
 
 block_info#9bc7a987 version:uint32
@@ -626,8 +626,8 @@ _ to_mint:ExtraCurrencyCollection = ConfigParam 7;
 
 capabilities#c4 version:uint32 capabilities:uint64 = GlobalVersion;
 _ GlobalVersion = ConfigParam 8;  // all zero if absent
-_ mandatory_params:(Hashmap 32 True) = ConfigParam 9;
-_ critical_params:(Hashmap 32 True) = ConfigParam 10;
+_ mandatory_params:(Hashmap 32 TrueT) = ConfigParam 9;
+_ critical_params:(Hashmap 32 TrueT) = ConfigParam 10;
 
 cfg_vote_cfg#36 min_tot_rounds:uint8 max_tot_rounds:uint8 min_wins:uint8 max_losses:uint8 min_store_sec:uint32 max_store_sec:uint32 bit_price:uint32 cell_price:uint32 = ConfigProposalSetup;
 cfg_vote_setup#91 normal_params:^ConfigProposalSetup critical_params:^ConfigProposalSetup = ConfigVotingSetup;
@@ -764,7 +764,7 @@ consensus_config_v4#d9 flags:(## 7) { flags = 0 } new_catchain_ids:Bool
 _ CatchainConfig = ConfigParam 28;
 _ ConsensusConfig = ConfigParam 29;
 
-_ fundamental_smc_addr:(HashmapE 256 True) = ConfigParam 31;
+_ fundamental_smc_addr:(HashmapE 256 TrueT) = ConfigParam 31;
 _ prev_validators:ValidatorSet = ConfigParam 32;
 _ prev_temp_validators:ValidatorSet = ConfigParam 33;
 _ cur_validators:ValidatorSet = ConfigParam 34;
@@ -841,7 +841,7 @@ prod_info#34 utime:uint32 mc_blk_ref:ExtBlkRef state_proof:^(MERKLE_PROOF Block)
 no_blk_gen from_utime:uint32 prod_info:^ProducerInfo = ComplaintDescr;
 no_blk_gen_diff prod_info_old:^ProducerInfo prod_info_new:^ProducerInfo = ComplaintDescr;
 validator_complaint#bc validator_pubkey:bits256 description:^ComplaintDescr created_at:uint32 severity:uint8 reward_addr:uint256 paid:Grams suggested_fine:Grams suggested_fine_part:uint32 = ValidatorComplaint;
-complaint_status#2d complaint:^ValidatorComplaint voters:(HashmapE 16 True) vset_id:uint256 weight_remaining:int64 = ValidatorComplaintStatus;
+complaint_status#2d complaint:^ValidatorComplaint voters:(HashmapE 16 TrueT) vset_id:uint256 weight_remaining:int64 = ValidatorComplaintStatus;
 
 //
 //  TVM REFLECTION
