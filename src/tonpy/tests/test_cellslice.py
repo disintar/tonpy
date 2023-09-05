@@ -309,7 +309,8 @@ def test_load_tlb():
 
 def test_repr():
     cs = CellSlice("te6ccuEBAQEABQAKAAVBX/xo8FXp")
-    assert str(cs) == "<CellSlice Cell bits: 0..21; refs: 0..0>"
+    assert str(
+        cs) == "<CellSlice [21] bits, [0] refs, [235CBBDDDA3C8397468C806412A211BD2672C6188D9728C62DD48B3DEED02BA6] hash>"
 
 
 def test_dump():

@@ -60,4 +60,9 @@ class Cell:
         self.cell: PyCell = parse_string_to_cell(boc)
 
     def __repr__(self):
-        return self.cell.__repr__()
+        cs = self.begin_parse()
+        b = cs.bits
+        r = cs.refs
+        del cs
+
+        return f"<Cell [{b}] bits, [{r}] refs, [{self.get_hash()}] hash>"

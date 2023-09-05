@@ -408,4 +408,7 @@ class CellBuilder:
         self.store_slice(Cell(boc).begin_parse())
 
     def __repr__(self):
-        return self.builder.__repr__()
+        b = self.bits
+        r = self.refs
+
+        return f"<CellBuilder [{b}] bits, [{r}] refs, [{self.get_hash()}] hash>"

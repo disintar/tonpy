@@ -481,4 +481,7 @@ class CellSlice:
         self.cell_slice: PyCellSlice = load_as_cell_slice(parse_string_to_cell(boc), self.allow_special)
 
     def __repr__(self):
-        return self.cell_slice.__repr__()
+        b = self.bits
+        r = self.refs
+
+        return f"<CellSlice [{b}] bits, [{r}] refs, [{self.get_hash()}] hash>"

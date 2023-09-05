@@ -213,7 +213,8 @@ def test_get_hash():
 def test_repr():
     cb = CellBuilder()
     cb.store_uint(10, 32)
-    assert str(cb) == "<CellBuilder Cell bits: 0..32; refs: 0..0>"
+    assert str(
+        cb) == "<CellBuilder [32] bits, [0] refs, [8AE53B8B0178198B1165839BF91623AD7A92E1D074F1C3786A62078542667024] hash>"
 
 
 def test_store_grams():
@@ -361,4 +362,3 @@ def test_store_build():
     cb.store_bool(False)
     cs = cb.begin_parse()
     assert cs.load_bool() is False
-

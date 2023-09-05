@@ -90,3 +90,10 @@ def test_copy():
     cell2 = cell.copy()
 
     assert cell.get_hash() == cell2.get_hash()
+
+
+def test_repr():
+    c = Cell("te6ccuEBAQEABQAKAAVBX/xo8FXp")
+    print(c)
+    assert str(
+        c) == "<Cell [21] bits, [0] refs, [235CBBDDDA3C8397468C806412A211BD2672C6188D9728C62DD48B3DEED02BA6] hash>"

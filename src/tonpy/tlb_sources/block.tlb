@@ -1,5 +1,5 @@
 unit$_ = Unit;
-true$_ = Truet;
+true$_ = True;
 // EMPTY False;
 bool_false$0 = Bool;
 bool_true$1 = Bool;
@@ -37,7 +37,7 @@ hme_empty$0 {n:#} {X:Type} = HashmapE n X;
 hme_root$1 {n:#} {X:Type} root:^(Hashmap n X) = HashmapE n X;
 
 // true#_ = True;
-_ {n:#} _:(Hashmap n Truet) = BitstringSet n;
+_ {n:#} _:(Hashmap n True) = BitstringSet n;
 
 //  HashmapAug, hashmap with an extra value
 //   (augmentation) of type Y at every node
@@ -141,6 +141,10 @@ ext_out_msg_info$11 src:MsgAddress dest:MsgAddressExt
 
 tick_tock$_ tick:Bool tock:Bool = TickTock;
 
+_ split_depth:(Maybe (## 5)) = SplitDepth;
+_ special:(Maybe TickTock) = Special;
+_ library:(HashmapE 256 SimpleLib) = DictWithSimpleLibs;
+
 _ split_depth:(Maybe (## 5)) special:(Maybe TickTock)
   code:(Maybe ^Cell) data:(Maybe ^Cell)
   library:(Maybe ^Cell) = StateInit;
@@ -151,6 +155,9 @@ _ split_depth:(Maybe (## 5)) special:(Maybe TickTock)
   library:(HashmapE 256 SimpleLib) = StateInitWithLibs;
 
 simple_lib$_ public:Bool root:^Cell = SimpleLib;
+
+_ init:(Maybe (Either StateInit ^StateInit)) = MessageInit;
+_ body:(Either Any ^Any) = MessageAnyBody;
 
 message$_ {X:Type} info:CommonMsgInfo
   init:(Maybe (Either StateInit ^StateInit))
@@ -276,7 +283,7 @@ transaction$0111 account_addr:bits256 lt:uint64
   total_fees:CurrencyCollection state_update:^(HASH_UPDATE Account)
   description:^TransactionDescr = Transaction;
 
-!merkle_update#04 {X:Type} old_hash:bits256 new_hash:bits256
+!merkle_update#02 {X:Type} old_hash:bits256 new_hash:bits256
   old:^X new:^X = MERKLE_UPDATE X;
 update_hashes#72 {X:Type} old_hash:bits256 new_hash:bits256
   = HASH_UPDATE X;
@@ -421,7 +428,7 @@ shard_state#9023afe2 global_id:int32
 _ ShardStateUnsplit = ShardState;
 split_state#5f327da5 left:^ShardStateUnsplit right:^ShardStateUnsplit = ShardState;
 
-shared_lib_descr$00 lib:^Cell publishers:(Hashmap 256 Truet)
+shared_lib_descr$00 lib:^Cell publishers:(Hashmap 256 True)
   = LibDescr;
 
 block_info#9bc7a987 version:uint32
@@ -618,8 +625,8 @@ _ to_mint:ExtraCurrencyCollection = ConfigParam 7;
 
 capabilities#c4 version:uint32 capabilities:uint64 = GlobalVersion;
 _ GlobalVersion = ConfigParam 8;  // all zero if absent
-_ mandatory_params:(Hashmap 32 Truet) = ConfigParam 9;
-_ critical_params:(Hashmap 32 Truet) = ConfigParam 10;
+_ mandatory_params:(Hashmap 32 True) = ConfigParam 9;
+_ critical_params:(Hashmap 32 True) = ConfigParam 10;
 
 cfg_vote_cfg#36 min_tot_rounds:uint8 max_tot_rounds:uint8 min_wins:uint8 max_losses:uint8 min_store_sec:uint32 max_store_sec:uint32 bit_price:uint32 cell_price:uint32 = ConfigProposalSetup;
 cfg_vote_setup#91 normal_params:^ConfigProposalSetup critical_params:^ConfigProposalSetup = ConfigVotingSetup;
@@ -628,7 +635,7 @@ _ ConfigVotingSetup = ConfigParam 11;
 cfg_proposal#f3 param_id:int32 param_value:(Maybe ^Cell) if_hash_equal:(Maybe uint256)
   = ConfigProposal;
 cfg_proposal_status#ce expires:uint32 proposal:^ConfigProposal is_critical:Bool
-  voters:(HashmapE 16 Truet) remaining_weight:int64 validator_set_id:uint256
+  voters:(HashmapE 16 True) remaining_weight:int64 validator_set_id:uint256
   rounds_remaining:uint8 wins:uint8 losses:uint8 = ConfigProposalStatus;
 
 wfmt_basic#1 vm_version:int32 vm_mode:uint64 = WorkchainFormat 1;
@@ -756,7 +763,7 @@ consensus_config_v4#d9 flags:(## 7) { flags = 0 } new_catchain_ids:Bool
 _ CatchainConfig = ConfigParam 28;
 _ ConsensusConfig = ConfigParam 29;
 
-_ fundamental_smc_addr:(HashmapE 256 Truet) = ConfigParam 31;
+_ fundamental_smc_addr:(HashmapE 256 True) = ConfigParam 31;
 _ prev_validators:ValidatorSet = ConfigParam 32;
 _ prev_temp_validators:ValidatorSet = ConfigParam 33;
 _ cur_validators:ValidatorSet = ConfigParam 34;
@@ -833,7 +840,7 @@ prod_info#34 utime:uint32 mc_blk_ref:ExtBlkRef state_proof:^(MERKLE_PROOF Block)
 no_blk_gen from_utime:uint32 prod_info:^ProducerInfo = ComplaintDescr;
 no_blk_gen_diff prod_info_old:^ProducerInfo prod_info_new:^ProducerInfo = ComplaintDescr;
 validator_complaint#bc validator_pubkey:bits256 description:^ComplaintDescr created_at:uint32 severity:uint8 reward_addr:uint256 paid:Grams suggested_fine:Grams suggested_fine_part:uint32 = ValidatorComplaint;
-complaint_status#2d complaint:^ValidatorComplaint voters:(HashmapE 16 Truet) vset_id:uint256 weight_remaining:int64 = ValidatorComplaintStatus;
+complaint_status#2d complaint:^ValidatorComplaint voters:(HashmapE 16 True) vset_id:uint256 weight_remaining:int64 = ValidatorComplaintStatus;
 
 //
 //  TVM REFLECTION
