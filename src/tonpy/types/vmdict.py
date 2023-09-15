@@ -1,4 +1,5 @@
-from typing import Union, Iterable, Optional, Tuple
+from typing import Union, Iterable, Optional, Tuple, Callable
+import warnings
 
 from tonpy.libs.python_ton import PyDict, PyCellSlice, PyAugmentationCheckData
 
@@ -126,7 +127,7 @@ class VmDict:
 
         if key_len > 256:
             if not (key_len == 257 and signed):
-                raise ValueError("Key len must not be larger than 256 for unsigned / 257 for signed")
+                warnings.warn("Key len larger than 256 for unsigned / 257 for signed supports only in `.map` method")
 
         self.key_len = key_len
         self.signed = signed
@@ -360,6 +361,12 @@ class VmDict:
                 yield key, value
             except RuntimeError:
                 return
+
+    def map(self, f: Callable[["CellSlice", "CellSlice"], bool]):
+        """Map over all key & values of dictionary."""
+
+        tmp_f = lambda key, value: f(CellSlice(key), CellSlice(value))
+        self.dict.map(tmp_f)
 
     def __setitem__(self, key: Union[int, str], value: Union[Union[Union[str, CellSlice], Cell], CellBuilder]):
         if isinstance(key, str):
