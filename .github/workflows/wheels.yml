@@ -241,6 +241,7 @@ jobs:
     runs-on: Linux
     needs:
       #      - buildVirtualLinux
+      - build
       - buildMacOs39
 
     steps:
