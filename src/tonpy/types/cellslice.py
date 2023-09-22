@@ -471,6 +471,13 @@ class CellSlice:
         """Make independent copy of current ``CellSlice``"""
         return CellSlice(self.cell_slice.copy())
 
+    def to_cell(self) -> "Cell":
+        # TODO: find better way (c++?)
+        from tonpy.types import CellBuilder
+        cb = CellBuilder()
+        cb.store_slice(self)
+        return cb.end_cell(self.allow_special)
+
     def __getstate__(self):
         return [self.to_boc(), self.allow_special]
 

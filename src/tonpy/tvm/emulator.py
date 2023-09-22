@@ -1,11 +1,16 @@
 from tonpy.libs.python_ton import PyEmulator
-from tonpy.types import VmDict, Cell
+from tonpy.types import VmDict, Cell, CellSlice
 from typing import Union
 
 
 class Emulator:
     def __init__(self, config: Union[Cell, VmDict]):
-        self.emulator: PyEmulator = PyEmulator(config.get_cell().cell)
+        if isinstance(config, VmDict):
+            config = config.get_cell().cell
+        else:
+            config = config.cell
+
+        self.emulator: PyEmulator = PyEmulator(config)
 
     def emulate_transaction(self, shard_account: Cell, message: Cell, unixtime: int, lt: int) -> bool:
         return self.emulator.emulate_transaction(shard_account.cell, message.cell, str(unixtime), str(lt),
@@ -31,17 +36,32 @@ class Emulator:
         self.emulator.set_debug_enabled(flag)
 
     @property
-    def elapsed_time(self):
+    def elapsed_time(self) -> int:
         return self.emulator.elapsed_time
 
     @property
-    def transaction(self):
-        return Cell(self.emulator.transaction_cell).begin_parse()
+    def transaction(self, as_cs=True) -> Union[Cell, CellSlice]:
+        c = Cell(self.emulator.transaction_cell)
+
+        if as_cs:
+            return c.begin_parse()
+        else:
+            return c
 
     @property
-    def account(self):
-        return Cell(self.emulator.account_cell).begin_parse()
+    def account(self, as_cs=True) -> Union[Cell, CellSlice]:
+        c = Cell(self.emulator.account_cell)
+
+        if as_cs:
+            return c.begin_parse()
+        else:
+            return c
 
     @property
-    def actions(self):
-        return Cell(self.emulator.actions_cell).begin_parse()
+    def actions(self, as_cs=True) -> Union[Cell, CellSlice]:
+        c = Cell(self.emulator.actions_cell)
+
+        if as_cs:
+            return c.begin_parse()
+        else:
+            return c
