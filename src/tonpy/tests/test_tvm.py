@@ -147,3 +147,11 @@ def test_tvm_set_libs():
 
 def test_method_name_to_id():
     assert method_name_to_id('get_sale_data') == 72748
+
+
+def test_set_gas_limit():
+    cell_code = convert_assembler("""<{ 228 PUSHINT }>c""")
+    t = TVM(code=cell_code)
+    t.set_gas_limit(0)
+    t.run()
+    assert t.exit_code == 13  # out of gas

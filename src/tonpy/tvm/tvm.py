@@ -115,7 +115,7 @@ class TVM:
         return self.tvm.set_state_init(state_init)
 
     def set_gas_limit(self, gas_limit=0, gas_max=-1) -> bool:
-        return self.tvm.set_gas_limit(str(gas_limit), str(gas_max))
+        return self.tvm.set_gasLimit(str(gas_limit), str(gas_max))
 
     def clear_stack(self) -> bool:
         return self.tvm.clear_stack()
