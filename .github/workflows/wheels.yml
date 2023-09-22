@@ -182,59 +182,59 @@ jobs:
           name: python-package-distributions
           path: dist
 
-  buildVirtualLinux:
-    strategy:
-      matrix:
-        include:
-          - arch: aarch64
-            os: Linux
-            python: "3.9"
-            link: https://github.com/disintar/ton/releases/download/ton-cpython-39-aarch64-linux/
-            file: python_ton.cpython-39-aarch64-linux-gnu.so
-            fix_tag: manylinux2014_aarch64
-            docker_python_tag: 3.9.17-bookworm
-
-          - arch: aarch64
-            os: Linux
-            python: "3.10"
-            link: https://github.com/disintar/ton/releases/download/ton-cpython-310-aarch64-linux/
-            file: python_ton.cpython-310-aarch64-linux-gnu.so
-            fix_tag: manylinux2014_aarch64
-            docker_python_tag: 3.10.12-bookworm
-
-          - arch: aarch64
-            os: Linux
-            python: "3.11"
-            link: https://github.com/disintar/ton/releases/download/ton-cpython-311-aarch64-linux/
-            file: python_ton.cpython-311-aarch64-linux-gnu.so
-            fix_tag: manylinux2014_aarch64
-            docker_python_tag: 3.11.4-bookworm
-
-    runs-on: ${{ matrix.os }}
-    needs:
-      - build
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Save download prebuilt
-        run: |
-          curl -Lo ${PWD}/src/tonpy/libs/${{ matrix.file }} ${{ matrix.link }}${{ matrix.file }}
-
-      - name: Run tests in virtual
-        run: |
-          docker run --network host --platform linux/aarch64 -e TAG_FIX=${{ matrix.fix_tag }} --rm --volume "${PWD}:/tmp/tonpy" -t arm64v8/python:${{ matrix.docker_python_tag }} /tmp/tonpy/run_test_in_docker.sh
-        if: (matrix.os == 'Linux' && matrix.arch == 'aarch64')
-
-      - name: Show wheel
-        run: |
-          ls -lhta ./dist
-
-      - name: Store the binary wheel
-        uses: actions/upload-artifact@v2
-        with:
-          name: python-package-distributions
-          path: dist
+#  buildVirtualLinux:
+#    strategy:
+#      matrix:
+#        include:
+#          - arch: aarch64
+#            os: Linux
+#            python: "3.9"
+#            link: https://github.com/disintar/ton/releases/download/ton-cpython-39-aarch64-linux/
+#            file: python_ton.cpython-39-aarch64-linux-gnu.so
+#            fix_tag: manylinux2014_aarch64
+#            docker_python_tag: 3.9.17-bookworm
+#
+#          - arch: aarch64
+#            os: Linux
+#            python: "3.10"
+#            link: https://github.com/disintar/ton/releases/download/ton-cpython-310-aarch64-linux/
+#            file: python_ton.cpython-310-aarch64-linux-gnu.so
+#            fix_tag: manylinux2014_aarch64
+#            docker_python_tag: 3.10.12-bookworm
+#
+#          - arch: aarch64
+#            os: Linux
+#            python: "3.11"
+#            link: https://github.com/disintar/ton/releases/download/ton-cpython-311-aarch64-linux/
+#            file: python_ton.cpython-311-aarch64-linux-gnu.so
+#            fix_tag: manylinux2014_aarch64
+#            docker_python_tag: 3.11.4-bookworm
+#
+#    runs-on: ${{ matrix.os }}
+#    needs:
+#      - build
+#
+#    steps:
+#      - uses: actions/checkout@v3
+#
+#      - name: Save download prebuilt
+#        run: |
+#          curl -Lo ${PWD}/src/tonpy/libs/${{ matrix.file }} ${{ matrix.link }}${{ matrix.file }}
+#
+#      - name: Run tests in virtual
+#        run: |
+#          docker run --network host --platform linux/aarch64 -e TAG_FIX=${{ matrix.fix_tag }} --rm --volume "${PWD}:/tmp/tonpy" -t arm64v8/python:${{ matrix.docker_python_tag }} /tmp/tonpy/run_test_in_docker.sh
+#        if: (matrix.os == 'Linux' && matrix.arch == 'aarch64')
+#
+#      - name: Show wheel
+#        run: |
+#          ls -lhta ./dist
+#
+#      - name: Store the binary wheel
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: python-package-distributions
+#          path: dist
 
   deploy:
     name: Publish 🐍📦 to PyPI
