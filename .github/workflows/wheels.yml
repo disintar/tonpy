@@ -111,6 +111,7 @@ jobs:
 
       - name: Win fix manifest
         run: |
+          del /f MANIFEST.in
           mv MANIFEST_WIN.in MANIFEST.in
         if: matrix.os == 'windows-2019'
 
