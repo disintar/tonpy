@@ -109,6 +109,11 @@ jobs:
         run: |
           curl -Lo ./src/tonpy/libs/${{ matrix.file }} ${{ matrix.link }}${{ matrix.file }}
 
+      - name: Win fix manifest
+        run: |
+          mv MANIFEST_WIN.in MANIFEST.in
+        if: matrix.os == 'windows-2019'
+
       - name: Run tests
         run: |
           pytest
