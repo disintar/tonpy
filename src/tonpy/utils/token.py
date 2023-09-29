@@ -7,4 +7,4 @@ if TYPE_CHECKING:
 
 
 def parse_token_data(cell: "Cell"):
-    return parse_token_data(cell.cell)
+    return parse_token_data_cell(cell.cell)
