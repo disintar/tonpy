@@ -5,7 +5,7 @@ from tonpy.utils.actions import output_actions_count
 
 path_root = Path(__file__).parents[2]
 sys.path.append(str(path_root))
-print(str(path_root))
+
 from tonpy import Emulator, Cell, VmDict
 from tonpy.autogen.block import Account, OutList
 from pprint import pprint
