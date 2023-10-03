@@ -10,7 +10,7 @@ sys.path.append(str(path_root))
 
 from tonpy.types.vmdict import VmDict
 from tonpy.types.cellbuilder import CellBuilder, CellSlice, Cell
-from tonpy.tests.dict_test_boc import config_44, reveal_dict_boc
+from tonpy.data_for_tests.dict_test_boc import config_44, reveal_dict_boc
 
 
 def test_vm_dict_from_boc():

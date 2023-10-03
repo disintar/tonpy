@@ -9,7 +9,7 @@ path_root = Path(__file__).parents[2]
 sys.path.append(str(path_root))
 
 from tonpy.types import CellSlice
-from tonpy.tests.block_boc import block_boc
+from tonpy.data_for_tests.block_boc import block_boc
 from tonpy.autogen.block import BlockInfo, ValueFlow, BlockExtra, Block, InMsg, ImportFees
 from time import time
 from tonpy.types.vmdict import TypedVmDict
