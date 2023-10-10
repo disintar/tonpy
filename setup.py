@@ -28,7 +28,7 @@ except ImportError:
 
 setup(
     name="tonpy",
-    version="0.0.0.1.1c0",
+    version="0.0.0.1.2a0",
     author="Disintar LLP",
     author_email="andrey@head-labs.com",
     description="Types / API for TON blockchain",
