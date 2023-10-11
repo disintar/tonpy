@@ -7,7 +7,7 @@ def test_simple_tvm():
     # language=fift
     code = convert_assembler("<{ x{0123456789abcdef} PUSHSLICE SHA256U }>c")
     t = TVM(code=code)
-    final_stack = t.run()
+    final_stack = t.run(unpack_stack=False)
 
     assert t.success is True
     assert t.exit_code == -1
@@ -43,7 +43,7 @@ def test_tvm_c4_c5_stack():
     t = TVM(code=convert_assembler(code),
             data=CellBuilder().store_ref(CellBuilder().end_cell()).store_uint(10, 64).end_cell())
     t.set_stack(Stack([20, 2]))
-    final_stack = t.run()
+    final_stack = t.run(unpack_stack=False)
     final_stack = StackEntry.rec_get([i.get() for i in final_stack])
     assert final_stack == [22, 1, 64, 1, 0, 0, [100, 200], 123]
     assert t.c4_updated.begin_parse().to_bitstring() == bin(0x99991111)[2:]
@@ -139,7 +139,7 @@ def test_tvm_set_libs():
     libs[code_hash] = cell_code
     t.set_libs(libs)
 
-    final_stack = t.run()
+    final_stack = t.run(unpack_stack=False)
     assert len(t.vm_steps_detailed) == 6
     assert len(final_stack) == 1
     assert final_stack[0].get() == 228

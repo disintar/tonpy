@@ -127,7 +127,7 @@ class TVM:
         for i, op in enumerate(ops):
             self.vm_steps_detailed[i].next_op = op
 
-    def run(self, unpack_stack=False) -> Union[Stack, List]:
+    def run(self, unpack_stack=True) -> Union[Stack, List]:
         st = Stack(prev_stack=self.tvm.run_vm())
         if self.enable_stack_dump:
             self.fetch_detailed_step_info()
