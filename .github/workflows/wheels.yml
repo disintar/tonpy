@@ -111,6 +111,7 @@ jobs:
 
       - name: Win fix manifest
         run: |
+          mv win/libcrypto-1_1-x64.dll ./src/tonpy/libs/
           mv MANIFEST.in MANIFEST_LINUX.in
           mv MANIFEST_WIN.in MANIFEST.in
         if: matrix.os == 'windows-2019'
