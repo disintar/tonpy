@@ -1,3 +1,5 @@
+# Copyright (c) 2023 Disintar LLP Licensed under the Apache License Version 2.0
+
 from tonpy.types.cell import Cell
 from tonpy.types.cellslice import CellSlice
 from tonpy.types.cellbuilder import CellBuilder

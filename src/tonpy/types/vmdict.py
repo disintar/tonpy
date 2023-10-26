@@ -1,3 +1,5 @@
+# Copyright (c) 2023 Disintar LLP Licensed under the Apache License Version 2.0
+
 from typing import Union, Iterable, Optional, Tuple, Callable
 import warnings
 

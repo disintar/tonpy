@@ -1,3 +1,5 @@
+# Copyright (c) 2023 Disintar LLP Licensed under the Apache License Version 2.0
+
 from typing import Union, List, Optional
 
 from tonpy.libs.python_ton import PyTVM, method_name_to_id as py_method_name_to_id

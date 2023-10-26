@@ -1,3 +1,5 @@
+# Copyright (c) 2023 Disintar LLP Licensed under the Apache License Version 2.0
+
 from tonpy.tlb_gen.py import add_tlb
 from bitstring import BitArray
 from tonpy.types import TLB, CellBuilder

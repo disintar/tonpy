@@ -1,3 +1,5 @@
+# Copyright (c) 2023 Disintar LLP Licensed under the Apache License Version 2.0
+
 from tonpy.types import *
 from tonpy.tlb_gen import *
 from tonpy.tvm import *

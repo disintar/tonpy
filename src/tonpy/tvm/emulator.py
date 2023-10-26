@@ -1,3 +1,5 @@
+# Copyright (c) 2023 Disintar LLP Licensed under the Apache License Version 2.0
+
 from tonpy.libs.python_ton import PyEmulator
 from tonpy.types import VmDict, Cell, CellSlice
 from typing import Union

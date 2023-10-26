@@ -1,3 +1,5 @@
+# Copyright (c) 2023 Disintar LLP Licensed under the Apache License Version 2.0
+
 from collections import defaultdict
 from enum import Enum
 from typing import Optional, List, Union, Callable
