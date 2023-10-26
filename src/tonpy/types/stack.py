@@ -1,3 +1,5 @@
+# Copyright (c) 2023 Disintar LLP Licensed under the Apache License Version 2.0
+
 from tonpy.libs.python_ton import PyStackEntry, PyStack, make_tuple, deserialize_stack_entry, deserialize_stack, \
     PyContinuation
 from tonpy.types import Cell, CellSlice, CellBuilder
