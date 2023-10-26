@@ -59,3 +59,12 @@ class Address:
         # TODO: made this work
         raise NotImplementedError
         # return self.my_address == other.my_address
+
+    def __getstate__(self):
+        return self.serialize()
+
+    def __setstate__(self, value):
+        self.my_address: PySmcAddress = address_from_string(value)
+
+    def __str__(self):
+        return f'<Address value="{self.serialize()}">'
