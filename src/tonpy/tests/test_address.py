@@ -1,6 +1,7 @@
 # Copyright (c) 2023 Disintar LLP Licensed under the Apache License Version 2.0
 
 from tonpy.types.address import Address
+import pickle as pck
 
 
 def helper(a: Address):
@@ -24,6 +25,11 @@ def helper(a: Address):
 def test_address_string():
     a = Address("EQDrLq-X6jKZNHAScgghh0h1iog3StK71zn8dcmrOj8jPWRA")
     helper(a)
+
+
+def test_pickle_friendly():
+    a = Address("EQDrLq-X6jKZNHAScgghh0h1iog3StK71zn8dcmrOj8jPWRA")
+    assert pck.loads(pck.dumps(a)).serialize() == "EQDrLq-X6jKZNHAScgghh0h1iog3StK71zn8dcmrOj8jPWRA"
 
 
 def test_address_string_fail():
