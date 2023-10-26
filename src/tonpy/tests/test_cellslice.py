@@ -134,8 +134,13 @@ def test_to_boc():
 
 
 def test_load_address():
-    cs = CellSlice("te6ccuEBAQEAJABIAEOAHWXV8v1GUyaOAk5BBDDpDrFRBulaV3rnP465NWdH5Gew4RZ/pw==")
-    assert cs.load_address() == "EQDrLq-X6jKZNHAScgghh0h1iog3StK71zn8dcmrOj8jPWRA"
+    cb = CellBuilder("te6ccuEBAQEAJABIAEOAHWXV8v1GUyaOAk5BBDDpDrFRBulaV3rnP465NWdH5Gew4RZ/pw==")
+    cb.store_uint(10, 256)
+    cs = cb.end_cell().begin_parse()
+
+    assert cs.load_address().serialize() == "EQDrLq-X6jKZNHAScgghh0h1iog3StK71zn8dcmrOj8jPWRA"
+    assert cs.bits == 256
+    assert cs.load_uint(256) == 10
 
 
 def test_bit_at():
