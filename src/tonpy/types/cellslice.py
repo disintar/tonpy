@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 from tonpy.utils.bit_converter import bitstring_to_utf8
 
 if TYPE_CHECKING:
+    from tonpy.types.address import Address
     from tonpy.types import Cell
 
 
@@ -119,14 +120,15 @@ class CellSlice:
 
         return int(self.cell_slice.load_var_integer_str(bits, True))
 
-    def load_address(self) -> str:
+    def load_address(self) -> "Address":
         """
-        Parse address by ``MsgAddress`` TLB structure and dump as string  |br|
+        Parse address by ``MsgAddress`` TLB structure |br|
 
         :return: Loaded address dumped as string
         """
+        from tonpy.types.address import Address
 
-        return self.cell_slice.load_addr()
+        return Address(self.cell_slice)
 
     def to_bitstring(self) -> str:
         """

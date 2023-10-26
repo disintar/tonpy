@@ -314,19 +314,19 @@ def test_store_address():
     cb.store_address("EQDrLq-X6jKZNHAScgghh0h1iog3StK71zn8dcmrOj8jPWRA")
     assert cb.bits == 267
     cs = cb.begin_parse()
-    assert cs.load_address() == "EQDrLq-X6jKZNHAScgghh0h1iog3StK71zn8dcmrOj8jPWRA"
+    assert cs.load_address().serialize() == "EQDrLq-X6jKZNHAScgghh0h1iog3StK71zn8dcmrOj8jPWRA"
 
     cb = CellBuilder()
     cb.store_address("UQDrLq-X6jKZNHAScgghh0h1iog3StK71zn8dcmrOj8jPTmF")
     assert cb.bits == 267
     cs = cb.begin_parse()
-    assert cs.load_address() == "EQDrLq-X6jKZNHAScgghh0h1iog3StK71zn8dcmrOj8jPWRA"
+    assert cs.load_address().serialize() == "EQDrLq-X6jKZNHAScgghh0h1iog3StK71zn8dcmrOj8jPWRA"
 
     cb = CellBuilder()
     cb.store_address("0:EB2EAF97EA32993470127208218748758A88374AD2BBD739FC75C9AB3A3F233D")
     assert cb.bits == 267
     cs = cb.begin_parse()
-    assert cs.load_address() == "EQDrLq-X6jKZNHAScgghh0h1iog3StK71zn8dcmrOj8jPWRA"
+    assert cs.load_address().serialize() == "EQDrLq-X6jKZNHAScgghh0h1iog3StK71zn8dcmrOj8jPWRA"
 
 
 def test_store_string():

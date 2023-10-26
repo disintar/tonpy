@@ -1,3 +1,5 @@
+# Copyright (c) 2023 Disintar LLP Licensed under the Apache License Version 2.0
+
 import os
 
 if __name__ == "__main__":

@@ -7,6 +7,7 @@ from tonpy.types.cell import Cell
 from tonpy.types.cellslice import CellSlice
 from bitstring import BitArray
 
+from tonpy.types.address import Address
 from tonpy.utils.bit_int import test_value_len
 
 if TYPE_CHECKING:
@@ -343,7 +344,7 @@ class CellBuilder:
         self.builder.store_grams_str(str(grams))
         return self
 
-    def store_address(self, address: str) -> "CellBuilder":
+    def store_address(self, address: Union[str, "Address"]) -> "CellBuilder":
         """
         Parse smart-contract address from string and store as ``MsgAddress`` TLB structure  |br|
 
@@ -351,7 +352,10 @@ class CellBuilder:
         :return: Current CellBuilder
         """
 
-        self.builder.store_address(address)
+        if isinstance(address, str):
+            address = Address(address)
+        address.append_to_builder(self)
+
         return self
 
     def _store_string_rec(self, binstrint_to_store: str) -> Cell:
