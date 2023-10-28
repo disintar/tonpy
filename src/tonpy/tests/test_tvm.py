@@ -155,5 +155,5 @@ def test_set_gas_limit():
     cell_code = convert_assembler("""<{ 228 PUSHINT }>c""")
     t = TVM(code=cell_code)
     t.set_gas_limit(0)
-    t.run()
+    t.run(allow_non_success=True)
     assert t.exit_code == 13  # out of gas

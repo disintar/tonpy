@@ -129,8 +129,12 @@ class TVM:
         for i, op in enumerate(ops):
             self.vm_steps_detailed[i].next_op = op
 
-    def run(self, unpack_stack=True) -> Union[Stack, List]:
+    def run(self, unpack_stack=True, allow_non_success=False) -> Union[Stack, List]:
         st = Stack(prev_stack=self.tvm.run_vm())
+
+        if allow_non_success is False:
+            assert self.exit_code in [-1, 0], f"TVM run failed with exit code: {self.exit_code}"
+
         if self.enable_stack_dump:
             self.fetch_detailed_step_info()
 
