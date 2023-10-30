@@ -2,6 +2,7 @@
 
 import os
 from setuptools import setup, find_packages
+IS_DEV = os.environ.get('DEV_PYPI', False)
 
 with open(f"README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
@@ -29,7 +30,7 @@ except ImportError:
     bdist_wheel = None
 
 setup(
-    name="tonpy",
+    name="tonpy" if not IS_DEV else "tonpy-dev",
     version="0.0.0.1.2b0",
     author="Disintar LLP",
     author_email="andrey@head-labs.com",
