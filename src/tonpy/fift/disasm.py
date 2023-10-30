@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from tonpy.libs.python_ton import code_dissemble_str, code_dissemble_cell
+from tonpy.libs.python_ton import code_dissemble_str
 from typing import Union
 import os
 from tonpy.types import Cell
