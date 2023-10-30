@@ -1,4 +1,4 @@
-name: [DEV] Wheels & Tests & PyPi
+name: DEV Wheels & Tests & PyPi
 
 on:
   push:
