@@ -15,7 +15,7 @@ def disassembler(code: Union[Cell, str]):
     if isinstance(code, str):
         return code_dissemble_str(code, str(libs_root))
     elif isinstance(code, Cell):
-        return code_dissemble_cell(code.cell, str(libs_root))
+        return code_dissemble_str(code.to_boc(), str(libs_root))
     else:
         raise ValueError(f"Type {type(code)} is not supported. "
                          f"Please provide cell or string")
