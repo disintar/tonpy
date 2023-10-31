@@ -3,6 +3,9 @@
 from tonpy.fift.fift import convert_assembler
 from tonpy.tvm.tvm import TVM, method_name_to_id
 from tonpy.types import Cell, CellSlice, CellBuilder, Stack, StackEntry, Continuation, VmDict
+import faulthandler
+
+faulthandler.enable()
 
 
 def test_simple_tvm():
@@ -157,3 +160,6 @@ def test_set_gas_limit():
     t.set_gas_limit(0)
     t.run(allow_non_success=True)
     assert t.exit_code == 13  # out of gas
+
+if __name__ == "__main__":
+    test_set_gas_limit()
