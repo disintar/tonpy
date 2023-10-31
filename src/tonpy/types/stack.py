@@ -79,6 +79,9 @@ class StackEntry:
     def as_cont(self):
         return Continuation(self.entry.as_cont())
 
+    def as_str(self):
+        return str(self.entry.as_string())
+
     def as_tuple(self) -> List["StackEntry"]:
         return list(map(lambda x: StackEntry(entry=x), self.entry.as_tuple()))
 
@@ -125,6 +128,8 @@ class StackEntry:
             return self.as_tuple()
         elif t is StackEntry.Type.t_vmcont:
             return self.as_cont()
+        elif t is StackEntry.Type.t_string:
+            return self.as_str()
         else:
             raise ValueError(f"Not supported {t}")
 
