@@ -145,7 +145,7 @@ class VmDict:
             cell_root = cs.cell_slice
 
         if aug is None:
-            self.dict = PyDict(key_len, signed, cell_root)
+            self.dict = PyDict(bit_len=key_len, signed=signed, cs_root=cell_root)
             self.is_augmented = False
         else:
             self.aug = aug
