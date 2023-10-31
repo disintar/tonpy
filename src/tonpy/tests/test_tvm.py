@@ -160,6 +160,3 @@ def test_set_gas_limit():
     t.set_gas_limit(0)
     t.run(allow_non_success=True)
     assert t.exit_code == 13  # out of gas
-
-if __name__ == "__main__":
-    test_set_gas_limit()
