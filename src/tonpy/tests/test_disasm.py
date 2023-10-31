@@ -5374,3 +5374,6 @@ def test_disassembler_3_str():
     rest = disassembler(code)
     assert rest == test3
 
+
+if __name__ == "__main__":
+    test_disassembler_3_str()
