@@ -175,6 +175,9 @@ class TVM:
 
     @property
     def exit_code(self) -> int:
+        # Think of always return ~self.tvm.exit_code
+        if self.tvm.exit_code < 0:
+            return ~self.tvm.exit_code
         return self.tvm.exit_code
 
     @property
