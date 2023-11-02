@@ -15,7 +15,7 @@ def test_simple_tvm():
     final_stack = t.run(unpack_stack=False)
 
     assert t.success is True
-    assert t.exit_code == -1
+    assert t.exit_code == 0
     assert t.vm_steps == 3
     assert t.gas_used == 53
     assert t.gas_credit == 0

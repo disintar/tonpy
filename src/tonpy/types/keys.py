@@ -14,7 +14,7 @@ class PublicKey:
         if key is not None:
             self.key = key
         else:
-            self.key = PyPublicKey(bytearray.fromhex(public_key_hex)[::-1].hex())
+            self.key = PyPublicKey(public_key_hex)
 
     def to_hex(self):
         return self.key.get_public_key_hex()
