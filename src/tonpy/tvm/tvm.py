@@ -3,7 +3,7 @@
 from typing import Union, List, Optional
 
 from tonpy.libs.python_ton import PyTVM, method_name_to_id as py_method_name_to_id
-from tonpy.types import Cell, Stack, StackEntry, VmDict, begin_cell
+from tonpy.types import Cell, CellSlice, Stack, StackEntry, VmDict, begin_cell
 from datetime import datetime
 
 
@@ -41,14 +41,14 @@ class C7:
         self.balance_grams = balance_grams
         self.balance_extra = balance_extra if balance_extra is not None else begin_cell().end_cell()
 
-        if isinstance(address, Cell):
+        if isinstance(address, CellSlice):
             self.address = address
         elif address is None:
-            self.address = begin_cell().end_cell()
+            self.address = begin_cell().end_cell().begin_parse()
         else:
-            self.address = begin_cell().store_bitstring("100") \
-                .store_int(address['workchain'], 8) \
-                .store_uint(int(address['address'], 16), 256)
+            self.address = begin_cell().store_address(
+                f"{address['workchain']}:{address['address']}").end_cell().begin_parse()
+
         self.global_config = global_config
 
     def to_data(self):
@@ -175,6 +175,9 @@ class TVM:
 
     @property
     def exit_code(self) -> int:
+        # Think of always return ~self.tvm.exit_code
+        if self.tvm.exit_code < 0:
+            return ~self.tvm.exit_code
         return self.tvm.exit_code
 
     @property
