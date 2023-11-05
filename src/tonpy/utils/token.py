@@ -3,11 +3,7 @@
 from tonpy.libs.python_ton import parse_chunked_data
 from tonpy.types.vmdict import VmDict
 from hashlib import sha256
-
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from tonpy import Cell
+from tonpy import CellSlice, Cell
 
 
 def parse_token_d_value(value):
@@ -39,6 +35,10 @@ def parse_token_d_value(value):
 
 
 def parse_token_data(data):
+    if isinstance(data, Cell):
+        data = data.begin_parse()
+
+    assert isinstance(data, CellSlice)
     if data.bits >= 8:
         ct = data.load_uint(8)
     else:
