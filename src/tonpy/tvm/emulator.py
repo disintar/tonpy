@@ -32,7 +32,7 @@ class Emulator:
         self.emulator.set_ignore_chksig(flag)
 
     def set_libs(self, libs: VmDict) -> None:
-        self.emulator.set_libs(libs.get_cell())
+        self.emulator.set_libs(libs.get_cell().cell)
 
     def set_debug_enabled(self, flag: bool) -> None:
         self.emulator.set_debug_enabled(flag)
