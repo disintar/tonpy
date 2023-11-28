@@ -14,9 +14,10 @@ class Emulator:
 
         self.emulator: PyEmulator = PyEmulator(config)
 
-    def emulate_transaction(self, shard_account: Cell, message: Cell, unixtime: int, lt: int) -> bool:
+    def emulate_transaction(self, shard_account: Cell, message: Cell, unixtime: int, lt: int,
+                            force_uninit=False) -> bool:
         return self.emulator.emulate_transaction(shard_account.cell, message.cell, str(unixtime), str(lt),
-                                                 1 if lt >= 3709412000000 else 0)
+                                                 1 if lt >= 3709412000000 else 0, force_uninit)
 
     def emulate_tick_tock_transaction(self, shard_account: Cell, is_tock: bool, unixtime: int, lt: int) -> bool:
         return self.emulator.emulate_tick_tock_transaction(shard_account.cell, is_tock, str(unixtime), str(lt),
