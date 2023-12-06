@@ -55,15 +55,29 @@ class LiteClient:
     def get_MasterchainInfoExt(self) -> MasterchainInfoExt:
         return self.client.get_MasterchainInfoExt()
 
+    def send_message(self, cell):
+        return self.client.send_message(cell.cell)
+
 
 if __name__ == "__main__":
-    server = servers[2]
+    from tonpy import Cell
+
+    # for server in servers:
+    server = {'started_at': 1701882334.870854,
+              'id': {'@type': 'pub.ed25519',
+                     'key': 'Fi6e++zdCQIYOoHze+i2ZzU8oKj6GbQIlya3GKVbLtQ='},
+              'port': 30123,
+              'ip': -957035708}
+    print("Start: ", server)
+
     lc = LiteClient(host=ipv4_int_to_str(server['ip']), port=server['port'],
                     pubkey=PublicKey(base64_to_hex(server['id']['key'])))
 
-    connected = False
-    while not connected:
-        time = lc.get_MasterchainInfoExt()
-        sleep(1)
-        print("Got connected: ", time.last_utime, time.now,
-              time.last.workchain, time.last.shard, time.last.seqno)
+    print(server, lc.send_message(Cell(
+        "te6ccuECAwEAAQYAAPQBWwIMBOeIAH7hK4c4nJzGSMTE1XJQptlwjSiHswHqdg6PwzQ880ZCBfnYKEwemTqcIjvAdtSKAGgGjASr+lli1xGyYDhExZMDCkaNPZiKM0ATJdNjDxvd7+KKdWVCigfX77NiGLoS0AlNTRi7K4cJyAAAA7AACAgIDAEBAQEBYGIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQIArgAAAABkYXRhOmFwcGxpY2F0aW9uL2pzb24seyJwIjoidG9uLTIwIiwib3AiOiJtaW50IiwidGljayI6Im5hbm8iLCJhbXQiOiIxMDAwMDAwMDAwMDAifQgv2J4=")))
+    # connected = False
+    # while not connected:
+    #     time = lc.get_MasterchainInfoExt()
+    #     sleep(1)
+    #     print("Got connected: ", time.last_utime, time.now,
+    #           time.last.workchain, time.last.shard, time.last.seqno)
