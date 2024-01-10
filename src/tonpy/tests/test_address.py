@@ -2,6 +2,7 @@
 
 from tonpy.types.address import Address
 import pickle as pck
+from tonpy.types.cellbuilder import CellBuilder
 
 
 def helper(a: Address):

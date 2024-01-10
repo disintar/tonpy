@@ -9,6 +9,8 @@ from tonpy.types.tlb_types import RefT, NatWidth, TLBComplex, Int, UInt, Bits, N
 from tonpy.types.stack import StackEntry, Stack, Continuation
 from tonpy.types.keys import *
 from tonpy.types.liteclient import *
+from tonpy.types.address import *
+
 
 def begin_cell():
     return CellBuilder()

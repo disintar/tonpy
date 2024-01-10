@@ -1,6 +1,7 @@
 # Copyright (c) 2023 Disintar LLP Licensed under the Apache License Version 2.0
 from multiprocessing import Pool
 
+from tonpy import VmDict
 from tonpy.fift.disasm import disassembler
 from tonpy.types.cell import Cell
 
@@ -65,7 +66,7 @@ DICTIGETJMPZ {
     LDGRAMS
     DROP
     PUSHINT 3
-    MULRSHIFT 1
+    MULRSHIFT# 1
     TUPLE 0
     XCHG2 s0, s4
     TPUSH
@@ -3099,7 +3100,7 @@ DICTIGETJMPZ {
     PUSHINT 11000000
     SWAP
     PUSHINT 3
-    MULRSHIFT 1
+    MULRSHIFT# 1
     ADD
     PUSHINT 50000000
     ADD
@@ -5374,3 +5375,40 @@ def test_disassembler_3_str():
 
     rest = disassembler(code)
     assert rest == test3
+
+
+def test_disassembler_root_lib():
+    from tonpy.fift.fift import convert_assembler
+    from tonpy import CellBuilder, CellSlice
+
+    cell_code = convert_assembler("""<{ 228 PUSHINT }>c""")
+    code_hash = int(cell_code.get_hash(), 16)
+
+    vmlibs = VmDict(256)
+    vmlibs.set_ref(code_hash, cell_code)
+
+    lib_cell = CellBuilder() \
+        .store_uint(CellSlice.SpecialType.Library.value, 8) \
+        .store_uint(code_hash, 256) \
+        .end_cell(special=True)
+
+    assert disassembler(lib_cell,
+                        vmlibs) == "// LIB: 961254B41350A116E5DC3166307071F29DA1F3A286A144350289ACBE1A64C459 \nPUSHINT 228\n"
+
+
+def test_disassembler_pushref():
+    from tonpy.fift.fift import convert_assembler
+    from tonpy import CellBuilder, CellSlice
+    cell_code = convert_assembler("""<{ 228 PUSHINT }>c""")
+    code_hash = int(cell_code.get_hash(), 16)
+
+    vmlibs = VmDict(256)
+    vmlibs.set_ref(code_hash, cell_code)
+
+    answer = disassembler(convert_assembler("""<{
+       <b 2 8 u, 67879315136173602162010959444987239046790589850178600389566119814235502724185 256 u, b>spec PUSHREFSLICE
+    }>c"""), vmlibs)
+    assert answer == """// LIB: 961254B41350A116E5DC3166307071F29DA1F3A286A144350289ACBE1A64C459 
+    PUSHINT 228
+PUSHREFSLICE (38ABEB05B69354A7B9B5C3439EE680731263C9837A722799AA5A89FE1AF0C18B)
+"""
