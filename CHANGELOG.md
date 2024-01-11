@@ -5,6 +5,8 @@
 - Critical change: Run method in TVM will throw error on unsuccessful exit code
 - Merge testnet on commit:
 - Allow disassemble libs (root cell & PUSREF*)
+- Update C7 to "TVM Upgrade 2023.07", add BlockId
+- Add set_prev_blocks_info with BlockId's to emulator
 - Fix: emulator, account none several transaction emulation
 - Fix: C7 helper
 - Fix: Emulator set_libs

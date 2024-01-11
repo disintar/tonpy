@@ -3,80 +3,14 @@
 from typing import Union, List, Optional
 
 from tonpy.libs.python_ton import PyTVM, method_name_to_id as py_method_name_to_id
-from tonpy.types import Cell, CellSlice, Stack, StackEntry, VmDict, begin_cell
-from datetime import datetime
+from tonpy.types import Cell, Stack, StackEntry, VmDict
+from tonpy.tvm.c7 import StepInfo, C7
 
 
 def method_name_to_id(method_name: str):
     """Compute crc for method name, to pass to TVM"""
 
     return py_method_name_to_id(method_name)
-
-
-class C7:
-    def __init__(self, magic: int = 0x076ef1ea, actions: int = 0, msgs_sent: int = 0,
-                 time: Union[int, datetime] = None, block_lt: int = 0, trans_lt: int = 0,
-                 rand_seed: Union[int, str] = None, balance_grams: int = 0, balance_extra: Cell = None,
-                 address: Union[dict, Cell] = None, global_config: Cell = None):
-        self.magic = magic
-        self.actions = actions
-        self.msgs_sent = msgs_sent
-
-        if time is None:
-            time = datetime.now()
-
-        if isinstance(time, datetime):
-            self.time = int(time.timestamp())
-        else:
-            self.time = time
-
-        self.block_lt = block_lt
-        self.trans_lt = trans_lt
-
-        if isinstance(rand_seed, str):
-            self.rand_seed = int(rand_seed, 16)
-        else:
-            self.rand_seed = rand_seed
-
-        self.balance_grams = balance_grams
-        self.balance_extra = balance_extra if balance_extra is not None else begin_cell().end_cell()
-
-        if isinstance(address, CellSlice):
-            self.address = address
-        elif address is None:
-            self.address = begin_cell().end_cell().begin_parse()
-        else:
-            self.address = begin_cell().store_address(
-                f"{address['workchain']}:{address['address']}").end_cell().begin_parse()
-
-        self.global_config = global_config
-
-    def to_data(self):
-        return [
-            self.magic,  # [ magic:0x076ef1ea
-            self.actions,  # actions:Integer
-            self.msgs_sent,  # msgs_sent:Integer
-            self.time,  # unixtime:Integer
-            self.block_lt,  # block_lt:Integer
-            self.trans_lt,  # trans_lt:Integer
-            self.rand_seed,  # rand_seed:Integer
-            [self.balance_grams, self.balance_extra],  # balance_remaining:[Integer (Maybe Cell)]
-            self.address,  # myself:MsgAddressInt
-            self.global_config  # global_config:(Maybe Cell)
-        ]
-
-
-class StepInfo:
-    stack: Stack = None
-    gas_consumed: int = None
-    gas_remaining: int = None
-    next_op: str = None
-
-    def __init__(self, stack_info):
-        self.stack = Stack(prev_stack=stack_info.stack)
-        self.gas_consumed = int(stack_info.gas_consumed)
-        self.gas_remaining = int(stack_info.gas_remaining)
-        self.next_op = None
 
 
 class TVM:
@@ -104,7 +38,6 @@ class TVM:
             self.tvm.set_stack(value.stack)
 
     def set_c7(self, value: Union[Union[StackEntry, List], C7]) -> None:
-
         if isinstance(value, list):
             self.tvm.set_c7(StackEntry(value=value).entry)
         elif isinstance(value, C7):
