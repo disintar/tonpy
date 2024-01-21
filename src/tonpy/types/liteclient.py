@@ -1,13 +1,25 @@
 # Copyright (c) 2023 Disintar LLP Licensed under the Apache License Version 2.0
+import random
+from typing import Union, TYPE_CHECKING, Tuple, List
+from types import MethodType
 
-from tonpy.libs.python_ton import PyLiteClient, ipv4_int_to_str, globalSetVerbosity
+from tonpy.libs.python_ton import PyLiteClient, ipv4_int_to_str, globalSetVerbosity, BlockId as ton_BlockId, \
+    BlockIdExt as ton_BlockIdExt
 
-globalSetVerbosity(3)
+from tonpy.types.cell import Cell
+from tonpy.types.address import Address
 
 from tonpy.types.keys import PublicKey
 from base64 import b64decode
 from tonpy.types.lite_utils.server_list import servers
+from tonpy.types.blockid import BlockId, BlockIdExt
+from tonpy.types.vmdict import VmDict
 from time import sleep
+
+from tonpy.utils.chunks import chunks
+
+if TYPE_CHECKING:
+    from tonpy.autogen.block import Block, BlockInfo
 
 
 def base64_to_hex(b):
@@ -19,26 +31,115 @@ class Bits256:
         pass
 
 
-class BlockIdExt:
-    workchain: int
-    shard: int
-    seqno: int
-    file_hash: Bits256
-    root_hash: Bits256
-
-
 class MasterchainInfoExt:
+    __slots__ = ['mode', 'version', 'capabilities', 'last_utime', 'now', 'state_root_hash', 'last']
+
     mode: int
     version: int
     capabilities: int
     last_utime: int
     now: int
-    state_root_hash: Bits256
+    state_root_hash: str  # hex
     last: BlockIdExt
+
+    def __init__(self, m):
+        self.mode = m.mode
+        self.version = m.version
+        self.capabilities = m.capabilities
+        self.last_utime = m.last_utime
+        self.now = m.now
+        self.state_root_hash = m.state_root_hash
+        self.last = BlockIdExt(blockidext=m.last)
+
+
+class AccountStateInfo:
+    __slots__ = ['root', 'true_root', 'last_trans_lt', 'last_trans_hash', 'gen_lt', 'gen_utime']
+
+    root: Cell
+    true_root: Cell
+    last_trans_lt: int
+    last_trans_hash: str  # hex
+    gen_lt: int
+    gen_utime: int
+
+    def __init__(self, ac):
+        self.root = Cell(ac.root)
+        self.true_root = Cell(ac.true_root)
+        self.last_trans_lt = ac.last_trans_lt
+        self.last_trans_hash = ac.last_trans_hash
+        self.gen_lt = ac.gen_lt
+        self.gen_utime = ac.gen_utime
+
+
+class BlockHdrInfo:
+    __slots__ = ['blk_id', 'proof', 'virt_blk_root', 'mode']
+
+    blk_id: BlockIdExt
+    proof: Cell
+    virt_blk_root: Cell
+    mode: int
+
+    def __init__(self, blk):
+        self.blk_id = BlockIdExt(blockidext=blk.blk_id)
+        self.proof = Cell(blk.proof)
+        self.virt_blk_root = Cell(blk.virt_blk_root)
+        self.mode = blk.mode
+
+
+class TransactionsInfo:
+    blkid: BlockIdExt
+    now: int
+    prev_trans_lt: int
+    prev_trans_hash: str
+    transaction: Cell
+
+    def __init__(self, t):
+        self.blkid = BlockIdExt(blockidext=t.blkid)
+        self.now = t.now
+        self.prev_trans_lt = t.prev_trans_lt
+        self.prev_trans_hash = t.prev_trans_hash
+        self.transaction = Cell(t.transaction)
+
+
+class TransactionsListInfo:
+    lt: int
+    hash: str  # hex
+    transactions: List[TransactionsInfo]
+
+    def __init__(self, tl):
+        self.lt = tl.lt
+        self.hash = tl.hash
+        self.transactions = list(map(TransactionsInfo, tl.transactions))
+
+
+def get_block_info(virt_blk_root) -> "BlockInfo":
+    from tonpy.autogen.block import Block, BlockInfo
+
+    block = Block()
+    block = block.cell_unpack(virt_blk_root)
+
+    block_info = BlockInfo()
+    return block_info.cell_unpack(block.info, True)
 
 
 class LiteClient:
-    def __init__(self, host: str, port: int, pubkey: PublicKey):
+    def __init__(self, host: Union[str, int],
+                 port: int,
+                 pubkey: PublicKey = None,
+                 pubkey_hex: str = None,
+                 pubkey_base64: str = None):
+        if isinstance(host, int):
+            host = ipv4_int_to_str(host)
+
+        if pubkey is None:
+            if pubkey_hex is None:
+                if pubkey_base64 is None:
+                    raise ValueError("Pass pubkey in any format")
+                else:
+                    pubkey = PublicKey(base64_to_hex(pubkey_base64))
+            else:
+                pubkey = PublicKey(pubkey_hex)
+
         self.client = PyLiteClient(
             host=host,
             port=port,
@@ -52,32 +153,151 @@ class LiteClient:
     def get_time(self):
         return self.client.get_time()
 
-    def get_MasterchainInfoExt(self) -> MasterchainInfoExt:
-        return self.client.get_MasterchainInfoExt()
-
     def send_message(self, cell):
+        """
+
+        :param cell:
+        :return:
+        """
         return self.client.send_message(cell.cell)
 
+    def get_masterchain_info_ext(self) -> MasterchainInfoExt:
+        return MasterchainInfoExt(self.client.get_MasterchainInfoExt())
 
-if __name__ == "__main__":
-    from tonpy import Cell
+    def get_account_state(self, account: Union[str, Address], block: BlockIdExt) -> AccountStateInfo:
+        """
+        If you trust BlockIdExt hashes - you trust result
 
-    # for server in servers:
-    server = {'started_at': 1701882334.870854,
-              'id': {'@type': 'pub.ed25519',
-                     'key': 'Fi6e++zdCQIYOoHze+i2ZzU8oKj6GbQIlya3GKVbLtQ='},
-              'port': 30123,
-              'ip': -957035708}
-    print("Start: ", server)
+        :param account:
+        :param block:
+        :return:
+        """
 
-    lc = LiteClient(host=ipv4_int_to_str(server['ip']), port=server['port'],
-                    pubkey=PublicKey(base64_to_hex(server['id']['key'])))
+        if isinstance(account, str):
+            account = Address(account)
 
-    print(server, lc.send_message(Cell(
-        "te6ccuECAwEAAQYAAPQBWwIMBOeIAH7hK4c4nJzGSMTE1XJQptlwjSiHswHqdg6PwzQ880ZCBfnYKEwemTqcIjvAdtSKAGgGjASr+lli1xGyYDhExZMDCkaNPZiKM0ATJdNjDxvd7+KKdWVCigfX77NiGLoS0AlNTRi7K4cJyAAAA7AACAgIDAEBAQEBYGIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQIArgAAAABkYXRhOmFwcGxpY2F0aW9uL2pzb24seyJwIjoidG9uLTIwIiwib3AiOiJtaW50IiwidGljayI6Im5hbm8iLCJhbXQiOiIxMDAwMDAwMDAwMDAifQgv2J4=")))
-    # connected = False
-    # while not connected:
-    #     time = lc.get_MasterchainInfoExt()
-    #     sleep(1)
-    #     print("Got connected: ", time.last_utime, time.now,
-    #           time.last.workchain, time.last.shard, time.last.seqno)
+        return AccountStateInfo(
+            self.client.get_AccountState(account.wc, str(int(account.address, 16)), block.blockidext))
+
+    def lookup_block(self, block: BlockId = None,
+                     workchain: int = 0,
+                     shard: Union[int, str] = 0,
+                     seqno: int = 0,
+                     lt: int = 0,
+                     gen_utime: int = 0) -> BlockHdrInfo:
+        """
+        WARNING: do not trust result if not yours lite-server
+
+        :param block:
+        :param workchain:
+        :param shard:
+        :param seqno:
+        :param lt:
+        :param gen_utime:
+        :return:
+        """
+
+        if block is None:
+            if isinstance(shard, str):
+                shard = int(shard, 16)
+
+            block = BlockId(workchain, shard, seqno)
+
+        mode = 0
+        if block.seqno:
+            mode += 1
+        if lt:
+            mode += 2
+        if gen_utime:
+            mode += 3
+
+        return BlockHdrInfo(self.client.lookupBlock(mode, block.blockid, lt, gen_utime))
+
+    def get_block_header(self, block: BlockIdExt) -> BlockHdrInfo:
+        """The different between lookup_block is in EXACT hash check of BlockIdExt
+
+        :param block:
+        :return:
+        """
+
+        return BlockHdrInfo(self.client.get_BlockHeader(block.blockidext, 0))
+
+    def get_transactions(self, account: Union[str, Address], from_lt: int, from_hash: str,
+                         count: int) -> TransactionsListInfo:
+        """Transaction verified by hashes, if you trust from_hash - you trust result
+        (except blocks, they have no proof that transaction actually in that block)
+
+        :param account:
+        :param from_lt:
+        :param from_hash:
+        :param count:
+        :return:
+        """
+
+        if isinstance(account, str):
+            account = Address(account)
+
+        return TransactionsListInfo(
+            self.client.get_Transactions(count, account.wc, str(int(account.address, 16)), from_lt,
+                                         str(int(from_hash, 16))))
+
+    def get_config_all(self, blkid: BlockIdExt, from_not_trusted_keyblock=False) -> Tuple[BlockIdExt, VmDict]:
+        """
+        By default if you trust BlockIdExt => you trust result, but if `from_not_trusted_keyblock` result will be
+        not for requested block, but for keyblock (no proof check there)
+
+        :param blkid:
+        :param from_not_trusted_keyblock:
+        :return:
+        """
+        mode = 0
+        if from_not_trusted_keyblock:
+            mode += 0x8000
+
+        blkid, cell = self.client.get_ConfigAll(mode, blkid.blockidext, not from_not_trusted_keyblock)
+        return BlockIdExt(blockidext=blkid), VmDict(32, False, Cell(cell))
+
+    def get_block(self, blkid: BlockIdExt) -> Cell:
+        """
+        If you trust BlockIdExt - you trust result
+
+        :param blkid:
+        :return:
+        """
+
+        return Cell(self.client.get_Block(blkid.blockidext))
+
+    def get_libraries(self, libs_hashes: Union[List[int], List[str]]) -> VmDict:
+        """
+        Return dict with libs, if you trust hashes - you trust result
+
+        :param libs_hashes:
+        :return:
+        """
+
+        if isinstance(libs_hashes[0], int):
+            libs_hashes = list(map(str, libs_hashes))
+        else:
+            libs_hashes = list(map(lambda x: str(int(x, 16)), libs_hashes))
+
+        if len(libs_hashes) > 16:
+            libs_hashes = list(chunks(libs_hashes, 16))
+        else:
+            libs_hashes = [libs_hashes]
+
+        answer = VmDict(key_len=256, py_dict=self.client.get_Libraries(libs_hashes[0]))
+
+        if len(libs_hashes) > 1:
+            for tmp in libs_hashes[1:]:
+                tmp_answer = VmDict(key_len=256, py_dict=self.client.get_Libraries(tmp))
+                answer.combine_with(tmp_answer)
+
+        return answer
+
+    @staticmethod
+    def get_one() -> "LiteClient":
+        server = random.choice(servers)
+
+        return LiteClient(host=server['ip'],
+                          port=server['port'],
+                          pubkey_base64=server['id']['key'])

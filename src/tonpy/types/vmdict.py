@@ -115,7 +115,8 @@ class VmDict:
     def __init__(self, key_len: int,
                  signed: bool = False,
                  cell_root: Union[Union[str, Cell], CellSlice] = None,
-                 aug: AugmentedData = None):
+                 aug: AugmentedData = None,
+                 py_dict: PyDict = None):
         """
         Wrapper of HashmapE (dictionary type of TON)  |br|
 
@@ -133,6 +134,15 @@ class VmDict:
 
         self.key_len = key_len
         self.signed = signed
+
+        if py_dict is not None:
+            self.dict = py_dict
+            if aug is None:
+                self.is_augmented = False
+            else:
+                self.aug = aug
+                self.is_augmented = True
+            return
 
         if cell_root is not None:
             cs = cell_root
@@ -369,6 +379,11 @@ class VmDict:
 
         tmp_f = lambda key, value: f(CellSlice(key), CellSlice(value))
         self.dict.map(tmp_f)
+
+    def combine_with(self, dict2: "VmDict"):
+        """Combine two dictionaries"""
+
+        self.dict.combine_with(dict2.dict)
 
     def __setitem__(self, key: Union[int, str], value: Union[Union[Union[str, CellSlice], Cell], CellBuilder]):
         if isinstance(key, str):

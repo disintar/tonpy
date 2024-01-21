@@ -1,23 +1,7 @@
 from typing import Union, List
 from tonpy.types import Cell, CellSlice, Stack, begin_cell
 from datetime import datetime
-
-
-class BlockId:
-    def __init__(self, wc: int = 0,
-                 seqno: int = 0,
-                 shard: Union[str, int] = 0,
-                 root_hash: Union[str, int] = 0,
-                 file_hash: Union[str, int] = 0):
-        self.wc = wc
-        self.shard = int(shard, 16) if isinstance(shard, str) else shard
-        self.seqno = seqno
-        self.root_hash = int(root_hash, 16) if isinstance(root_hash, str) else root_hash
-        self.file_hash = int(file_hash, 16) if isinstance(file_hash, str) else file_hash
-
-    def to_data(self):
-        # [ wc:Integer shard:Integer seqno:Integer root_hash:Integer file_hash:Integer ] = BlockId;
-        return [self.wc, self.shard, self.seqno, self.root_hash, self.file_hash]
+from tonpy.types.blockid import BlockIdExt
 
 
 class C7:
@@ -26,19 +10,19 @@ class C7:
                  rand_seed: Union[int, str] = None, balance_grams: int = 0, balance_extra: Cell = None,
                  address: Union[dict, Cell] = None, global_config: Cell = None, my_code: Cell = None,
                  storage_fees: int = 0, income_grams: int = 0, income_extra: Cell = None,
-                 last_mc_blocks: Union[List[BlockId], List[List]] = None, prev_key_block: Union[BlockId, List] = None):
+                 last_mc_blocks: Union[List[BlockIdExt], List[List]] = None, prev_key_block: Union[BlockIdExt, List] = None):
 
         if last_mc_blocks is None:
             self.last_mc_blocks = []
         else:
             self.last_mc_blocks = last_mc_blocks
 
-            if len(self.last_mc_blocks) > 0 and isinstance(self.last_mc_blocks[0], BlockId):
+            if len(self.last_mc_blocks) > 0 and isinstance(self.last_mc_blocks[0], BlockIdExt):
                 self.last_mc_blocks = [i.to_data() for i in self.last_mc_blocks]
 
         self.prev_key_block = prev_key_block
 
-        if isinstance(self.prev_key_block, BlockId):
+        if isinstance(self.prev_key_block, BlockIdExt):
             self.prev_key_block = self.prev_key_block.to_data()
 
         self.magic = magic

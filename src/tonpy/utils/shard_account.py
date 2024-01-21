@@ -1,6 +1,7 @@
 # Copyright (c) 2023 Disintar LLP Licensed under the Apache License Version 2.0
 
 from tonpy.types import begin_cell
+from tonpy.libs.python_ton import shard_is_ancestor, shard_child
 
 
 def get_empty_shard_account():

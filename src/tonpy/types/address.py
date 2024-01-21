@@ -55,6 +55,9 @@ class Address:
     def append_to_builder(self, cb: "CellBuilder"):
         assert self.my_address.append_to_builder(cb.builder)
 
+    def shard_prefix(self, size) -> int:
+        return self.my_address.shard_prefix(size)
+
     def __eq__(self, other):
         # TODO: made this work
         raise NotImplementedError
@@ -67,4 +70,7 @@ class Address:
         self.my_address: PySmcAddress = address_from_string(value)
 
     def __str__(self):
+        return f'{self.serialize()}'
+
+    def __repr__(self):
         return f'<Address value="{self.serialize()}">'

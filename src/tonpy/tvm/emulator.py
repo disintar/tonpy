@@ -3,8 +3,8 @@
 from tonpy.libs.python_ton import PyEmulator
 
 from tonpy import Stack, StackEntry
-from tonpy.tvm.c7 import BlockId
 from tonpy.types import VmDict, Cell, CellSlice, begin_cell
+from tonpy.types.blockid import BlockId
 from typing import Union, Tuple, List
 
 
@@ -37,7 +37,7 @@ class Emulator:
 
     def set_rand_seed(self, seed: Union[int, hex]) -> None:
         if isinstance(seed, int):
-            seed = hex(seed)[2:].upper()
+            seed = hex(seed)[2:].upper().zfill(64)
 
         self.emulator.set_rand_seed(seed)
 
