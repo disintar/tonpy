@@ -107,6 +107,7 @@ jobs:
 
       - name: Download prebuilt
         run: |
+          apt install -y curl
           curl -Lo ./src/tonpy/libs/${{ matrix.file }} ${{ matrix.link }}${{ matrix.file }}
 
       - name: Win fix manifest
