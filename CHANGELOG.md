@@ -18,3 +18,4 @@
 - Fix: parse_token_data rewritten to python
 - Fix: TVM exit code will be always positive (~x)
 - Fix: UTF-8 multichar load in C++ fetch_string in CellSlice
+- Update build system to new ARC
