@@ -44,6 +44,7 @@ jobs:
 
       - name: Download prebuilt
         run: |
+          apt install curl
           curl -Lo ./src/tonpy/libs/${{ matrix.file }} ${{ matrix.link }}${{ matrix.file }}
 
       - name: Run tests
