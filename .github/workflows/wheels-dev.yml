@@ -21,7 +21,7 @@ jobs:
       matrix:
         include:
           - arch: x86_64
-            os: Linux
+            os: kuber
             python: "3.9"
             link: https://github.com/disintar/ton/releases/download/ton-cpython-39-x86_64-linux/
             file: python_ton.cpython-39-x86_64-linux-gnu.so
@@ -67,7 +67,7 @@ jobs:
 
   deploy:
     name: Publish DEV 🐍📦 to PyPI
-    runs-on: Linux
+    runs-on: kuber
     needs:
       - build
 
