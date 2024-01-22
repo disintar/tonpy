@@ -112,6 +112,19 @@ class TransactionsListInfo:
         self.transactions = list(map(TransactionsInfo, tl.transactions))
 
 
+class BlockTransactionsListExt:
+    incomplete: bool
+    req_count: int
+    id: BlockIdExt
+    transactions: List[Cell]
+
+    def __init__(self, tl):
+        self.incomplete = tl.incomplete
+        self.req_count = tl.req_count
+        self.id = BlockIdExt(blockidext=tl.id)
+        self.transactions = list(map(Cell, tl.transactions))
+
+
 def get_block_info(virt_blk_root) -> "BlockInfo":
     from tonpy.autogen.block import Block, BlockInfo
 
@@ -293,6 +306,41 @@ class LiteClient:
                 answer.combine_with(tmp_answer)
 
         return answer
+
+    def list_block_transactions_ext(self, blkid: BlockIdExt,
+                                    count: int,
+                                    account_address: Union[Union[Address, int], str] = None,
+                                    lt: int = None,
+                                    check_proof: bool = False,
+                                    reverse_mode: bool = False):
+        mode = 0
+        #  bool check_proof = mode & 32;
+        #   bool reverse_mode = mode & 64;
+        #   bool has_starting_tx = mode & 128;
+
+        if check_proof:
+            mode += 32
+
+        if reverse_mode:
+            mode += 64
+
+        if account_address is not None or lt is not None:
+            if account_address is not None and lt is not None:
+                mode += 128
+            else:
+                raise ValueError("Not valid params, pass account_address and lt")
+
+        if isinstance(account_address, Address):
+            account_address = account_address.address
+
+        if isinstance(account_address, str):
+            account_address = int(account_address, 16)
+
+        if isinstance(account_address, int):
+            account_address = str(account_address)
+
+        return BlockTransactionsListExt(
+            self.client.get_listBlockTransactionsExt(blkid.blockidext, mode, count, account_address, lt))
 
     @staticmethod
     def get_one() -> "LiteClient":
