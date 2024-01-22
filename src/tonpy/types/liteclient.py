@@ -1,6 +1,6 @@
 # Copyright (c) 2023 Disintar LLP Licensed under the Apache License Version 2.0
 import random
-from typing import Union, TYPE_CHECKING, Tuple, List
+from typing import Union, TYPE_CHECKING, Tuple, List, Optional
 from types import MethodType
 
 from tonpy.libs.python_ton import PyLiteClient, ipv4_int_to_str, globalSetVerbosity, BlockId as ton_BlockId, \
@@ -135,30 +135,105 @@ def get_block_info(virt_blk_root) -> "BlockInfo":
     return block_info.cell_unpack(block.info, True)
 
 
-class LiteClient:
-    def __init__(self, host: Union[str, int],
-                 port: int,
-                 pubkey: PublicKey = None,
-                 pubkey_hex: str = None,
-                 pubkey_base64: str = None):
+class RRLiteClient:
+    def __init__(self, servers: list,
+                 timeout: int = 1,
+                 num_try: int = 5):
+        self.servers = random.shuffle(servers)
+        self.current = -1
+        self.client: Optional[LiteClient] = None
+        self.timeout = timeout
+        self.num_try = num_try
+        self.rotate()
+
+    def rotate(self):
+        self.current += 1
+        if self.current > len(servers) - 1:
+            self.current = 0
+
+        server = servers[self.current]
+
+        host = server['ip']
+        port = server['port']
+        pubkey_base64 = server['id']['key']
+        timeout = self.timeout
+
         if isinstance(host, int):
             host = ipv4_int_to_str(host)
 
-        if pubkey is None:
-            if pubkey_hex is None:
-                if pubkey_base64 is None:
-                    raise ValueError("Pass pubkey in any format")
-                else:
-                    pubkey = PublicKey(base64_to_hex(pubkey_base64))
-            else:
-                pubkey = PublicKey(pubkey_hex)
+        pubkey = PublicKey(base64_to_hex(pubkey_base64))
 
         self.client = PyLiteClient(
             host=host,
             port=port,
             public_key=pubkey.key,
-            timeout=1.0
+            timeout=timeout
         )
+
+    def __getattr__(self, name):
+        func = getattr(self.client, name)
+
+        def f(*args, **kwargs):
+            try_count = self.num_try
+
+            try:
+                return func(*args, **kwargs)
+            except Exception as e:
+                self.rotate()
+                try_count -= 1
+                if try_count == 0:
+                    raise e
+
+        return f
+
+
+class LiteClient:
+    def __init__(self, host: Union[str, int] = None,
+                 port: int = None,
+                 pubkey: PublicKey = None,
+                 pubkey_hex: str = None,
+                 pubkey_base64: str = None,
+                 timeout: int = 1,
+                 mode: str = 'ordinary',
+                 my_rr_servers=None):
+        """
+
+        :param host:
+        :param port:
+        :param pubkey:
+        :param pubkey_hex:
+        :param pubkey_base64:
+        :param timeout:
+        :param mode:
+            - ordinary
+            - roundrobin
+        """
+
+        if mode == 'ordinary':
+            if isinstance(host, int):
+                host = ipv4_int_to_str(host)
+
+            if pubkey is None:
+                if pubkey_hex is None:
+                    if pubkey_base64 is None:
+                        raise ValueError("Pass pubkey in any format")
+                    else:
+                        pubkey = PublicKey(base64_to_hex(pubkey_base64))
+                else:
+                    pubkey = PublicKey(pubkey_hex)
+
+            self.client = PyLiteClient(
+                host=host,
+                port=port,
+                public_key=pubkey.key,
+                timeout=timeout
+            )
+        elif mode == 'roundrobin':
+            self.client = RRLiteClient(servers=servers if my_rr_servers is None else my_rr_servers,
+                                       timeout=timeout,
+                                       num_try=5)
+        else:
+            raise ValueError(f"{mode} is not supported")
 
     def get_connected(self):
         return self.client.get_connected()
@@ -343,9 +418,10 @@ class LiteClient:
             self.client.get_listBlockTransactionsExt(blkid.blockidext, mode, count, account_address, lt))
 
     @staticmethod
-    def get_one() -> "LiteClient":
+    def get_one(timeout: int = 1) -> "LiteClient":
         server = random.choice(servers)
 
         return LiteClient(host=server['ip'],
                           port=server['port'],
-                          pubkey_base64=server['id']['key'])
+                          pubkey_base64=server['id']['key'],
+                          timeout=timeout)
