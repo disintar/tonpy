@@ -139,22 +139,54 @@ class RRLiteClient:
     def __init__(self, servers: list,
                  timeout: int = 1,
                  num_try: int = 5):
-        self.servers = random.shuffle(servers)
+        random.shuffle(servers)
+        self.servers = servers
+
+        # for s in servers:
+        #     if self.check_server(s):
+        #         self.servers.append(s)
+        # print(len(self.servers), len(servers))
+        # print(servers)
+
         self.current = -1
         self.client: Optional[LiteClient] = None
         self.timeout = timeout
         self.num_try = num_try
         self.rotate()
 
+    def check_server(self, server):
+        host = server['ip']
+        port = server['port']
+        pubkey_base64 = server['id']['key']
+
+        if isinstance(host, int):
+            host = ipv4_int_to_str(host)
+
+        pubkey = PublicKey(base64_to_hex(pubkey_base64))
+
+        client = PyLiteClient(
+            host=host,
+            port=port,
+            public_key=pubkey.key,
+            timeout=0.6
+        )
+
+        try:
+            client.get_time()
+            return True
+        except Exception as e:
+            return False
+
     def rotate(self):
         self.current += 1
-        if self.current > len(servers) - 1:
+        if self.current > len(self.servers) - 1:
             self.current = 0
 
-        server = servers[self.current]
+        server = self.servers[self.current]
 
         host = server['ip']
         port = server['port']
+
         pubkey_base64 = server['id']['key']
         timeout = self.timeout
 
@@ -171,18 +203,21 @@ class RRLiteClient:
         )
 
     def __getattr__(self, name):
-        func = getattr(self.client, name)
+        func = name
 
         def f(*args, **kwargs):
             try_count = self.num_try
 
-            try:
-                return func(*args, **kwargs)
-            except Exception as e:
-                self.rotate()
-                try_count -= 1
-                if try_count == 0:
-                    raise e
+            while True:
+                try:
+                    answer = getattr(self.client, func)(*args, **kwargs)
+                    return answer
+                except Exception as e:
+                    try_count -= 1
+                    if try_count == 0:
+                        raise e
+
+                    self.rotate()
 
         return f
 

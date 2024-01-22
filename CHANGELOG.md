@@ -4,6 +4,8 @@
 - Mnemonic / (ED25519) PublicKey / (ED25519) PrivateKey classes added
 - Merge testnet on commit:
 - Allow disassemble libs (root cell & PUSREF*)
+- Add LiteClient
+- Add RoundRobin strategy for LiteClient
 - Update C7 to "TVM Upgrade 2023.07", add BlockId & BlockIdExt
 - Add set_prev_blocks_info with BlockIdExt's support to emulator
 - Add shard_is_ancestor, shard_child to tonpy.utils.shard_account
