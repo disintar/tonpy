@@ -41,6 +41,7 @@ class BlockId:
         self.workchain = data['workchain']
         self.shard = data['shard']
         self.seqno = data['seqno']
+        self.blockid = ton_BlockId(self.workchain, self.shard, self.seqno)
 
     def __str__(self):
         return str(self.blockid)
