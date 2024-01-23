@@ -72,8 +72,8 @@ class BlockIdExt:
             if isinstance(root_hash, str):
                 root_hash = int(root_hash, 16)
 
+            self.id = id_
             self.blockidext = ton_BlockIdExt(id_.blockid, str(root_hash), str(file_hash))
-            self.id = BlockId(blockid=self.blockidext.id)
             self.file_hash = hex(file_hash).upper()[2:]
             self.root_hash = hex(root_hash).upper()[2:]
         else:
@@ -104,7 +104,7 @@ class BlockIdExt:
         self.id = BlockId(data['id']['workchain'], data['id']['shard'], data['id']['seqno'])
         self.file_hash = data['file_hash']
         self.root_hash = data['root_hash']
-        self.blockidext = ton_BlockIdExt(self.id.blockid, root_hash=self.root_hash, file_hash=self.file_hash)
+        self.blockidext = ton_BlockIdExt(self.id.blockid, str(int(self.root_hash, 16)), str(int(self.file_hash, 16)))
 
     def __hash__(self):
         return hash(hash(self.id) + hash(self.root_hash + self.file_hash))
