@@ -43,6 +43,9 @@ class BlockId:
         self.seqno = data['seqno']
         self.blockid = ton_BlockId(self.workchain, self.shard, self.seqno)
 
+    def __hash__(self):
+        return hash(":".join(map(str, [self.workchain, self.shard, self.seqno])))
+
     def __str__(self):
         return str(self.blockid)
 
@@ -102,6 +105,9 @@ class BlockIdExt:
         self.file_hash = data['file_hash']
         self.root_hash = data['root_hash']
         self.blockidext = BlockIdExt(self.id, root_hash=self.root_hash, file_hash=self.file_hash)
+
+    def __hash__(self):
+        return hash(hash(self.id) + hash(self.root_hash + self.file_hash))
 
     def __eq__(self, other: "BlockIdExt"):
         return self.id == other.id and self.root_hash == other.root_hash and self.file_hash == other.file_hash
