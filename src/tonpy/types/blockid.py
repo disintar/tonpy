@@ -30,6 +30,16 @@ class BlockId:
             self.shard = self.blockid.shard
             self.seqno = self.blockid.seqno
 
+    def __getstate__(self):
+        return [self.workchain, self.shard, self.seqno]
+
+    def __setstate__(self, data):
+        self.blockid = ton_BlockId(data[0], data[1], data[2])
+
+        self.workchain = data[0]
+        self.shard = data[1]
+        self.seqno = data[2]
+
     def __str__(self):
         return str(self.blockid)
 
@@ -62,7 +72,8 @@ class BlockIdExt:
             self.root_hash = hex(root_hash).upper()[2:]
         else:
             self.blockidext = blockidext
-            self.id = BlockId(blockid=self.blockidext.id) if isinstance(self.blockidext.id, ton_BlockId) else self.blockidext.id
+            self.id = BlockId(blockid=self.blockidext.id) if isinstance(self.blockidext.id,
+                                                                        ton_BlockId) else self.blockidext.id
             self.file_hash = self.blockidext.file_hash
             self.root_hash = self.blockidext.root_hash
 
@@ -71,6 +82,15 @@ class BlockIdExt:
 
     def __repr__(self):
         return f"<BlockIdExt: {str(self.blockidext)}>"
+
+    def __getstate__(self):
+        return [self.id, self.root_hash, self.file_hash]
+
+    def __setstate__(self, data):
+        self.blockidext = ton_BlockIdExt(data[0].blockid, str(data[1]), str(data[2]))
+        self.id = BlockId(blockid=self.blockidext.id)
+        self.root_hash = hex(data[1]).upper()[2:]
+        self.file_hash = hex(data[2]).upper()[2:]
 
     def __eq__(self, other: "BlockIdExt"):
         return self.id == other.id and self.root_hash == other.root_hash and self.file_hash == other.file_hash
