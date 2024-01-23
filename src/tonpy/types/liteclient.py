@@ -235,7 +235,8 @@ class LiteClient:
                  timeout: float = 1,
                  threads: int = 1,
                  mode: str = 'ordinary',
-                 my_rr_servers=None):
+                 my_rr_servers: list = None,
+                 num_try: int = 5):
         """
 
         :param host:
@@ -272,8 +273,7 @@ class LiteClient:
             )
         elif mode == 'roundrobin':
             self.client = RRLiteClient(servers=servers if my_rr_servers is None else my_rr_servers,
-                                       timeout=timeout,
-                                       num_try=5)
+                                       timeout=timeout, num_try=num_try)
         else:
             raise ValueError(f"{mode} is not supported")
 
