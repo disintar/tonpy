@@ -452,6 +452,10 @@ class LiteClient:
         return BlockTransactionsListExt(
             self.client.get_listBlockTransactionsExt(blkid.blockidext, mode, count, account_address, lt))
 
+    def get_all_shards_info(self, blkid: BlockIdExt) -> List[BlockId]:
+        data = self.client.get_AllShardsInfo(blkid.blockidext)
+        return list(map(lambda x: BlockId(blockid=x), data))
+
     @staticmethod
     def get_one(timeout: int = 1) -> "LiteClient":
         server = random.choice(servers)
