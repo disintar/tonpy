@@ -104,7 +104,7 @@ class BlockIdExt:
         self.id = BlockId(data['id']['workchain'], data['id']['shard'], data['id']['seqno'])
         self.file_hash = data['file_hash']
         self.root_hash = data['root_hash']
-        self.blockidext = ton_BlockIdExt(self.id, root_hash=self.root_hash, file_hash=self.file_hash)
+        self.blockidext = ton_BlockIdExt(self.id.blockid, root_hash=self.root_hash, file_hash=self.file_hash)
 
     def __hash__(self):
         return hash(hash(self.id) + hash(self.root_hash + self.file_hash))
