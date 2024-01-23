@@ -42,7 +42,7 @@ class EmulatorExtern:
 
         return transaction_emulator_set_rand_seed(self.emulator, rand_seed.zfill(64).encode())
 
-    def set_prev_blocks(self, prev_blocks: list) -> bool:
+    def set_prev_blocks_info(self, prev_blocks: list) -> bool:
         transaction_emulator_set_prev_blocks_info = self.libemulator.transaction_emulator_set_prev_blocks_info
         transaction_emulator_set_prev_blocks_info.restype = c_bool
         transaction_emulator_set_prev_blocks_info.argtypes = [c_void_p, c_char_p]
