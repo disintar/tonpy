@@ -31,14 +31,16 @@ class BlockId:
             self.seqno = self.blockid.seqno
 
     def __getstate__(self):
-        return [self.workchain, self.shard, self.seqno]
+        return {
+            'workchain': self.workchain,
+            'shard': self.shard,
+            'seqno': self.seqno
+        }
 
     def __setstate__(self, data):
-        self.blockid = ton_BlockId(data[0], data[1], data[2])
-
-        self.workchain = data[0]
-        self.shard = data[1]
-        self.seqno = data[2]
+        self.workchain = data['workchain']
+        self.shard = data['shard']
+        self.seqno = data['seqno']
 
     def __str__(self):
         return str(self.blockid)
@@ -84,13 +86,20 @@ class BlockIdExt:
         return f"<BlockIdExt: {str(self.blockidext)}>"
 
     def __getstate__(self):
-        return [self.id, self.root_hash, self.file_hash]
+        return {
+            'id': {
+                'workchain': self.id.workchain,
+                'shard': self.id.shard,
+                'seqno': self.id.seqno
+            },
+            'root_hash': self.root_hash,
+            'file_hash': self.file_hash
+        }
 
     def __setstate__(self, data):
-        self.blockidext = ton_BlockIdExt(data[0].blockid, str(data[1]), str(data[2]))
-        self.id = BlockId(blockid=self.blockidext.id)
-        self.root_hash = hex(data[1]).upper()[2:]
-        self.file_hash = hex(data[2]).upper()[2:]
+        self.id = BlockId(data['id']['workchain'], data['id']['shard'], data['id']['seqno'])
+        self.file_hash = data['file_hash']
+        self.root_hash = data['root_hash']
 
     def __eq__(self, other: "BlockIdExt"):
         return self.id == other.id and self.root_hash == other.root_hash and self.file_hash == other.file_hash

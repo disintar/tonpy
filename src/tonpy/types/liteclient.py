@@ -138,7 +138,8 @@ def get_block_info(virt_blk_root) -> "BlockInfo":
 class RRLiteClient:
     def __init__(self, servers: list,
                  timeout: int = 1,
-                 num_try: int = 5):
+                 num_try: int = 5,
+                 threads: int = 1):
         random.shuffle(servers)
         self.servers = servers
 
@@ -152,6 +153,7 @@ class RRLiteClient:
         self.client: Optional[LiteClient] = None
         self.timeout = timeout
         self.num_try = num_try
+        self.threads = threads
         self.rotate()
 
     def check_server(self, server):
@@ -168,7 +170,8 @@ class RRLiteClient:
             host=host,
             port=port,
             public_key=pubkey.key,
-            timeout=0.6
+            timeout=0.6,
+            threads=self.threads
         )
 
         try:
@@ -199,7 +202,8 @@ class RRLiteClient:
             host=host,
             port=port,
             public_key=pubkey.key,
-            timeout=timeout
+            timeout=timeout,
+            threads=self.threads
         )
 
     def __getattr__(self, name):
@@ -228,7 +232,8 @@ class LiteClient:
                  pubkey: PublicKey = None,
                  pubkey_hex: str = None,
                  pubkey_base64: str = None,
-                 timeout: int = 1,
+                 timeout: float = 1,
+                 threads: int = 1,
                  mode: str = 'ordinary',
                  my_rr_servers=None):
         """
@@ -238,6 +243,7 @@ class LiteClient:
         :param pubkey:
         :param pubkey_hex:
         :param pubkey_base64:
+        :param threads:
         :param timeout:
         :param mode:
             - ordinary
@@ -261,7 +267,8 @@ class LiteClient:
                 host=host,
                 port=port,
                 public_key=pubkey.key,
-                timeout=timeout
+                timeout=timeout,
+                threads=threads
             )
         elif mode == 'roundrobin':
             self.client = RRLiteClient(servers=servers if my_rr_servers is None else my_rr_servers,
@@ -457,10 +464,11 @@ class LiteClient:
         return list(map(lambda x: BlockId(blockid=x), data))
 
     @staticmethod
-    def get_one(timeout: int = 1) -> "LiteClient":
+    def get_one(timeout: int = 1, threads: int = 1) -> "LiteClient":
         server = random.choice(servers)
 
         return LiteClient(host=server['ip'],
                           port=server['port'],
                           pubkey_base64=server['id']['key'],
-                          timeout=timeout)
+                          timeout=timeout,
+                          threads=threads)
