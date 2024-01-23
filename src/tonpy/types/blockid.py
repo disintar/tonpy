@@ -100,6 +100,7 @@ class BlockIdExt:
         self.id = BlockId(data['id']['workchain'], data['id']['shard'], data['id']['seqno'])
         self.file_hash = data['file_hash']
         self.root_hash = data['root_hash']
+        self.blockidext = BlockIdExt(self.id, root_hash=self.root_hash, file_hash=self.file_hash)
 
     def __eq__(self, other: "BlockIdExt"):
         return self.id == other.id and self.root_hash == other.root_hash and self.file_hash == other.file_hash
