@@ -4,7 +4,7 @@ from tonpy.tvm.emulator import Emulator
 from tonpy.tvm.not_native.emulator_extern import EmulatorExtern
 from tonpy.types.cell import Cell
 from tonpy.tests.emulator_data import tx as data
-from deepdiff import DeepDiff
+#from deepdiff import DeepDiff
 
 
 def get_diff(tx1, tx2):
