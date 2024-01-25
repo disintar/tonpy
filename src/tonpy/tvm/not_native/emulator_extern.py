@@ -11,6 +11,7 @@ class EmulatorExtern:
     def __init__(self, cdll_path: str, config: Union[VmDict, Union[Cell, str]], tvm_verbosity: int = 0):
         self.cdll_path = cdll_path
         self.libemulator = libemulator = CDLL(self.cdll_path)
+        self.vm_log = None
 
         emulator_set_verbosity_level = libemulator.emulator_set_verbosity_level
         emulator_set_verbosity_level.restype = c_bool
@@ -27,7 +28,7 @@ class EmulatorExtern:
         if isinstance(config, Cell):
             config = config.to_boc()
 
-        self.emulator = transaction_emulator_create(config.encode(), 0)
+        self.emulator = transaction_emulator_create(config.encode(), 1)
 
         self.transaction = None
         self.account = None
@@ -122,6 +123,7 @@ class EmulatorExtern:
         success = data['success']
 
         if success:
+            self.vm_log = data['vm_log']
             self.transaction = CellSlice(data['transaction'])
             self.account = CellSlice(data['shard_account'])
             if data['actions']:
