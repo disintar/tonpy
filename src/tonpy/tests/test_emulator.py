@@ -4,23 +4,25 @@ from tonpy.tvm.emulator import Emulator
 from tonpy.tvm.not_native.emulator_extern import EmulatorExtern
 from tonpy.types.cell import Cell
 from tonpy.tests.emulator_data import tx as data
-#from deepdiff import DeepDiff
 
 
-def get_diff(tx1, tx2):
-    tx1_tlb = Transaction()
-    tx1_tlb = tx1_tlb.cell_unpack(tx1, True).dump()
+# from deepdiff import DeepDiff
 
-    tx2_tlb = Transaction()
-    tx2_tlb = tx2_tlb.cell_unpack(tx2, True).dump()
 
-    diff = DeepDiff(tx1_tlb, tx2_tlb).to_dict()
-
-    address = tx1_tlb['account_addr']
-    del tx1_tlb
-    del tx2_tlb
-
-    return diff, address
+# def get_diff(tx1, tx2):
+#     tx1_tlb = Transaction()
+#     tx1_tlb = tx1_tlb.cell_unpack(tx1, True).dump()
+#
+#     tx2_tlb = Transaction()
+#     tx2_tlb = tx2_tlb.cell_unpack(tx2, True).dump()
+#
+#     diff = DeepDiff(tx1_tlb, tx2_tlb).to_dict()
+#
+#     address = tx1_tlb['account_addr']
+#     del tx1_tlb
+#     del tx2_tlb
+#
+#     return diff, address
 
 
 def test_emulator():
