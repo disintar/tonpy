@@ -3,7 +3,7 @@ from tonpy.types.vmdict import VmDict
 from tonpy.tvm.emulator import Emulator
 from tonpy.tvm.not_native.emulator_extern import EmulatorExtern
 from tonpy.types.cell import Cell
-from tonpy.tests.emulator_data import tx as data
+from tonpy.data_for_tests.emulator_data import tx as data
 
 
 # from deepdiff import DeepDiff
@@ -26,8 +26,7 @@ from tonpy.tests.emulator_data import tx as data
 
 
 def test_emulator():
-    em = Emulator(Cell(data[
-                           'config']))  # EmulatorExtern("/Users/tvorogme/projects/ton-disintar/build/emulator/libemulator.dylib", Cell(data['config']))
+    em = Emulator(Cell(data['config']))  # EmulatorExtern("libemulator.dylib", Cell(data['config']))
     em.set_rand_seed(data['rand_seed'])
     em.set_prev_blocks_info(data['prev_block_data'])
     em.set_libs(VmDict(256, False, cell_root=Cell(data['libs'])))
