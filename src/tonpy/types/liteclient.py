@@ -463,6 +463,17 @@ class LiteClient:
         data = self.client.get_AllShardsInfo(blkid.blockidext)
         return list(map(lambda x: BlockId(blockid=x), data))
 
+    def admin_add_user(self, pubkey: Union[str, int], valid_until: int, ratelimit: int) -> str:
+        if isinstance(pubkey, str):
+            pubkey = str(int(pubkey, 16))
+        else:
+            pubkey = str(pubkey)
+
+        return self.client.admin_AddUser(pubkey, valid_until, ratelimit)
+
+    def admin_get_stats(self):
+        return self.client.admin_getStatData()
+
     @staticmethod
     def get_one(timeout: int = 1, threads: int = 1) -> "LiteClient":
         server = random.choice(servers)

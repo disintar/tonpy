@@ -29,6 +29,14 @@ class Address:
         self.my_address.wc = wc
 
     @property
+    def workchain(self) -> int:
+        return self.my_address.wc
+
+    @workchain.setter
+    def workchain(self, wc: int):
+        self.my_address.wc = wc
+
+    @property
     def address(self) -> str:
         "HEX encoded address"
         return self.my_address.address()
@@ -57,6 +65,9 @@ class Address:
 
     def shard_prefix(self, size) -> int:
         return self.my_address.shard_prefix(size)
+
+    def to_cs(self) -> CellSlice:
+        return CellBuilder().store_address(self).end_cell().begin_parse()
 
     def __eq__(self, other):
         # TODO: made this work

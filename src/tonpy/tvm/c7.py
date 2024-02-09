@@ -1,5 +1,6 @@
 from typing import Union, List
-from tonpy.types import Cell, CellSlice, Stack, begin_cell
+
+from tonpy.types import Cell, CellSlice, Stack, begin_cell, Address
 from datetime import datetime
 from tonpy.types.blockid import BlockIdExt
 
@@ -8,9 +9,10 @@ class C7:
     def __init__(self, magic: int = 0x076ef1ea, actions: int = 0, msgs_sent: int = 0,
                  time: Union[int, datetime] = None, block_lt: int = 0, trans_lt: int = 0,
                  rand_seed: Union[int, str] = None, balance_grams: int = 0, balance_extra: Cell = None,
-                 address: Union[dict, Cell] = None, global_config: Cell = None, my_code: Cell = None,
+                 address: Union[Union[dict, Cell], Address] = None, global_config: Cell = None, my_code: Cell = None,
                  storage_fees: int = 0, income_grams: int = 0, income_extra: Cell = None,
-                 last_mc_blocks: Union[List[BlockIdExt], List[List]] = None, prev_key_block: Union[BlockIdExt, List] = None):
+                 last_mc_blocks: Union[List[BlockIdExt], List[List]] = None,
+                 prev_key_block: Union[BlockIdExt, List] = None):
 
         if last_mc_blocks is None:
             self.last_mc_blocks = []
@@ -52,6 +54,8 @@ class C7:
             self.address = address
         elif address is None:
             self.address = begin_cell().end_cell().begin_parse()
+        elif isinstance(address, Address):
+            self.address = begin_cell().store_address(address).end_cell().begin_parse()
         else:
             self.address = begin_cell().store_address(
                 f"{address['workchain']}:{address['address']}").end_cell().begin_parse()
