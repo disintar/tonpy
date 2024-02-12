@@ -424,6 +424,17 @@ class LiteClient:
 
         return answer
 
+    def get_one_transaction(self, blkid: BlockIdExt, account_address: Union[Address, str] = None,
+                            lt: int = None) -> Cell:
+        """Will check proof, if you trust blkid - you trust result"""
+
+        if isinstance(account_address, str):
+            account_address = Address(account_address)
+
+        return Cell(
+            self.client.get_OneTransaction(blkid.blockidext, account_address.wc, str(int(account_address.address, 16)),
+                                           lt))
+
     def list_block_transactions_ext(self, blkid: BlockIdExt,
                                     count: int,
                                     account_address: Union[Union[Address, int], str] = None,
@@ -483,3 +494,12 @@ class LiteClient:
                           pubkey_base64=server['id']['key'],
                           timeout=timeout,
                           threads=threads)
+
+    def __del__(self):
+        self.client.stop()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        del self
