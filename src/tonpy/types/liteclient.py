@@ -1,4 +1,5 @@
 # Copyright (c) 2023 Disintar LLP Licensed under the Apache License Version 2.0
+import datetime
 import random
 from typing import Union, TYPE_CHECKING, Tuple, List, Optional
 from types import MethodType
@@ -484,6 +485,10 @@ class LiteClient:
 
     def admin_get_stats(self):
         return self.client.admin_getStatData()
+
+    def wait_connected(self, timeout: int):
+        """Wait until connected with timeout, throw error if not connected"""
+        return self.client.wait_connected(datetime.datetime.now().timestamp() + timeout)
 
     @staticmethod
     def get_one(timeout: int = 1, threads: int = 1) -> "LiteClient":
