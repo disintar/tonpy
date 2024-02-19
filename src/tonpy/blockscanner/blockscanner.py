@@ -316,7 +316,6 @@ class BlockScanner(Thread):
                 worker_to_chunk[current_worker].append(i)
                 cur_c += weight
 
-        print(len(worker_to_chunk.values()), min(min(1, len(worker_to_chunk)), self.nproc))
         return worker_to_chunk.values(), min(min(1, len(worker_to_chunk)), self.nproc)
 
     def load_mcs(self, from_, to_):
@@ -513,8 +512,7 @@ class BlockScanner(Thread):
                     results = pool.imap_unordered(self.f, txs_chunks)
 
                     for result_chunk in results:
-                        for result in result_chunk:
-                            self.out_queue.put(result)
+                        self.out_queue.put(result_chunk)
 
     def run(self):
         self.load_historical()
@@ -548,7 +546,7 @@ if __name__ == "__main__":
         nproc=10,
         loglevel=2,
         chunk_size=2,
-        raw_process=raw_process,
+        raw_process=just_len,
         out_queue=outq
     )
 
@@ -560,5 +558,6 @@ if __name__ == "__main__":
 
     total_txs = 0
     while not outq.empty():
-        total_txs += outq.get()
+        for result in outq.get():
+            total_txs += result
     print("Got total: ", total_txs)

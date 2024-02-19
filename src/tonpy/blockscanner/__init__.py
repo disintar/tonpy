@@ -1,0 +1,1 @@
+from tonpy.blockscanner.blockscanner import BlockScanner
