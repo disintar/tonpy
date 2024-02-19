@@ -4,3 +4,4 @@ bitstring
 toolz
 orjson
 tqdm
+requests
