@@ -443,9 +443,6 @@ class LiteClient:
                                     check_proof: bool = False,
                                     reverse_mode: bool = False):
         mode = 0
-        #  bool check_proof = mode & 32;
-        #   bool reverse_mode = mode & 64;
-        #   bool has_starting_tx = mode & 128;
 
         if check_proof:
             mode += 32
