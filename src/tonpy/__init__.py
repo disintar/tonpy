@@ -8,4 +8,3 @@ from tonpy.fift import *
 
 from tonpy.utils.address_packer import pack_address
 from tonpy.utils.token import parse_token_data
-from tonpy.blockscanner.blockscanner import BlockScanner
