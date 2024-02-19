@@ -177,6 +177,7 @@ class RRLiteClient:
 
         try:
             client.get_time()
+            client.stop()
             return True
         except Exception as e:
             return False
@@ -199,6 +200,9 @@ class RRLiteClient:
 
         pubkey = PublicKey(base64_to_hex(pubkey_base64))
 
+        if self.client is not None:
+            self.client.stop()
+
         self.client = PyLiteClient(
             host=host,
             port=port,
@@ -206,6 +210,9 @@ class RRLiteClient:
             timeout=timeout,
             threads=self.threads
         )
+
+    def stop(self):
+        self.client.stop()
 
     def __getattr__(self, name):
         func = name
