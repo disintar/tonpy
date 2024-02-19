@@ -526,38 +526,3 @@ def raw_process(chunk):
         block, state, txs = data
         out.append(len(txs))
     return out
-
-
-if __name__ == "__main__":
-    lcparams = {
-        'mode': 'roundrobin',
-        'my_rr_servers': [server],
-        'timeout': 1,
-        'num_try': 3000,
-        'threads': 1
-    }
-
-    outq = Queue()
-
-    scanner = BlockScanner(
-        lcparams=lcparams,
-        start_from=35381340,
-        load_to=35381340 + 10,
-        nproc=10,
-        loglevel=2,
-        chunk_size=2,
-        raw_process=just_len,
-        out_queue=outq
-    )
-
-    scanner.start()
-
-    while not scanner.done:
-        print("Not done, wait")
-        sleep(10)
-
-    total_txs = 0
-    while not outq.empty():
-        for result in outq.get():
-            total_txs += result
-    print("Got total: ", total_txs)
