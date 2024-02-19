@@ -318,7 +318,7 @@ class BlockScanner(Thread):
                 worker_to_chunk[current_worker].append(i)
                 cur_c += weight
 
-        return worker_to_chunk.values(), min(min(1, len(worker_to_chunk)), self.nproc)
+        return worker_to_chunk.values(), max(min(1, len(worker_to_chunk)), self.nproc)
 
     def load_mcs(self, from_, to_):
         mc_data = []
