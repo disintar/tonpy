@@ -312,13 +312,11 @@ class BlockScanner(Thread):
                 current_worker += 1
                 cur_c = 0
 
-                if current_worker == self.nproc:
-                    current_worker = 0
             else:
                 worker_to_chunk[current_worker].append(i)
                 cur_c += weight
 
-        return worker_to_chunk.values(), max(min(1, len(worker_to_chunk)), self.nproc)
+        return worker_to_chunk.values(), self.nproc
 
     def load_mcs(self, from_, to_):
         mc_data = []
@@ -501,7 +499,7 @@ class BlockScanner(Thread):
 
                 logger.info(
                     f"\n\nStats, loaded:\n\t{len(mc_data)} MC blocks\n\t{len(shards_data)} shard blocks"
-                    f"\n\t{len(txs)} TXs\n\tMin/max MC gen_utime: {start_block_gen_utime} / {end_block_gen_utime} "
+                    f"\n\t{sum([len(i[-1]) for i in txs])} TXs\n\tMin/max MC gen_utime: {start_block_gen_utime} / {end_block_gen_utime} "
                     f"  : Loaded time {end_block_gen_utime - start_block_gen_utime}"
                     f"\n\tMin/max MC seqnos: {start_block_seqno} / {end_block_seqno} "
                     f": Loaded seqnos {end_block_seqno - start_block_seqno}"
@@ -528,3 +526,38 @@ def raw_process(chunk):
         block, state, txs = data
         out.append(len(txs))
     return out
+
+
+if __name__ == "__main__":
+    lcparams = {
+        'mode': 'roundrobin',
+        'my_rr_servers': [],
+        'timeout': 1,
+        'num_try': 3000,
+        'threads': 1
+    }
+
+    outq = Queue()
+
+    scanner = BlockScanner(
+        lcparams=lcparams,
+        start_from=35381340,
+        load_to=35381340 + 2,
+        nproc=10,
+        loglevel=2,
+        chunk_size=2,
+        raw_process=raw_process,
+        out_queue=outq
+    )
+
+    scanner.start()
+
+    while not scanner.done:
+        print("Not done, wait")
+        sleep(10)
+
+    total_txs = 0
+    while not outq.empty():
+        for result in outq.get():
+            total_txs += result
+    print("Got total: ", total_txs)
