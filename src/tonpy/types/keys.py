@@ -17,7 +17,7 @@ class PublicKey:
             self.key = PyPublicKey(public_key_hex)
 
     def to_hex(self):
-        return self.key.get_public_key_hex()
+        return self.key.get_public_key_hex().zfill(64)
 
 
 class PrivateKey:
@@ -31,7 +31,7 @@ class PrivateKey:
             self.key = PyPrivateKey()
 
     def to_hex(self):
-        return self.key.get_private_key_hex()
+        return self.key.get_private_key_hex().zfill(64)
 
     def get_public_key(self) -> PublicKey:
         return PublicKey(key=self.key.get_public_key())

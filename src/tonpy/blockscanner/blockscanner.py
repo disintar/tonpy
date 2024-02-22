@@ -240,7 +240,8 @@ def process_mc_blocks(seqnos, lcparams, loglevel):
             except Exception as e:
                 num_errs += 1
                 if num_errs > 600:
-                    logger.error(f"Error in process_mc_blocks: {e}, {tb.format_exc()}")
+                    logger.error(
+                        f"Error in process_mc_blocks, block: (-1, 0x8000000000000000, {i}): {e}, {tb.format_exc()}")
 
                 if num_errs > 3000:
                     raise e
@@ -259,7 +260,8 @@ class BlockScanner(Thread):
                  loglevel: int = 0,
                  raw_process: Callable = None,
                  chunk_size: int = 1000,
-                 out_queue: Queue = None):
+                 out_queue: Queue = None,
+                 only_mc_blocks: bool = False):
         """
 
         :param lcparams: Params for LiteClient
@@ -272,6 +274,7 @@ class BlockScanner(Thread):
         """
         super(BlockScanner, self).__init__()
 
+        self.only_mc_blocks = only_mc_blocks
         self.lcparams = json.dumps(lcparams)
         self.lc = LiteClient(**lcparams)
         self.start_from = start_from
@@ -471,7 +474,12 @@ class BlockScanner(Thread):
                 known_shards.extend(i['shards'])
 
             known_shards = set(known_shards)
-            shards_data = self.load_process_shard(known_shards=known_shards, stop_shards=stop_shards)
+
+            if not self.only_mc_blocks:
+                shards_data = self.load_process_shard(known_shards=known_shards, stop_shards=stop_shards)
+            else:
+                shards_data = []
+
             self.prepare_key_blocks(shards_data, mc_data)
 
             shards_data, mc_data = self.prepare_prev_block_data(shards_data, mc_data)
@@ -486,6 +494,7 @@ class BlockScanner(Thread):
 
             # [block, account_state, txs]
             txs = self.load_process_blocks(mc_data + shards_data)
+            txs_chunks, p = self.chunk_by_txs(txs)
 
             if self.loglevel > 0:
                 gen_utimes = [datetime.fromtimestamp(i['gen_utime']) for i in mc_data]
@@ -503,9 +512,8 @@ class BlockScanner(Thread):
                     f"  : Loaded time {end_block_gen_utime - start_block_gen_utime}"
                     f"\n\tMin/max MC seqnos: {start_block_seqno} / {end_block_seqno} "
                     f": Loaded seqnos {end_block_seqno - start_block_seqno}"
-                    f"\n\tLoaded at: {time() - started_at}\n\n")
-
-            txs_chunks, p = self.chunk_by_txs(txs)
+                    f"\n\tLoaded at: {time() - started_at}\n\n"
+                    f"\n\tChunks count: {len(txs_chunks)}, {sum([sum([i[2] for i in j]) for j in txs_chunks])} TXs")
 
             if self.process_raw:
                 with Pool(p) as pool:
