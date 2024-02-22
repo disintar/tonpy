@@ -513,7 +513,7 @@ class BlockScanner(Thread):
                     f"\n\tMin/max MC seqnos: {start_block_seqno} / {end_block_seqno} "
                     f": Loaded seqnos {end_block_seqno - start_block_seqno}"
                     f"\n\tLoaded at: {time() - started_at}\n\n"
-                    f"\n\tChunks count: {len(txs_chunks)}, {sum([sum([i[2] for i in j]) for j in txs_chunks])} TXs")
+                    f"\n\tChunks count: {len(txs_chunks)}, {sum([sum([len(i[2]) for i in j]) for j in txs_chunks])} TXs")
 
             if self.process_raw:
                 with Pool(p) as pool:
