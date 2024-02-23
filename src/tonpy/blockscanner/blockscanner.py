@@ -48,7 +48,7 @@ def process_block(block, lc):
     lt = None
 
     while not ready:
-        answer = lc.list_block_transactions_ext(block['block_id'], 1,
+        answer = lc.list_block_transactions_ext(block['block_id'], 256,
                                                 account_address=account_address,
                                                 lt=lt)
         ready = not answer.incomplete
