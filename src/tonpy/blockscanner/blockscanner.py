@@ -2,6 +2,7 @@
 
 import math
 import sys
+import traceback
 from collections import defaultdict
 
 sys.path.append("../src")
@@ -42,8 +43,12 @@ def get_mega_libs():
 def process_block(block, lc):
     block_txs = {}
 
-    account_blocks = VmDict(256, False, cell_root=block['account_blocks'].begin_parse().load_ref(),
-                            aug=SkipCryptoCurrency())
+    try:
+        account_blocks = VmDict(256, False, cell_root=block['account_blocks'].begin_parse().load_ref(),
+                                aug=SkipCryptoCurrency())
+    except Exception as e:
+        logger.error(f"Error in {block}!, {e}, {traceback.format_exc()}")
+        sys.exit(228)
 
     for i in account_blocks:
         account, data = i
@@ -59,6 +64,7 @@ def process_block(block, lc):
         data.skip_refs(1, True)
 
         transactions = VmDict(64, False, cell_root=data, aug=SkipCryptoCurrency())
+
         for t in transactions:
             lt, txdata = t
             tx = txdata.data.load_ref()
@@ -564,7 +570,8 @@ if __name__ == "__main__":
         loglevel=2,
         chunk_size=2,
         raw_process=raw_process,
-        out_queue=outq
+        out_queue=outq,
+        only_mc_blocks=True
     )
 
     scanner.start()
