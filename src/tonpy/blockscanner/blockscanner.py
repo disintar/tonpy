@@ -43,12 +43,12 @@ def get_mega_libs():
 def process_block(block, lc):
     block_txs = {}
 
-    try:
-        account_blocks = VmDict(256, False, cell_root=block['account_blocks'].begin_parse().load_ref(),
+    r: CellSlice = block['account_blocks'].begin_parse()
+    if r.refs > 0:
+        account_blocks = VmDict(256, False, cell_root=r.load_ref(),
                                 aug=SkipCryptoCurrency())
-    except Exception as e:
-        logger.error(f"Error in {block}!, {e}, {traceback.format_exc()}")
-        sys.exit(228)
+    else:
+        account_blocks = []
 
     for i in account_blocks:
         account, data = i
