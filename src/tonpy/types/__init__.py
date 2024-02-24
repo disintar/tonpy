@@ -12,6 +12,7 @@ from tonpy.types.blockid import *
 from tonpy.types.lite_utils import *
 from tonpy.types.liteclient import *
 from tonpy.types.address import *
+from tonpy.types.vmdict_extra import *
 
 
 def begin_cell():

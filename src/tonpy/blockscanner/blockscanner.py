@@ -9,7 +9,7 @@ sys.path.append("../src")
 import requests
 
 from tonpy import LiteClient, Cell, get_block_info, BlockId, BlockIdExt, \
-    Address, Emulator, begin_cell, StackEntry, VmDict, CellSlice
+    Address, Emulator, begin_cell, StackEntry, VmDict, CellSlice, SkipCryptoCurrency
 from tonpy.tvm.not_native.emulator_extern import EmulatorExtern
 
 from tonpy.utils.shard_account import shard_is_ancestor, shard_child, shard_parent
@@ -42,22 +42,31 @@ def get_mega_libs():
 def process_block(block, lc):
     block_txs = {}
 
-    ready = False
+    account_blocks = VmDict(256, False, cell_root=block['account_blocks'].begin_parse().load_ref(),
+                            aug=SkipCryptoCurrency())
 
-    account_address = None
-    lt = None
+    for i in account_blocks:
+        account, data = i
+        data = data.data
+        # acc_trans#5
+        assert data.load_uint(4) == 5
+        me = data.load_uint(256)
 
-    while not ready:
-        answer = lc.list_block_transactions_ext(block['block_id'], 256,
-                                                account_address=account_address,
-                                                lt=lt)
-        ready = not answer.incomplete
+        # account_addr:bits256
+        assert me == account
 
-        for tx in answer.transactions:
+        # state_update:^(HASH_UPDATE Account)
+        data.skip_refs(1, True)
+
+        transactions = VmDict(64, False, cell_root=data, aug=SkipCryptoCurrency())
+        for t in transactions:
+            lt, txdata = t
+            tx = txdata.data.load_ref()
             tx_tlb = Transaction()
             tx_tlb = tx_tlb.cell_unpack(tx, True)
 
             account_address = int(tx_tlb.account_addr, 2)
+            assert account_address == me
 
             if account_address not in block_txs:
                 block_txs[account_address] = []
@@ -68,8 +77,6 @@ def process_block(block, lc):
                 'now': tx_tlb.now,
                 'is_tock': tx_tlb.description.is_tock if hasattr(tx_tlb.description, 'is_tock') else False
             })
-
-            lt = tx_tlb.lt
 
     total_block_txs = []
 
@@ -147,7 +154,7 @@ def load_process_shard(shards_chunk,
         block = Block().cell_unpack(current_full_block)
         block_info = BlockInfo().cell_unpack(block.info, True)
         block_extra = BlockExtra().cell_unpack(block.extra, False)
-        block_info.prev_ref
+
         rand_seed = int(block_extra.rand_seed, 2)
         prev_key_block_seqno = block_info.prev_key_block_seqno
         right_shard = None
@@ -190,7 +197,8 @@ def load_process_shard(shards_chunk,
             'prev_key_block_seqno': prev_key_block_seqno,
             'prev_block_left': left_shard,
             'prev_block_right': right_shard,
-            'master': block_info.master_ref.master.seq_no
+            'master': block_info.master_ref.master.seq_no,
+            'account_blocks': block_extra.account_blocks
         }, *prev_data]
 
     if loglevel > 1:
@@ -233,7 +241,8 @@ def process_mc_blocks(seqnos, lcparams, loglevel):
                     'shards': lc.get_all_shards_info(block_id),
                     'rand_seed': rand_seed,
                     'prev_key_block_seqno': prev_key_block_seqno,
-                    'gen_utime': block_info.gen_utime
+                    'gen_utime': block_info.gen_utime,
+                    'account_blocks': block_extra.account_blocks
                 })
 
                 break
