@@ -43,48 +43,78 @@ def get_mega_libs():
 def process_block(block, lc):
     block_txs = {}
 
-    r: CellSlice = block['account_blocks'].begin_parse()
-    del block['account_blocks']
+    if block['account_blocks'] is not None:
+        r: CellSlice = block['account_blocks'].begin_parse()
+        del block['account_blocks']
 
-    if r.refs > 0:
-        account_blocks = VmDict(256, False, cell_root=r.load_ref(),
-                                aug=SkipCryptoCurrency())
+        if r.refs > 0:
+            account_blocks = VmDict(256, False, cell_root=r.load_ref(),
+                                    aug=SkipCryptoCurrency())
+        else:
+            account_blocks = []
+
+        for i in account_blocks:
+            account, data = i
+            data = data.data
+            # acc_trans#5
+            assert data.load_uint(4) == 5
+            me = data.load_uint(256)
+
+            # account_addr:bits256
+            assert me == account
+
+            # state_update:^(HASH_UPDATE Account)
+            data.skip_refs(1, True)
+
+            transactions = VmDict(64, False, cell_root=data, aug=SkipCryptoCurrency())
+
+            for t in transactions:
+                lt, txdata = t
+                tx = txdata.data.load_ref()
+                tx_tlb = Transaction()
+                tx_tlb = tx_tlb.cell_unpack(tx, True)
+
+                account_address = int(tx_tlb.account_addr, 2)
+                assert account_address == me
+
+                if account_address not in block_txs:
+                    block_txs[account_address] = []
+
+                block_txs[account_address].append({
+                    'tx': tx,
+                    'lt': tx_tlb.lt,
+                    'now': tx_tlb.now,
+                    'is_tock': tx_tlb.description.is_tock if hasattr(tx_tlb.description, 'is_tock') else False
+                })
     else:
-        account_blocks = []
+        ready = False
 
-    for i in account_blocks:
-        account, data = i
-        data = data.data
-        # acc_trans#5
-        assert data.load_uint(4) == 5
-        me = data.load_uint(256)
+        account_address = None
+        lt = None
 
-        # account_addr:bits256
-        assert me == account
+        while not ready:
+            answer = lc.list_block_transactions_ext(block['block_id'], 256,
+                                                    account_address=account_address,
+                                                    lt=lt)
+            ready = not answer.incomplete
 
-        # state_update:^(HASH_UPDATE Account)
-        data.skip_refs(1, True)
+            for tx in answer.transactions:
+                tx_tlb = Transaction()
+                tx_tlb = tx_tlb.cell_unpack(tx, True)
 
-        transactions = VmDict(64, False, cell_root=data, aug=SkipCryptoCurrency())
+                account_address = int(tx_tlb.account_addr, 2)
 
-        for t in transactions:
-            lt, txdata = t
-            tx = txdata.data.load_ref()
-            tx_tlb = Transaction()
-            tx_tlb = tx_tlb.cell_unpack(tx, True)
+                if account_address not in block_txs:
+                    block_txs[account_address] = []
 
-            account_address = int(tx_tlb.account_addr, 2)
-            assert account_address == me
+                block_txs[account_address].append({
+                    'tx': tx,
+                    'lt': tx_tlb.lt,
+                    'now': tx_tlb.now,
+                    'is_tock': tx_tlb.description.is_tock if hasattr(tx_tlb.description, 'is_tock') else False
+                })
 
-            if account_address not in block_txs:
-                block_txs[account_address] = []
-
-            block_txs[account_address].append({
-                'tx': tx,
-                'lt': tx_tlb.lt,
-                'now': tx_tlb.now,
-                'is_tock': tx_tlb.description.is_tock if hasattr(tx_tlb.description, 'is_tock') else False
-            })
+                lt = tx_tlb.lt
 
     total_block_txs = []
 
@@ -140,7 +170,8 @@ def load_process_shard(shards_chunk,
                        known_shards,
                        stop_shards,
                        lcparams,
-                       loglevel):
+                       loglevel,
+                       parse_txs_over_ls=False):
     answer = []
 
     lcparams = json.loads(lcparams)
@@ -206,7 +237,7 @@ def load_process_shard(shards_chunk,
             'prev_block_left': left_shard,
             'prev_block_right': right_shard,
             'master': block_info.master_ref.master.seq_no,
-            'account_blocks': block_extra.account_blocks
+            'account_blocks': block_extra.account_blocks if not parse_txs_over_ls else None
         }, *prev_data]
 
     if loglevel > 1:
@@ -278,7 +309,8 @@ class BlockScanner(Thread):
                  raw_process: Callable = None,
                  chunk_size: int = 1000,
                  out_queue: Queue = None,
-                 only_mc_blocks: bool = False):
+                 only_mc_blocks: bool = False,
+                 parse_txs_over_ls: bool = False):
         """
 
         :param lcparams: Params for LiteClient
@@ -300,6 +332,7 @@ class BlockScanner(Thread):
         self.nproc = nproc
         self.chunk_size = chunk_size
         self.out_queue = out_queue
+        self.parse_txs_over_ls = parse_txs_over_ls
 
         self.known_key_blocks = {}
         self.mega_libs = get_mega_libs()
@@ -359,7 +392,7 @@ class BlockScanner(Thread):
         with Pool(p) as pool:
             results = pool.imap_unordered(
                 load_process_shard(known_shards=known_shards, stop_shards=stop_shards, lcparams=self.lcparams,
-                                   loglevel=self.loglevel),
+                                   loglevel=self.loglevel, parse_txs_over_ls=self.parse_txs_over_ls),
                 known_shards_chunks)
 
             for result in results:
@@ -573,7 +606,8 @@ if __name__ == "__main__":
         chunk_size=2,
         raw_process=raw_process,
         out_queue=outq,
-        only_mc_blocks=True
+        only_mc_blocks=True,
+        parse_txs_over_ls=True
     )
 
     scanner.start()
