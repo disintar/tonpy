@@ -44,6 +44,8 @@ def process_block(block, lc):
     block_txs = {}
 
     r: CellSlice = block['account_blocks'].begin_parse()
+    del block['account_blocks']
+
     if r.refs > 0:
         account_blocks = VmDict(256, False, cell_root=r.load_ref(),
                                 aug=SkipCryptoCurrency())
