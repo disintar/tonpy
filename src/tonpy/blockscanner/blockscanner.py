@@ -546,16 +546,17 @@ class BlockScanner(Thread):
                     f"\n\tMin/max MC seqnos: {start_block_seqno} / {end_block_seqno} "
                     f": Loaded seqnos {end_block_seqno - start_block_seqno}"
                     f"\n\tLoaded at: {time() - started_at}\n\n"
-                    f"\n\tChunks count: {len(txs_chunks)}, {sum([sum([len(i[2]) for i in j]) for j in txs_chunks])} TXs")
+                    f"\n\tChunks count: {len(txs)}, {sum([len(i[2]) for i in txs])} TXs")
 
             if self.process_raw:
                 start_emulate_at = time()
+                tmp = chunks(txs, self.tx_chunk_size)
 
-                for c in chunks(txs, self.tx_chunk_size):
+                if self.loglevel > 1:
+                    tmp = tqdm(tmp, desc="Process raw")
+
+                for c in tmp:
                     with Pool(self.nproc) as pool:
-                        if self.loglevel > 1:
-                            txs_chunks = tqdm(txs_chunks, desc="Process raw")
-
                         results = pool.imap_unordered(self.f, c, chunksize=math.ceil(len(c) / self.nproc))
 
                         for result_chunk in results:
