@@ -550,14 +550,14 @@ class BlockScanner(Thread):
 
             if self.process_raw:
                 start_emulate_at = time()
-                tmp = chunks(txs, self.tx_chunk_size)
+                tmp = list(chunks(txs, self.tx_chunk_size))
 
                 if self.loglevel > 1:
-                    tmp = tqdm(tmp, desc="Process raw")
+                    tmp = tqdm(tmp, desc="Process raw", total=len(tmp))
 
                 for c in tmp:
                     with Pool(self.nproc) as pool:
-                        results = pool.imap_unordered(self.f, c, chunksize=math.ceil(len(c) / self.nproc))
+                        results = pool.imap_unordered(self.f, c, chunksize=max(200, math.ceil(len(c) / self.nproc)))
 
                         for result_chunk in results:
                             self.out_queue.put(result_chunk)

@@ -5,7 +5,7 @@ from tonpy.autogen.block import Transaction, MessageAny
 
 class CustomSubscription:
     def __init__(self):
-        pass
+        self.local_items = []
 
     def check(self, tx: CellSlice) -> bool:
         raise NotImplementedError
@@ -41,7 +41,6 @@ class TransactionSubscription(CustomSubscription):
                         in_msg_text = in_msg_body.load_string(strict=False)
                         return self.text in in_msg_text
                     except Exception as e:
-                        print(e)
                         return False
 
         else:
