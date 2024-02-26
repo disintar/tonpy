@@ -3,12 +3,47 @@ from tonpy.types.cell import Cell
 from tonpy.autogen.block import Transaction, MessageAny
 
 
-class CustomSubscription:
-    def __init__(self):
-        self.local_items = []
+class AndCustomSubscription:
+    def __init__(self, left: "CustomSubscription", right: "CustomSubscription"):
+        super().__init__()
+        self.left = left
+        self.right = right
 
     def check(self, tx: CellSlice) -> bool:
+        return self.left.check(tx) and self.right.check(tx)
+
+    def __and__(self, other):
+        return AndCustomSubscription(self, other)
+
+    def __or__(self, other):
+        return OrCustomSubscription(self, other)
+
+
+class OrCustomSubscription:
+    def __init__(self, left: "CustomSubscription", right: "CustomSubscription"):
+        super().__init__()
+        self.left = left
+        self.right = right
+
+    def check(self, tx: CellSlice) -> bool:
+        return self.left.check(tx) or self.right.check(tx)
+
+    def __and__(self, other):
+        return AndCustomSubscription(self, other)
+
+    def __or__(self, other):
+        return OrCustomSubscription(self, other)
+
+
+class CustomSubscription:
+    def check(self, tx: CellSlice) -> bool:
         raise NotImplementedError
+
+    def __and__(self, other) -> "CustomSubscription":
+        return AndCustomSubscription(self, other)
+
+    def __or__(self, other):
+        return OrCustomSubscription(self, other)
 
 
 class TransactionSubscription(CustomSubscription):

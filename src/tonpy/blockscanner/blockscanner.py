@@ -550,7 +550,7 @@ class BlockScanner(Thread):
 
             if self.process_raw:
                 start_emulate_at = time()
-                tmp = list(chunks(txs, self.tx_chunk_size))
+                tmp = list(chunks(txs, len(txs) // self.tx_chunk_size))
 
                 if self.loglevel > 1:
                     tmp = tqdm(tmp, desc="Process raw", total=len(tmp))
