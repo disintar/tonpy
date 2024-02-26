@@ -557,7 +557,7 @@ class BlockScanner(Thread):
 
                 for c in tmp:
                     with Pool(self.nproc) as pool:
-                        results = pool.imap_unordered(self.f, c, chunksize=max(200, math.ceil(len(c) / self.nproc)))
+                        results = pool.imap_unordered(self.f, c, chunksize=max(1000, math.ceil(len(c) / self.nproc)))
 
                         for result_chunk in results:
                             self.out_queue.put(result_chunk)
