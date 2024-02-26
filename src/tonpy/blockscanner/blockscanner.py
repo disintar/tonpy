@@ -3,6 +3,7 @@
 import math
 import sys
 import traceback
+import typing
 from collections import defaultdict
 
 sys.path.append("../src")
@@ -31,6 +32,29 @@ from queue import Queue
 
 globalSetVerbosity(-1)
 
+if typing.TYPE_CHECKING:
+    from tonpy.blockscanner import CustomSubscription, CustomAccountSubscription
+    from tonpy.blockscanner.database_provider import BaseDatabaseProvider
+
+
+@curry
+def process_subscriptions(data,
+                          tx_subscriptions: "CustomSubscription" = None,
+                          account_subscriptions: "CustomAccountSubscription" = None):
+    block, account_state, txs = data
+
+    # todo: get 1 tx, get account and pass over account_subscriptions
+
+    if account_state is None:
+        if tx_subscriptions is not None:
+            txs = [[block['block_id'], i] for i in list(filter(tx_subscriptions.check, [tx['tx'] for tx in txs]))]
+        else:
+            txs = [[block['block_id'], i['tx']] for i in txs]
+        return txs
+    else:
+        # todo: emulate all transactions & process each over account_subscriptions and tx_subscriptions
+        raise NotImplementedError("Emulation not supported yet")
+
 
 def get_mega_libs():
     query = '''query{mega_libs_cell}'''
@@ -40,7 +64,7 @@ def get_mega_libs():
     return response.json()['data']['mega_libs_cell']
 
 
-def process_block(block, lc):
+def process_block(block, lc, emulate_before_output):
     block_txs = {}
 
     if block['account_blocks'] is not None:
@@ -119,30 +143,33 @@ def process_block(block, lc):
     total_block_txs = []
 
     for account in block_txs:
-        address_acc = f"{block['block_id'].id.workchain}:{hex(account).upper()[2:].zfill(64)}"
-        acc = Address(address_acc)
+        if emulate_before_output:
+            address_acc = f"{block['block_id'].id.workchain}:{hex(account).upper()[2:].zfill(64)}"
+            acc = Address(address_acc)
 
-        if shard_is_ancestor(block['prev_block_left'].id.shard,
-                             acc.shard_prefix(60)):
-            state_block = block['prev_block_left']
+            if shard_is_ancestor(block['prev_block_left'].id.shard,
+                                 acc.shard_prefix(60)):
+                state_block = block['prev_block_left']
+            else:
+                state_block = block['prev_block_right']
+
+            # Load account state from prev block
+            account_state = lc.get_account_state(acc, state_block)
+
+            if not account_state.root.is_null():
+                # Convert answer to AccountShardState
+                account_state = begin_cell() \
+                    .store_ref(account_state.root) \
+                    .store_uint(int(account_state.last_trans_hash, 16), 256) \
+                    .store_uint(account_state.last_trans_lt, 64).end_cell()
+            else:
+                account_state = begin_cell() \
+                    .store_ref(begin_cell().store_uint(0, 1).end_cell()) \
+                    .store_uint(int(account_state.last_trans_hash, 16), 256) \
+                    .store_uint(account_state.last_trans_lt, 64) \
+                    .end_cell()
         else:
-            state_block = block['prev_block_right']
-
-        # Load account state from prev block
-        account_state = lc.get_account_state(acc, state_block)
-
-        if not account_state.root.is_null():
-            # Convert answer to AccountShardState
-            account_state = begin_cell() \
-                .store_ref(account_state.root) \
-                .store_uint(int(account_state.last_trans_hash, 16), 256) \
-                .store_uint(account_state.last_trans_lt, 64).end_cell()
-        else:
-            account_state = begin_cell() \
-                .store_ref(begin_cell().store_uint(0, 1).end_cell()) \
-                .store_uint(int(account_state.last_trans_hash, 16), 256) \
-                .store_uint(account_state.last_trans_lt, 64) \
-                .end_cell()
+            account_state = None
 
         total_block_txs.append([block, account_state, block_txs[account]])
 
@@ -150,7 +177,7 @@ def process_block(block, lc):
 
 
 @curry
-def load_process_blocks(blocks_chunk, lcparams, loglevel):
+def load_process_blocks(blocks_chunk, lcparams, loglevel, emulate_before_output):
     lcparams = json.loads(lcparams)
     lc = LiteClient(**lcparams)
 
@@ -160,7 +187,7 @@ def load_process_blocks(blocks_chunk, lcparams, loglevel):
         blocks_chunk = tqdm(blocks_chunk, desc="Load block TXs")
 
     for block in blocks_chunk:
-        blocks_txs.extend(process_block(block, lc))
+        blocks_txs.extend(process_block(block, lc, emulate_before_output))
 
     return blocks_txs
 
@@ -311,7 +338,11 @@ class BlockScanner(Thread):
                  tx_chunk_size: int = 40000,
                  out_queue: Queue = None,
                  only_mc_blocks: bool = False,
-                 parse_txs_over_ls: bool = False):
+                 parse_txs_over_ls: bool = False,
+                 transaction_subscriptions: "CustomSubscription" = None,
+                 account_subscriptions: "CustomAccountSubscription" = None,
+                 database_provider: "BaseDatabaseProvider" = None,
+                 emulate_before_output: bool = None):
         """
 
         :param lcparams: Params for LiteClient
@@ -322,6 +353,10 @@ class BlockScanner(Thread):
         :param chunk_size: Number of blocks to load to RAM per 1 iteration (depends on network load, number of process, available RAM)
         :param tx_chunk_size: Number of TXs that will be loaded to raw / emulate function per 1 iteration. 40k is good option by default, if you have <32gb ram consider to low this value
         :param raw_process: Raw function to call on TXs in blocks (without emulation), will receive [block, account_state, txs]
+        :param transaction_subscriptions: Rules to filter transactions that will be scanned
+        :param account_subscriptions: Rules to filter accounts that will be scanned
+        :param database_provider: TODO: Database connector to get information about accounts and states, save hashes, etc
+        :param emulate_before_output: If True - will emulate transaction to get actual account state on TX, default False
         """
         super(BlockScanner, self).__init__()
 
@@ -336,7 +371,9 @@ class BlockScanner(Thread):
         self.out_queue = out_queue
         self.parse_txs_over_ls = parse_txs_over_ls
         self.tx_chunk_size = tx_chunk_size
-
+        self.transaction_subscriptions = transaction_subscriptions
+        self.account_subscriptions = account_subscriptions
+        self.emulate_before_output = emulate_before_output
         self.known_key_blocks = {}
         self.mega_libs = get_mega_libs()
 
@@ -344,8 +381,16 @@ class BlockScanner(Thread):
         if self.process_raw:
             self.f = raw_process
             assert out_queue is not None
+            assert self.transaction_subscriptions is None, "Can't use transaction_subscription with process_raw"
+            assert self.account_subscriptions is None, "Can't use account_subscriptions with process_raw"
+            assert database_provider is None, "Can't use database_provider with process_raw"
+            assert self.emulate_before_output is None, "Can't use emulate_before_output with process_raw"
+            self.emulate_before_output = True
         else:
             self.f = None
+
+            if self.emulate_before_output is None:
+                self.emulate_before_output = False
 
         self.done = False
 
@@ -478,7 +523,8 @@ class BlockScanner(Thread):
         blocks_chunks, p = self.detect_cs_p(list(blocks))
 
         with Pool(p) as pool:
-            results = pool.imap_unordered(load_process_blocks(lcparams=self.lcparams, loglevel=self.loglevel),
+            results = pool.imap_unordered(load_process_blocks(lcparams=self.lcparams, loglevel=self.loglevel,
+                                                              emulate_before_output=self.emulate_before_output),
                                           blocks_chunks)
 
             for result in results:
@@ -548,22 +594,26 @@ class BlockScanner(Thread):
                     f"\n\tLoaded at: {time() - started_at}\n\n"
                     f"\n\tChunks count: {len(txs)}, {sum([len(i[2]) for i in txs])} TXs")
 
-            if self.process_raw:
-                start_emulate_at = time()
-                tmp = list(chunks(txs, len(txs) // self.tx_chunk_size))
+            start_emulate_at = time()
+            tmp = list(chunks(txs, self.tx_chunk_size))
 
-                if self.loglevel > 1:
-                    tmp = tqdm(tmp, desc="Process raw", total=len(tmp))
+            if self.loglevel > 1:
+                tmp = tqdm(tmp, desc="Process raw", total=len(tmp))
 
-                for c in tmp:
-                    with Pool(self.nproc) as pool:
-                        results = pool.imap_unordered(self.f, c, chunksize=max(1000, math.ceil(len(c) / self.nproc)))
+            if not self.process_raw:
+                self.f = process_subscriptions(tx_subscriptions=self.transaction_subscriptions,
+                                               account_subscriptions=self.account_subscriptions)
 
-                        for result_chunk in results:
+            for c in tmp:
+                with Pool(self.nproc) as pool:
+                    results = pool.imap_unordered(self.f, c, chunksize=max(300, math.ceil(len(c) / self.nproc)))
+
+                    for result_chunk in results:
+                        if len(result_chunk) > 0:
                             self.out_queue.put(result_chunk)
 
-                if self.loglevel > 0:
-                    logger.info(f"\n\tEmulated at: {time() - start_emulate_at}")
+            if self.loglevel > 0:
+                logger.info(f"\n\tProcessed TXs at: {time() - start_emulate_at}")
 
     def run(self):
         self.load_historical()

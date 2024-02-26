@@ -1,6 +1,7 @@
 from tonpy.types.cellslice import CellSlice
 from tonpy.types.cell import Cell
 from tonpy.autogen.block import Transaction, MessageAny
+from typing import Union, Optional
 
 
 class AndCustomSubscription:
@@ -9,8 +10,8 @@ class AndCustomSubscription:
         self.left = left
         self.right = right
 
-    def check(self, tx: CellSlice) -> bool:
-        return self.left.check(tx) and self.right.check(tx)
+    def check(self, *args, **kwargs) -> bool:
+        return self.left.check(*args, **kwargs) and self.right.check(*args, **kwargs)
 
     def __and__(self, other):
         return AndCustomSubscription(self, other)
@@ -25,8 +26,8 @@ class OrCustomSubscription:
         self.left = left
         self.right = right
 
-    def check(self, tx: CellSlice) -> bool:
-        return self.left.check(tx) or self.right.check(tx)
+    def check(self, *args, **kwargs) -> bool:
+        return self.left.check(*args, **kwargs) or self.right.check(*args, **kwargs)
 
     def __and__(self, other):
         return AndCustomSubscription(self, other)
@@ -42,7 +43,26 @@ class CustomSubscription:
     def __and__(self, other) -> "CustomSubscription":
         return AndCustomSubscription(self, other)
 
-    def __or__(self, other):
+    def __or__(self, other) -> "CustomSubscription":
+        return OrCustomSubscription(self, other)
+
+
+class CustomAccountSubscription:
+    def check(self, workchain: int, address: str, account_state: Optional[CellSlice] = None) -> bool:
+        """
+
+        :param workchain:
+        :param address:
+        :param account_state: Will provided only if emulate_before_output is True
+        :return:
+        """
+
+        raise NotImplementedError
+
+    def __and__(self, other) -> "CustomAccountSubscription":
+        return AndCustomSubscription(self, other)
+
+    def __or__(self, other) -> "CustomAccountSubscription":
         return OrCustomSubscription(self, other)
 
 
@@ -80,3 +100,14 @@ class TransactionSubscription(CustomSubscription):
 
         else:
             return False
+
+
+class AccountSubscription(CustomSubscription):
+    def __init__(self, code_hash: Union[str, int] = None):
+        if isinstance(code_hash, str):
+            code_hash = int(code_hash, 16)
+
+        self.code_hash = code_hash
+
+    def check(self, account: CellSlice) -> bool:
+        return True
