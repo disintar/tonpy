@@ -308,6 +308,7 @@ class BlockScanner(Thread):
                  loglevel: int = 0,
                  raw_process: Callable = None,
                  chunk_size: int = 1000,
+                 tx_chunk_size: int = 40000,
                  out_queue: Queue = None,
                  only_mc_blocks: bool = False,
                  parse_txs_over_ls: bool = False):
@@ -318,7 +319,8 @@ class BlockScanner(Thread):
         :param load_to: Seqno of last block to load
         :param nproc: Number of process
         :param loglevel: Logs: 0 - nothing, 1 - stats, 2 - tqdm
-        :param chunk_size: number of blocks to load to RAM per 1 iteration (depends on network load, number of process, available RAM)
+        :param chunk_size: Number of blocks to load to RAM per 1 iteration (depends on network load, number of process, available RAM)
+        :param tx_chunk_size: Number of TXs that will be loaded to raw / emulate function per 1 iteration. 40k is good option by default, if you have <32gb ram consider to low this value
         :param raw_process: Raw function to call on TXs in blocks (without emulation), will receive [block, account_state, txs]
         """
         super(BlockScanner, self).__init__()
@@ -333,6 +335,7 @@ class BlockScanner(Thread):
         self.chunk_size = chunk_size
         self.out_queue = out_queue
         self.parse_txs_over_ls = parse_txs_over_ls
+        self.tx_chunk_size = tx_chunk_size
 
         self.known_key_blocks = {}
         self.mega_libs = get_mega_libs()
@@ -566,11 +569,20 @@ class BlockScanner(Thread):
                     f"\n\tChunks count: {len(txs_chunks)}, {sum([sum([len(i[2]) for i in j]) for j in txs_chunks])} TXs")
 
             if self.process_raw:
-                with Pool(p) as pool:
-                    results = pool.imap_unordered(self.f, txs_chunks)
+                start_emulate_at = time()
 
-                    for result_chunk in results:
-                        self.out_queue.put(result_chunk)
+                for c in chunks(txs_chunks, self.tx_chunk_size):
+                    with Pool(p) as pool:
+                        if self.loglevel > 1:
+                            txs_chunks = tqdm(txs_chunks, desc="Process raw")
+
+                        results = pool.imap_unordered(self.f, c, chunksize=math.ceil(len(c) / p))
+
+                        for result_chunk in results:
+                            self.out_queue.put(result_chunk)
+
+                if self.loglevel > 0:
+                    logger.info(f"\n\tEmulated at: {time() - start_emulate_at}")
 
     def run(self):
         self.load_historical()
