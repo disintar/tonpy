@@ -355,25 +355,6 @@ class BlockScanner(Thread):
         p = min(self.nproc, len(list_))
         return list_, p
 
-    def chunk_by_txs(self, data, cs=100):
-        worker_to_chunk = defaultdict(lambda: [])
-        current_worker = 0
-        cur_c = 0
-
-        for i in data:
-            weight = len(i[2]) ** 2
-
-            if cur_c + weight > cs:
-                worker_to_chunk[current_worker].append(i)
-                current_worker += 1
-                cur_c = 0
-
-            else:
-                worker_to_chunk[current_worker].append(i)
-                cur_c += weight
-
-        return worker_to_chunk.values(), self.nproc
-
     def load_mcs(self, from_, to_):
         mc_data = []
         blocks_ids = list(range(from_, to_))
@@ -547,7 +528,6 @@ class BlockScanner(Thread):
 
             # [block, account_state, txs]
             txs = self.load_process_blocks(mc_data + shards_data)
-            txs_chunks, p = self.chunk_by_txs(txs)
 
             if self.loglevel > 0:
                 gen_utimes = [datetime.fromtimestamp(i['gen_utime']) for i in mc_data]
@@ -571,12 +551,12 @@ class BlockScanner(Thread):
             if self.process_raw:
                 start_emulate_at = time()
 
-                for c in chunks(txs_chunks, self.tx_chunk_size):
-                    with Pool(p) as pool:
+                for c in chunks(txs, self.tx_chunk_size):
+                    with Pool(self.nproc) as pool:
                         if self.loglevel > 1:
                             txs_chunks = tqdm(txs_chunks, desc="Process raw")
 
-                        results = pool.imap_unordered(self.f, c, chunksize=math.ceil(len(c) / p))
+                        results = pool.imap_unordered(self.f, c, chunksize=math.ceil(len(c) / self.nproc))
 
                         for result_chunk in results:
                             self.out_queue.put(result_chunk)
