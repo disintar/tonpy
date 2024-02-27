@@ -277,7 +277,7 @@ def load_process_shard(shards_chunk,
 
 
 @curry
-def process_mc_blocks(seqnos, lcparams, loglevel):
+def process_mc_blocks(seqnos, lcparams, loglevel, parse_txs_over_ls):
     lcparams = json.loads(lcparams)
     lc = LiteClient(**lcparams)
 
@@ -308,7 +308,7 @@ def process_mc_blocks(seqnos, lcparams, loglevel):
                     'rand_seed': rand_seed,
                     'prev_key_block_seqno': prev_key_block_seqno,
                     'gen_utime': block_info.gen_utime,
-                    'account_blocks': block_extra.account_blocks
+                    'account_blocks': block_extra.account_blocks if not parse_txs_over_ls else None
                 })
 
                 break
@@ -406,7 +406,8 @@ class BlockScanner(Thread):
         mc_seqnos_chunks, p = self.detect_cs_p(blocks_ids)
 
         with Pool(p) as pool:
-            results = pool.imap_unordered(process_mc_blocks(lcparams=self.lcparams, loglevel=self.loglevel),
+            results = pool.imap_unordered(process_mc_blocks(lcparams=self.lcparams, loglevel=self.loglevel,
+                                                            parse_txs_over_ls=self.parse_txs_over_ls),
                                           mc_seqnos_chunks)
 
             for result in results:
