@@ -37,6 +37,54 @@ if typing.TYPE_CHECKING:
     from tonpy.blockscanner.database_provider import BaseDatabaseProvider
 
 
+def convert_account_blocks_to_txs(account_blocks_all):
+    block_txs = {}
+
+    r: CellSlice = account_blocks_all.begin_parse()
+
+    if r.refs > 0:
+        account_blocks = VmDict(256, False, cell_root=r.load_ref(),
+                                aug=SkipCryptoCurrency())
+    else:
+        account_blocks = []
+
+    for i in account_blocks:
+        account, data = i
+        data = data.data
+        # acc_trans#5
+        assert data.load_uint(4) == 5
+        me = data.load_uint(256)
+
+        # account_addr:bits256
+        assert me == account
+
+        # state_update:^(HASH_UPDATE Account)
+        data.skip_refs(1, True)
+
+        transactions = VmDict(64, False, cell_root=data, aug=SkipCryptoCurrency())
+
+        for t in transactions:
+            lt, txdata = t
+            tx = txdata.data.load_ref()
+            tx_tlb = Transaction()
+            tx_tlb = tx_tlb.cell_unpack(tx, True)
+
+            account_address = int(tx_tlb.account_addr, 2)
+            assert account_address == me
+
+            if account_address not in block_txs:
+                block_txs[account_address] = []
+
+            block_txs[account_address].append({
+                'tx': tx,
+                'lt': tx_tlb.lt,
+                'now': tx_tlb.now,
+                'is_tock': tx_tlb.description.is_tock if hasattr(tx_tlb.description, 'is_tock') else False
+            })
+
+    return block_txs
+
+
 @curry
 def process_subscriptions(data,
                           tx_subscriptions: "CustomSubscription" = None,
@@ -74,48 +122,7 @@ def process_block(block, lc, emulate_before_output):
     block_txs = {}
 
     if block['account_blocks'] is not None:
-        r: CellSlice = block['account_blocks'].begin_parse()
-        del block['account_blocks']
-
-        if r.refs > 0:
-            account_blocks = VmDict(256, False, cell_root=r.load_ref(),
-                                    aug=SkipCryptoCurrency())
-        else:
-            account_blocks = []
-
-        for i in account_blocks:
-            account, data = i
-            data = data.data
-            # acc_trans#5
-            assert data.load_uint(4) == 5
-            me = data.load_uint(256)
-
-            # account_addr:bits256
-            assert me == account
-
-            # state_update:^(HASH_UPDATE Account)
-            data.skip_refs(1, True)
-
-            transactions = VmDict(64, False, cell_root=data, aug=SkipCryptoCurrency())
-
-            for t in transactions:
-                lt, txdata = t
-                tx = txdata.data.load_ref()
-                tx_tlb = Transaction()
-                tx_tlb = tx_tlb.cell_unpack(tx, True)
-
-                account_address = int(tx_tlb.account_addr, 2)
-                assert account_address == me
-
-                if account_address not in block_txs:
-                    block_txs[account_address] = []
-
-                block_txs[account_address].append({
-                    'tx': tx,
-                    'lt': tx_tlb.lt,
-                    'now': tx_tlb.now,
-                    'is_tock': tx_tlb.description.is_tock if hasattr(tx_tlb.description, 'is_tock') else False
-                })
+        block_txs = block['account_blocks']
     else:
         ready = False
 
@@ -270,7 +277,8 @@ def load_process_shard(shards_chunk,
             'prev_block_left': left_shard,
             'prev_block_right': right_shard,
             'master': block_info.master_ref.master.seq_no,
-            'account_blocks': block_extra.account_blocks if not parse_txs_over_ls else None
+            'account_blocks': convert_account_blocks_to_txs(
+                block_extra.account_blocks) if not parse_txs_over_ls else None
         }, *prev_data]
 
     if loglevel > 1:
@@ -314,7 +322,8 @@ def process_mc_blocks(seqnos, lcparams, loglevel, parse_txs_over_ls):
                     'rand_seed': rand_seed,
                     'prev_key_block_seqno': prev_key_block_seqno,
                     'gen_utime': block_info.gen_utime,
-                    'account_blocks': block_extra.account_blocks if not parse_txs_over_ls else None
+                    'account_blocks': convert_account_blocks_to_txs(
+                        block_extra.account_blocks) if not parse_txs_over_ls else None
                 })
 
                 break
