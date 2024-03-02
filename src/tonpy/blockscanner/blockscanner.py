@@ -610,27 +610,27 @@ class BlockScanner(Thread):
             process_block_start_at = time()
 
             # [block, account_state, txs]
-            if self.emulate_before_output:
-                txs = self.load_process_blocks(mc_data + shards_data, tx_subscriptions=self.transaction_subscriptions)
-            else:
-                txs = []
-
-                for block in mc_data + shards_data:
-                    tmp = block['account_blocks']
-                    del block['account_blocks']
-
-                    for account in tmp:
-                        clear_tmp = []
-                        for x in tmp[account]:
-                            if self.transaction_subscriptions is None or \
-                                    self.transaction_subscriptions.check(x['tx'].begin_parse()):
-                                clear_tmp.append(x)
-
-                        if len(clear_tmp):
-                            txs.append([block, None, clear_tmp])
-
-                if len(txs):
-                    self.out_queue.put(txs)
+            # if self.emulate_before_output:
+            txs = self.load_process_blocks(mc_data + shards_data, tx_subscriptions=self.transaction_subscriptions)
+            # else:
+            #     txs = []
+            #
+            #     for block in mc_data + shards_data:
+            #         tmp = block['account_blocks']
+            #         del block['account_blocks']
+            #
+            #         for account in tmp:
+            #             clear_tmp = []
+            #             for x in tmp[account]:
+            #                 if self.transaction_subscriptions is None or \
+            #                         self.transaction_subscriptions.check(x['tx'].begin_parse()):
+            #                     clear_tmp.append(x)
+            #
+            #             if len(clear_tmp):
+            #                 txs.append([block, None, clear_tmp])
+            #
+            #     if len(txs):
+            #         self.out_queue.put(txs)
 
             process_block_end_at = time() - process_block_start_at
 
