@@ -56,12 +56,18 @@ def process_subscriptions(data,
         raise NotImplementedError("Emulation not supported yet")
 
 
-def get_mega_libs():
-    query = '''query{mega_libs_cell}'''
+def get_mega_libs(num_try=100):
+    cur = 0
 
-    response = requests.post("https://dton.io/graphql", json={'query': query})
-
-    return response.json()['data']['mega_libs_cell']
+    while cur < num_try:
+        try:
+            query = '''query{mega_libs_cell}'''
+            response = requests.post("https://dton.io/graphql", json={'query': query})
+            return response.json()['data']['mega_libs_cell']
+        except Exception as e:
+            logger.error(f"Can't get dton.io/graphql: {e}, {tb.format_exc()}")
+            sleep(0.1)
+            cur += 1
 
 
 def process_block(block, lc, emulate_before_output):
@@ -539,6 +545,7 @@ class BlockScanner(Thread):
         while not stop:
             started_at = time()
 
+            mc_start_at = time()
             if start_from + self.chunk_size >= self.load_to:
                 mc_data = self.load_mcs(start_from, self.load_to)
                 stop = True
@@ -555,16 +562,22 @@ class BlockScanner(Thread):
                 known_shards.extend(i['shards'])
 
             known_shards = set(known_shards)
+            mc_end_at = time() - mc_start_at
 
+            shards_start_at = time()
             if not self.only_mc_blocks:
                 shards_data = self.load_process_shard(known_shards=known_shards, stop_shards=stop_shards)
             else:
                 shards_data = []
+            shards_end_at = time() - shards_start_at
 
+            key_blocks_start_at = time()
             self.prepare_key_blocks(shards_data, mc_data)
 
             shards_data, mc_data = self.prepare_prev_block_data(shards_data, mc_data)
+            key_blocks_end_at = time() - key_blocks_start_at
 
+            mega_libs_start_at = time()
             mega_libs = get_mega_libs()
 
             for i in shards_data:
@@ -572,9 +585,12 @@ class BlockScanner(Thread):
 
             for j in mc_data:
                 j['libs'] = mega_libs
+            mega_libs_end_at = time() - mega_libs_start_at
 
+            process_block_start_at = time()
             # [block, account_state, txs]
             txs = self.load_process_blocks(mc_data + shards_data)
+            process_block_end_at = time() - process_block_start_at
 
             if self.loglevel > 0:
                 gen_utimes = [datetime.fromtimestamp(i['gen_utime']) for i in mc_data]
@@ -592,7 +608,8 @@ class BlockScanner(Thread):
                     f"  : Loaded time {end_block_gen_utime - start_block_gen_utime}"
                     f"\n\tMin/max MC seqnos: {start_block_seqno} / {end_block_seqno} "
                     f": Loaded seqnos {end_block_seqno - start_block_seqno}"
-                    f"\n\tLoaded at: {time() - started_at}\n\n"
+                    f"\n\tLoaded at: {time() - started_at}, MC at: {mc_end_at}, Shards at: {shards_end_at},"
+                    f"\n\tKey at: {key_blocks_end_at}, Libs at: {mega_libs_end_at}, TXs at: {process_block_end_at}\n\n"
                     f"\n\tChunks count: {len(txs)}, {sum([len(i[2]) for i in txs])} TXs")
 
             start_emulate_at = time()
