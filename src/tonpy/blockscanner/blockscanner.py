@@ -79,6 +79,7 @@ def convert_account_blocks_to_txs(account_blocks_all):
                 'tx': tx,
                 'lt': tx_tlb.lt,
                 'now': tx_tlb.now,
+                'account': account_address,
                 'is_tock': tx_tlb.description.is_tock if hasattr(tx_tlb.description, 'is_tock') else False
             })
 
@@ -118,7 +119,7 @@ def get_mega_libs(num_try=100):
             cur += 1
 
 
-def process_block(block, lc, emulate_before_output):
+def process_block(block, lc, emulate_before_output, tx_subscriptions):
     block_txs = {}
 
     if block['account_blocks'] is not None:
@@ -136,6 +137,9 @@ def process_block(block, lc, emulate_before_output):
             ready = not answer.incomplete
 
             for tx in answer.transactions:
+                if tx_subscriptions is not None and not tx_subscriptions.check(tx.begin_parse()):
+                    continue
+
                 tx_tlb = Transaction()
                 tx_tlb = tx_tlb.cell_unpack(tx, True)
 
@@ -190,7 +194,7 @@ def process_block(block, lc, emulate_before_output):
 
 
 @curry
-def load_process_blocks(blocks_chunk, lcparams, loglevel, emulate_before_output):
+def load_process_blocks(blocks_chunk, lcparams, loglevel, emulate_before_output, tx_subscriptions):
     lcparams = json.loads(lcparams)
     lc = LiteClient(**lcparams)
 
@@ -200,7 +204,7 @@ def load_process_blocks(blocks_chunk, lcparams, loglevel, emulate_before_output)
         blocks_chunk = tqdm(blocks_chunk, desc="Load block TXs")
 
     for block in blocks_chunk:
-        blocks_txs.extend(process_block(block, lc, emulate_before_output))
+        blocks_txs.extend(process_block(block, lc, emulate_before_output, tx_subscriptions))
 
     return blocks_txs
 
@@ -273,6 +277,7 @@ def load_process_shard(shards_chunk,
         return [{
             'block_id': block_id,
             'rand_seed': rand_seed,
+            'gen_utime': block_info.gen_utime,
             'prev_key_block_seqno': prev_key_block_seqno,
             'prev_block_left': left_shard,
             'prev_block_right': right_shard,
@@ -320,6 +325,7 @@ def process_mc_blocks(seqnos, lcparams, loglevel, parse_txs_over_ls):
                     'block_id': block_id,
                     'shards': lc.get_all_shards_info(block_id),
                     'rand_seed': rand_seed,
+                    'gen_utime': block_info.gen_utime,
                     'prev_key_block_seqno': prev_key_block_seqno,
                     'gen_utime': block_info.gen_utime,
                     'account_blocks': convert_account_blocks_to_txs(
@@ -534,13 +540,14 @@ class BlockScanner(Thread):
 
         return shards_data, mc_data
 
-    def load_process_blocks(self, blocks):
+    def load_process_blocks(self, blocks, tx_subscriptions=None):
         txs_data = []
         blocks_chunks, p = self.detect_cs_p(list(blocks))
 
         with Pool(p) as pool:
             results = pool.imap_unordered(load_process_blocks(lcparams=self.lcparams, loglevel=self.loglevel,
-                                                              emulate_before_output=self.emulate_before_output),
+                                                              emulate_before_output=self.emulate_before_output,
+                                                              tx_subscriptions=tx_subscriptions),
                                           blocks_chunks)
 
             for result in results:
@@ -586,19 +593,45 @@ class BlockScanner(Thread):
             shards_data, mc_data = self.prepare_prev_block_data(shards_data, mc_data)
             key_blocks_end_at = time() - key_blocks_start_at
 
-            mega_libs_start_at = time()
-            mega_libs = get_mega_libs()
+            if self.emulate_before_output:
+                mega_libs_start_at = time()
+                mega_libs = get_mega_libs()
 
-            for i in shards_data:
-                i['libs'] = mega_libs
+                for i in shards_data:
+                    i['libs'] = mega_libs
 
-            for j in mc_data:
-                j['libs'] = mega_libs
-            mega_libs_end_at = time() - mega_libs_start_at
+                for j in mc_data:
+                    j['libs'] = mega_libs
+                mega_libs_end_at = time() - mega_libs_start_at
+            else:
+                mega_libs_start_at = time()
+                mega_libs_end_at = time() - mega_libs_start_at
 
             process_block_start_at = time()
+
             # [block, account_state, txs]
-            txs = self.load_process_blocks(mc_data + shards_data)
+            if self.emulate_before_output:
+                txs = self.load_process_blocks(mc_data + shards_data, tx_subscriptions=self.transaction_subscriptions)
+            else:
+                txs = []
+
+                for block in mc_data + shards_data:
+                    tmp = block['account_blocks']
+                    del block['account_blocks']
+
+                    for account in tmp:
+                        clear_tmp = []
+                        for x in tmp[account]:
+                            if self.transaction_subscriptions is None or \
+                                    self.transaction_subscriptions.check(x['tx'].begin_parse()):
+                                clear_tmp.append(x)
+
+                        if len(clear_tmp):
+                            txs.append([block, None, clear_tmp])
+
+                if len(txs):
+                    self.out_queue.put(txs)
+
             process_block_end_at = time() - process_block_start_at
 
             if self.loglevel > 0:
@@ -620,6 +653,9 @@ class BlockScanner(Thread):
                     f"\n\tLoaded at: {time() - started_at}, MC at: {mc_end_at}, Shards at: {shards_end_at},"
                     f"\n\tKey at: {key_blocks_end_at}, Libs at: {mega_libs_end_at}, TXs at: {process_block_end_at}\n\n"
                     f"\n\tChunks count: {len(txs)}, {sum([len(i[2]) for i in txs])} TXs")
+
+            if not self.emulate_before_output:
+                continue
 
             start_emulate_at = time()
             tmp = list(chunks(txs, self.tx_chunk_size))
