@@ -124,6 +124,14 @@ def process_block(block, lc, emulate_before_output, tx_subscriptions):
 
     if block['account_blocks'] is not None:
         block_txs = block['account_blocks']
+        del block['account_blocks']
+
+        for account in block_txs:
+            clear_tmp = []
+            for x in block_txs[account]:
+                if tx_subscriptions is None or tx_subscriptions.check(x['tx'].begin_parse()):
+                    clear_tmp.append(x)
+            block_txs[account] = clear_tmp
     else:
         ready = False
 
@@ -137,8 +145,9 @@ def process_block(block, lc, emulate_before_output, tx_subscriptions):
             ready = not answer.incomplete
 
             for tx in answer.transactions:
-                if tx_subscriptions is not None and not tx_subscriptions.check(tx.begin_parse()):
-                    continue
+                if tx_subscriptions is not None:
+                    if not tx_subscriptions.check(tx.begin_parse()):
+                        continue
 
                 tx_tlb = Transaction()
                 tx_tlb = tx_tlb.cell_unpack(tx, True)
