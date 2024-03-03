@@ -664,6 +664,7 @@ class BlockScanner(Thread):
                     f"\n\tChunks count: {len(txs)}, {sum([len(i[2]) for i in txs])} TXs")
 
             if not self.emulate_before_output:
+                self.out_queue.put(txs)
                 continue
 
             start_emulate_at = time()
