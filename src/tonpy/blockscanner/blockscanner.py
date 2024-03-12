@@ -364,15 +364,15 @@ class BlockScanner(Thread):
                  nproc: int = 20,
                  loglevel: int = 0,
                  raw_process: Callable = None,
-                 chunk_size: int = 1000,
-                 tx_chunk_size: int = 40000,
+                 chunk_size: int = 100,
+                 tx_chunk_size: int = 5000,
                  out_queue: Queue = None,
                  only_mc_blocks: bool = False,
                  parse_txs_over_ls: bool = False,
                  transaction_subscriptions: "CustomSubscription" = None,
                  account_subscriptions: "CustomAccountSubscription" = None,
                  database_provider: "BaseDatabaseProvider" = None,
-                 emulate_before_output: bool = None):
+                 emulate_before_output: bool = False):
         """
 
         :param lcparams: Params for LiteClient
@@ -381,7 +381,7 @@ class BlockScanner(Thread):
         :param nproc: Number of process
         :param loglevel: Logs: 0 - nothing, 1 - stats, 2 - tqdm
         :param chunk_size: Number of blocks to load to RAM per 1 iteration (depends on network load, number of process, available RAM)
-        :param tx_chunk_size: Number of TXs that will be loaded to raw / emulate function per 1 iteration. 40k is good option by default, if you have <32gb ram consider to low this value
+        :param tx_chunk_size: Number of TXs that will be loaded to raw / emulate function per 1 iteration (better have a lot of blocks, but not much TXs for emulation per chunk)
         :param raw_process: Raw function to call on TXs in blocks (without emulation), will receive [block, account_state, txs]
         :param transaction_subscriptions: Rules to filter transactions that will be scanned
         :param account_subscriptions: Rules to filter accounts that will be scanned
@@ -406,6 +406,7 @@ class BlockScanner(Thread):
         self.emulate_before_output = emulate_before_output
         self.known_key_blocks = {}
         self.mega_libs = get_mega_libs()
+        self.latest_processed = None
 
         self.process_raw = raw_process is not None
         if self.process_raw:
@@ -571,11 +572,15 @@ class BlockScanner(Thread):
             started_at = time()
 
             mc_start_at = time()
+
+            end_at = None
             if start_from + self.chunk_size >= self.load_to:
+                end_at = self.load_to
                 mc_data = self.load_mcs(start_from, self.load_to)
                 stop = True
             else:
-                mc_data = self.load_mcs(start_from, start_from + self.chunk_size)
+                end_at = start_from + self.chunk_size
+                mc_data = self.load_mcs(start_from, end_at)
                 start_from += self.chunk_size
 
             mc_hashes = list(sorted(mc_data, key=lambda x: x['block_id'].id.seqno))
@@ -619,27 +624,7 @@ class BlockScanner(Thread):
             process_block_start_at = time()
 
             # [block, account_state, txs]
-            # if self.emulate_before_output:
             txs = self.load_process_blocks(mc_data + shards_data, tx_subscriptions=self.transaction_subscriptions)
-            # else:
-            #     txs = []
-            #
-            #     for block in mc_data + shards_data:
-            #         tmp = block['account_blocks']
-            #         del block['account_blocks']
-            #
-            #         for account in tmp:
-            #             clear_tmp = []
-            #             for x in tmp[account]:
-            #                 if self.transaction_subscriptions is None or \
-            #                         self.transaction_subscriptions.check(x['tx'].begin_parse()):
-            #                     clear_tmp.append(x)
-            #
-            #             if len(clear_tmp):
-            #                 txs.append([block, None, clear_tmp])
-            #
-            #     if len(txs):
-            #         self.out_queue.put(txs)
 
             process_block_end_at = time() - process_block_start_at
 
@@ -687,6 +672,8 @@ class BlockScanner(Thread):
 
             if self.loglevel > 0:
                 logger.info(f"\n\tProcessed TXs at: {time() - start_emulate_at}")
+
+            self.latest_processed = end_at
 
     def run(self):
         self.load_historical()

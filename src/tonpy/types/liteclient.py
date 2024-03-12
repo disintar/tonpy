@@ -285,10 +285,10 @@ class LiteClient:
         else:
             raise ValueError(f"{mode} is not supported")
 
-    def get_connected(self):
+    def get_connected(self) -> bool:
         return self.client.get_connected()
 
-    def get_time(self):
+    def get_time(self) -> int:
         return self.client.get_time()
 
     def send_message(self, cell):
@@ -301,6 +301,9 @@ class LiteClient:
 
     def get_masterchain_info_ext(self) -> MasterchainInfoExt:
         return MasterchainInfoExt(self.client.get_MasterchainInfoExt())
+
+    def wait_masterchain_seqno(self, seqno, timeout) -> MasterchainInfoExt:
+        return MasterchainInfoExt(self.client.wait_masterchain_seqno(seqno, timeout))
 
     def get_account_state(self, account: Union[str, Address], block: BlockIdExt) -> AccountStateInfo:
         """
