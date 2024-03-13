@@ -669,6 +669,7 @@ class BlockScanner(Thread):
 
             if not self.emulate_before_output:
                 self.out_queue.put(txs)
+                self.latest_processed = end_at
                 continue
 
             start_emulate_at = time()
