@@ -361,7 +361,7 @@ def process_mc_blocks(seqnos, lcparams, loglevel, parse_txs_over_ls):
 class BlockScanner(Thread):
     def __init__(self,
                  lcparams: dict,
-                 start_from: int,
+                 start_from: int = None,
                  load_to: int = None,
                  nproc: int = 20,
                  loglevel: int = 0,
@@ -375,7 +375,8 @@ class BlockScanner(Thread):
                  account_subscriptions: "CustomAccountSubscription" = None,
                  database_provider: "BaseDatabaseProvider" = None,
                  emulate_before_output: bool = False,
-                 live_load_enable: bool = False):
+                 live_load_enable: bool = False,
+                 load_chunks: typing.List[typing.Tuple[int, int]] = None):
         """
 
         :param lcparams: Params for LiteClient
@@ -391,6 +392,7 @@ class BlockScanner(Thread):
         :param database_provider: TODO: Database connector to get information about accounts and states, save hashes, etc
         :param emulate_before_output: If True - will emulate transaction to get actual account state on TX, default False
         :param live_load_enable: If True - will load all new blocks, default False. If delta >90sec between updates - application will be killed
+        :param load_chunks: [[start_from, load_to], ...] chunks to loads
         """
         super(BlockScanner, self).__init__()
 
@@ -401,6 +403,15 @@ class BlockScanner(Thread):
 
         self.lc_long = LiteClient(**lcparams)
         self.start_from = start_from
+        self.load_chunks = load_chunks
+
+        if self.start_from is None and self.load_chunks is not None:
+            self.start_from = self.load_chunks[0][0]
+            load_to = self.load_chunks[0][1]
+            self.load_chunks = self.load_chunks[1:]
+        else:
+            raise ValueError("Provide start_from or load_chunks")
+
         self.live_load_enable = live_load_enable
 
         if load_to is not None:
@@ -697,6 +708,13 @@ class BlockScanner(Thread):
 
     def run(self):
         self.load_historical()
+
+        if self.load_chunks is not None and len(self.load_chunks) > 0:
+            for c in self.load_chunks:
+                self.start_from = c[0]
+                self.load_to = c[1]
+                self.load_historical()
+
         self.done = True
 
         if self.live_load_enable:
