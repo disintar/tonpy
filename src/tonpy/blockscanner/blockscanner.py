@@ -518,65 +518,78 @@ class BlockScanner(Thread):
             self.known_key_blocks[i] = get_key_block(i)
 
     def prepare_prev_block_data(self, shards_data, mc_data):
-        known_mcs = {}
+        if self.emulate_before_output:
+            known_mcs = {}
 
-        for i in mc_data:
-            known_mcs[i['block_id'].id.seqno] = i['block_id']
+            for i in mc_data:
+                known_mcs[i['block_id'].id.seqno] = i['block_id']
 
-        to_load_masters = []
+            to_load_masters = []
 
-        last_mc = min(known_mcs.keys())
+            last_mc = min(known_mcs.keys())
 
-        for i in range(last_mc - 16, last_mc):
-            to_load_masters.append(i)
+            for i in range(last_mc - 16, last_mc):
+                to_load_masters.append(i)
 
-        for s in shards_data:
-            for i in range(s['master'] - 15, s['master'] + 1):
-                if i not in known_mcs:
-                    to_load_masters.append(i)
+            for s in shards_data:
+                for i in range(s['master'] - 15, s['master'] + 1):
+                    if i not in known_mcs:
+                        to_load_masters.append(i)
 
-        to_load_masters = list(set(to_load_masters))
+            to_load_masters = list(set(to_load_masters))
 
-        if self.loglevel > 1:
-            to_load_masters = tqdm(to_load_masters, desc="Load prev data")
+            if self.loglevel > 1:
+                to_load_masters = tqdm(to_load_masters, desc="Load prev data")
 
-        for x in to_load_masters:
-            known_mcs[x] = self.lc.lookup_block(BlockId(-1, 0x8000000000000000, x)).blk_id
+            for x in to_load_masters:
+                known_mcs[x] = self.lc.lookup_block(BlockId(-1, 0x8000000000000000, x)).blk_id
 
-        known_prev_block_data = {}
+            known_prev_block_data = {}
 
-        for x in mc_data:
-            prev_blocks = []
-
-            for i in range(x['block_id'].id.seqno - 16, x['block_id'].id.seqno):
-                prev_blocks.append(known_mcs[i].to_data())
-
-            prev_blocks = list(reversed(prev_blocks))
-            key = self.known_key_blocks[x['prev_key_block_seqno']]
-            x['prev_block_data'] = [prev_blocks, key['blk_id'].to_data()]
-            x['prev_block_left'] = known_mcs[i]
-            x['prev_block_right'] = None
-            x['key_block'] = key
-            known_prev_block_data[x['block_id'].id.seqno] = x['prev_block_data']
-
-        for i in shards_data:
-            i['master'] += 1
-
-            key = self.known_key_blocks[i['prev_key_block_seqno']]
-            i['key_block'] = key
-
-            if i['master'] in known_prev_block_data:
-                i['prev_block_data'] = known_prev_block_data[i['master']]
-            else:
+            for x in mc_data:
                 prev_blocks = []
-                for j in range(i['master'] - 16, i['master']):
-                    prev_blocks.append(known_mcs[j].to_data())
+
+                for i in range(x['block_id'].id.seqno - 16, x['block_id'].id.seqno):
+                    prev_blocks.append(known_mcs[i].to_data())
 
                 prev_blocks = list(reversed(prev_blocks))
-                i['prev_block_data'] = [prev_blocks, key['blk_id'].to_data()]
-                known_prev_block_data[i['master']] = i['prev_block_data']
+                key = self.known_key_blocks[x['prev_key_block_seqno']]
+                x['prev_block_data'] = [prev_blocks, key['blk_id'].to_data()]
+                x['prev_block_left'] = known_mcs[i]
+                x['prev_block_right'] = None
+                x['key_block'] = key
+                known_prev_block_data[x['block_id'].id.seqno] = x['prev_block_data']
 
-            i['master'] -= 1
+            for i in shards_data:
+                i['master'] += 1
+
+                key = self.known_key_blocks[i['prev_key_block_seqno']]
+                i['key_block'] = key
+
+                if i['master'] in known_prev_block_data:
+                    i['prev_block_data'] = known_prev_block_data[i['master']]
+                else:
+                    prev_blocks = []
+                    for j in range(i['master'] - 16, i['master']):
+                        prev_blocks.append(known_mcs[j].to_data())
+
+                    prev_blocks = list(reversed(prev_blocks))
+                    i['prev_block_data'] = [prev_blocks, key['blk_id'].to_data()]
+                    known_prev_block_data[i['master']] = i['prev_block_data']
+
+                i['master'] -= 1
+        else:
+            for x in mc_data:
+                x['prev_block_data'] = []
+                x['prev_block_left'] = None
+                x['prev_block_right'] = None
+                x['key_block'] = self.known_key_blocks[x['prev_key_block_seqno']]
+
+            for x in shards_data:
+                x['prev_block_data'] = []
+                x['prev_block_left'] = None
+                x['prev_block_right'] = None
+                x['key_block'] = self.known_key_blocks[x['prev_key_block_seqno']]
 
         return shards_data, mc_data
 
