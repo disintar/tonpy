@@ -409,7 +409,7 @@ class BlockScanner(Thread):
             self.start_from = self.load_chunks[0][0]
             load_to = self.load_chunks[0][1]
             self.load_chunks = self.load_chunks[1:]
-        else:
+        elif self.start_from is None:
             raise ValueError("Provide start_from or load_chunks")
 
         self.live_load_enable = live_load_enable
