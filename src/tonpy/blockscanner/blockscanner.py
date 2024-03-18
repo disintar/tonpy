@@ -285,7 +285,7 @@ def load_process_shard(shards_chunk,
                 prev_data = [*process_shard(left_shard, lc=lc, prev_data=[]), *prev_data]
 
         del lc
-        return [{
+        new_data = {
             'block_id': block_id,
             'rand_seed': rand_seed,
             'gen_utime': block_info.gen_utime,
@@ -295,7 +295,12 @@ def load_process_shard(shards_chunk,
             'master': block_info.master_ref.master.seq_no,
             'account_blocks': convert_account_blocks_to_txs(
                 block_extra.account_blocks) if not parse_txs_over_ls else None
-        }, *prev_data]
+        }
+
+        if x.seqno == 40569943:
+            logger.error(new_data)
+
+        return [new_data, *prev_data]
 
     if loglevel > 1:
         shards_chunk = tqdm(shards_chunk, desc="Load shards")
@@ -627,7 +632,9 @@ class BlockScanner(Thread):
                 start_from += self.chunk_size
 
             mc_hashes = list(sorted(mc_data, key=lambda x: x['block_id'].id.seqno))
-            stop_shards = mc_hashes[0]['shards']
+            stop_shards = self.lc.get_all_shards_info(
+                self.lc.lookup_block(BlockId(-1, 0x8000000000000000, self.start_from - 1)).blk_id
+            )  # mc_hashes[0]['shards']
 
             known_shards = []
 
