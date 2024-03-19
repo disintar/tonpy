@@ -1,9 +1,11 @@
 # Copyright (c) 2023 Disintar LLP Licensed under the Apache License Version 2.0
 import datetime
 import random
+import traceback
 from typing import Union, TYPE_CHECKING, Tuple, List, Optional
 from types import MethodType
 
+from loguru import logger
 from tonpy.libs.python_ton import PyLiteClient, ipv4_int_to_str, globalSetVerbosity, BlockId as ton_BlockId, \
     BlockIdExt as ton_BlockIdExt
 
@@ -140,7 +142,8 @@ class RRLiteClient:
     def __init__(self, servers: list,
                  timeout: int = 1,
                  num_try: int = 5,
-                 threads: int = 1):
+                 threads: int = 1,
+                 loglevel: int = 0):
         random.shuffle(servers)
         self.servers = servers
 
@@ -155,6 +158,7 @@ class RRLiteClient:
         self.timeout = timeout
         self.num_try = num_try
         self.threads = threads
+        self.loglevel = loglevel
         self.rotate()
 
     def check_server(self, server):
@@ -225,6 +229,9 @@ class RRLiteClient:
                     answer = getattr(self.client, func)(*args, **kwargs)
                     return answer
                 except Exception as e:
+                    if self.loglevel > 0:
+                        logger.error(f"Error: {e}, {traceback.format_exc()}")
+
                     try_count -= 1
                     if try_count == 0:
                         raise e
@@ -244,7 +251,8 @@ class LiteClient:
                  threads: int = 1,
                  mode: str = 'ordinary',
                  my_rr_servers: list = None,
-                 num_try: int = 5):
+                 num_try: int = 5,
+                 loglevel: int = 0):
         """
 
         :param host:
@@ -281,7 +289,7 @@ class LiteClient:
             )
         elif mode == 'roundrobin':
             self.client = RRLiteClient(servers=servers if my_rr_servers is None else my_rr_servers,
-                                       timeout=timeout, num_try=num_try)
+                                       timeout=timeout, num_try=num_try, loglevel=loglevel)
         else:
             raise ValueError(f"{mode} is not supported")
 
