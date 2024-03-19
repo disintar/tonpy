@@ -297,9 +297,6 @@ def load_process_shard(shards_chunk,
                 block_extra.account_blocks) if not parse_txs_over_ls else None
         }
 
-        if x.seqno == 40569943:
-            logger.error(new_data)
-
         return [new_data, *prev_data]
 
     if loglevel > 1:
@@ -617,24 +614,51 @@ class BlockScanner(Thread):
         stop = False
         start_from = self.start_from
         while not stop:
+            if self.loglevel > 1:
+                logger.debug(f"Start load historical from seqno: {start_from}")
+
             started_at = time()
 
             mc_start_at = time()
 
             end_at = None
+
             if start_from + self.chunk_size >= self.load_to:
                 end_at = self.load_to
+
+                if self.loglevel > 1:
+                    logger.debug(f"Start load master from seqno: {start_from} to {end_at}")
+
                 mc_data = self.load_mcs(start_from, self.load_to)
                 stop = True
+
+                if self.loglevel > 1:
+                    logger.debug(
+                        f"End load LAST master chunk from seqno: {start_from} to {end_at} at {time() - mc_start_at}")
             else:
                 end_at = start_from + self.chunk_size
+
+                if self.loglevel > 1:
+                    logger.debug(f"Start load master from seqno: {start_from} to {end_at}")
+
                 mc_data = self.load_mcs(start_from, end_at)
                 start_from += self.chunk_size
 
+                if self.loglevel > 1:
+                    logger.debug(
+                        f"End load master chunk from seqno: {start_from} to {end_at} at {time() - mc_start_at}")
+
             mc_hashes = list(sorted(mc_data, key=lambda x: x['block_id'].id.seqno))
+
+            if self.loglevel > 1:
+                logger.debug(f"End load historical MASTER to seqno: {end_at}, ask stop_shards")
+
             stop_shards = self.lc.get_all_shards_info(
                 self.lc.lookup_block(BlockId(-1, 0x8000000000000000, self.start_from - 1)).blk_id
             )  # mc_hashes[0]['shards']
+
+            if self.loglevel > 1:
+                logger.debug(f"Got: {len(stop_shards)} stop shards")
 
             known_shards = []
 
@@ -644,21 +668,45 @@ class BlockScanner(Thread):
             known_shards = set(known_shards)
             mc_end_at = time() - mc_start_at
 
+            if self.loglevel > 1:
+                logger.debug(f"Total mc download ended at: {mc_end_at}, start download shards")
+
             shards_start_at = time()
             if not self.only_mc_blocks:
                 shards_data = self.load_process_shard(known_shards=known_shards, stop_shards=stop_shards)
+
+                if self.loglevel > 1:
+                    logger.debug(f"Shards downloaded at: {time() - shards_start_at}")
             else:
+                if self.loglevel > 1:
+                    logger.debug(f"Loading only MC data, skip")
+
                 shards_data = []
             shards_end_at = time() - shards_start_at
 
             key_blocks_start_at = time()
+
+            if self.loglevel > 1:
+                logger.debug(f"Start download key blocks")
+
             self.prepare_key_blocks(shards_data, mc_data)
 
+            if self.loglevel > 1:
+                logger.debug(f"Downloaded key blocks: {time() - key_blocks_start_at}")
+
             shards_data, mc_data = self.prepare_prev_block_data(shards_data, mc_data)
+
+            if self.loglevel > 1:
+                logger.debug(f"End getting prev blocks at: {time() - key_blocks_start_at}")
+
             key_blocks_end_at = time() - key_blocks_start_at
 
             if self.emulate_before_output:
                 mega_libs_start_at = time()
+
+                if self.loglevel > 1:
+                    logger.debug(f"Start get mega libs: {time() - key_blocks_start_at}")
+
                 mega_libs = get_mega_libs()
 
                 for i in shards_data:
@@ -667,16 +715,28 @@ class BlockScanner(Thread):
                 for j in mc_data:
                     j['libs'] = mega_libs
                 mega_libs_end_at = time() - mega_libs_start_at
+
+                if self.loglevel > 1:
+                    logger.debug(f"Mega libs downloaded at: {mega_libs_end_at}")
             else:
+                if self.loglevel > 1:
+                    logger.debug(f"Skip mega libs download")
+
                 mega_libs_start_at = time()
                 mega_libs_end_at = time() - mega_libs_start_at
 
             process_block_start_at = time()
 
+            if self.loglevel > 1:
+                logger.debug(f"Start download and process transactions")
+
             # [block, account_state, txs]
             txs = self.load_process_blocks(mc_data + shards_data, tx_subscriptions=self.transaction_subscriptions)
 
             process_block_end_at = time() - process_block_start_at
+
+            if self.loglevel > 1:
+                logger.debug(f"End download and process transactions at: {process_block_end_at}")
 
             if self.loglevel > 0:
                 gen_utimes = [datetime.fromtimestamp(i['gen_utime']) for i in mc_data]
@@ -699,11 +759,17 @@ class BlockScanner(Thread):
                     f"\n\tChunks count: {len(txs)}, {sum([len(i[2]) for i in txs])} TXs")
 
             if not self.emulate_before_output:
+                if self.loglevel > 1:
+                    logger.debug(f"Put transactions to output and continue to next chunk")
+
                 self.out_queue.put(txs)
                 self.latest_processed = end_at
                 continue
 
             start_emulate_at = time()
+            if self.loglevel > 1:
+                logger.debug(f"We have raw process function - start process")
+
             tmp = list(chunks(txs, self.tx_chunk_size))
 
             if self.loglevel > 1:
@@ -713,7 +779,12 @@ class BlockScanner(Thread):
                 self.f = process_subscriptions(tx_subscriptions=self.transaction_subscriptions,
                                                account_subscriptions=self.account_subscriptions)
 
-            for c in tmp:
+            total = len(tmp)
+
+            for chunk_no, c in enumerate(tmp):
+                if self.loglevel > 1:
+                    logger.debug(f"Process chunk №{chunk_no} / {total}, {len(c)}")
+
                 with Pool(self.nproc) as pool:
                     results = pool.imap_unordered(self.f, c, chunksize=max(300, math.ceil(len(c) / self.nproc)))
 
@@ -727,18 +798,33 @@ class BlockScanner(Thread):
             self.latest_processed = end_at
 
     def run(self):
-        self.load_historical()
+        try:
+            if self.loglevel > 1:
+                logger.debug("Start load historical")
 
-        if self.load_chunks is not None and len(self.load_chunks) > 0:
-            for c in self.load_chunks:
-                self.start_from = c[0]
-                self.load_to = c[1]
-                self.load_historical()
+            self.load_historical()
 
-        self.done = True
+            if self.load_chunks is not None and len(self.load_chunks) > 0:
+                if self.loglevel > 1:
+                    logger.debug("Start load other chunks")
 
-        if self.live_load_enable:
-            self.load_live()
+                for c in self.load_chunks:
+                    self.start_from = c[0]
+                    self.load_to = c[1]
+                    self.load_historical()
+
+            self.done = True
+
+            if self.live_load_enable:
+                if self.loglevel > 1:
+                    logger.debug("Start load live data")
+
+                self.load_live()
+            elif self.loglevel > 1:
+                logger.debug("End of loading")
+        except Exception as e:
+            self.out_queue.put(e)
+            raise e
 
     def load_live(self):
         last_update = datetime.now()
@@ -760,7 +846,7 @@ class BlockScanner(Thread):
                 if delta > 80:
                     logger.error(f"Fatal error, too big delta: {delta}")
                     self.out_queue.put(ValueError("Delta too big"))
-                    os.kill(os.getpid(), signal.SIGKILL)
+                    os.kill(os.getpid(), signal.SIGKILL)  # todo: remove?
 
 
 def raw_process(chunk):
