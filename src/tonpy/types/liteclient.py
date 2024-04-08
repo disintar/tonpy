@@ -187,10 +187,6 @@ class RRLiteClient:
             return False
 
     def rotate(self):
-        if len(self.servers) == 1:
-            sleep(0.02)
-            return
-
         self.current += 1
         if self.current > len(self.servers) - 1:
             self.current = 0
