@@ -227,137 +227,147 @@ def load_process_shard(shards_chunk,
                        lcparams,
                        loglevel,
                        parse_txs_over_ls=False):
-    answer = []
+    try:
+        answer = []
 
-    lcparams = json.loads(lcparams)
-    lc = LiteClient(**lcparams)
+        lcparams = json.loads(lcparams)
+        lc = LiteClient(**lcparams)
 
-    def process_shard(x, prev_data=None, lc=None):
-        if prev_data is None:
-            prev_data = []
+        def process_shard(x, prev_data=None, lc=None):
+            if prev_data is None:
+                prev_data = []
 
-        if isinstance(x, BlockId):
-            block_id = lc.lookup_block(x).blk_id
-        else:
-            block_id = x
-            x = x.id
-
-        current_full_block = lc.get_block(block_id)
-
-        # It's stored in blockExtra
-        block = Block().cell_unpack(current_full_block)
-        block_info = BlockInfo().cell_unpack(block.info, True)
-        block_extra = BlockExtra().cell_unpack(block.extra, False)
-
-        rand_seed = int(block_extra.rand_seed, 2)
-        prev_key_block_seqno = block_info.prev_key_block_seqno
-        right_shard = None
-        if block_info.after_merge:
-            left = block_info.prev_ref.prev1
-            left_shard = BlockIdExt(BlockId(x.workchain,
-                                            shard_child(x.shard, True),
-                                            left.seq_no),
-                                    root_hash=int(left.root_hash, 2), file_hash=int(left.file_hash, 2))
-
-            right = block_info.prev_ref.prev2
-            right_shard = BlockIdExt(BlockId(x.workchain,
-                                             shard_child(x.shard, False),
-                                             right.seq_no),
-                                     root_hash=int(right.root_hash, 2), file_hash=int(right.file_hash, 2))
-
-            if left_shard.id not in known_shards and block_id.id not in stop_shards:
-                prev_data = [*process_shard(left_shard, lc=lc, prev_data=[]), *prev_data]
-
-            if right_shard.id not in known_shards and block_id.id not in stop_shards:
-                prev_data = [*process_shard(right_shard, lc=lc, prev_data=[]), *prev_data]
-
-        else:
-            prev = block_info.prev_ref.prev
-
-            if block_info.after_split:
-                left_shard = BlockIdExt(BlockId(x.workchain, shard_parent(x.shard), prev.seq_no),
-                                        root_hash=int(prev.root_hash, 2), file_hash=int(prev.file_hash, 2))
+            if isinstance(x, BlockId):
+                block_id = lc.lookup_block(x).blk_id
             else:
-                left_shard = BlockIdExt(BlockId(x.workchain, x.shard, prev.seq_no),
-                                        root_hash=int(prev.root_hash, 2), file_hash=int(prev.file_hash, 2))
+                block_id = x
+                x = x.id
 
-            if left_shard.id not in known_shards and block_id.id not in stop_shards:
-                prev_data = [*process_shard(left_shard, lc=lc, prev_data=[]), *prev_data]
+            current_full_block = lc.get_block(block_id)
 
-        del lc
-        new_data = {
-            'block_id': block_id,
-            'rand_seed': rand_seed,
-            'gen_utime': block_info.gen_utime,
-            'prev_key_block_seqno': prev_key_block_seqno,
-            'prev_block_left': left_shard,
-            'prev_block_right': right_shard,
-            'master': block_info.master_ref.master.seq_no,
-            'account_blocks': convert_account_blocks_to_txs(
-                block_extra.account_blocks) if not parse_txs_over_ls else None
-        }
+            # It's stored in blockExtra
+            block = Block().cell_unpack(current_full_block)
+            block_info = BlockInfo().cell_unpack(block.info, True)
+            block_extra = BlockExtra().cell_unpack(block.extra, False)
 
-        return [new_data, *prev_data]
+            rand_seed = int(block_extra.rand_seed, 2)
+            prev_key_block_seqno = block_info.prev_key_block_seqno
+            right_shard = None
+            if block_info.after_merge:
+                left = block_info.prev_ref.prev1
+                left_shard = BlockIdExt(BlockId(x.workchain,
+                                                shard_child(x.shard, True),
+                                                left.seq_no),
+                                        root_hash=int(left.root_hash, 2), file_hash=int(left.file_hash, 2))
 
-    if loglevel > 1:
-        shards_chunk = tqdm(shards_chunk, desc="Load shards")
+                right = block_info.prev_ref.prev2
+                right_shard = BlockIdExt(BlockId(x.workchain,
+                                                 shard_child(x.shard, False),
+                                                 right.seq_no),
+                                         root_hash=int(right.root_hash, 2), file_hash=int(right.file_hash, 2))
 
-    for shard in shards_chunk:
-        answer.extend(process_shard(shard, lc=lc))
+                if left_shard.id not in known_shards and block_id.id not in stop_shards:
+                    prev_data = [*process_shard(left_shard, lc=lc, prev_data=[]), *prev_data]
 
-    return answer
+                if right_shard.id not in known_shards and block_id.id not in stop_shards:
+                    prev_data = [*process_shard(right_shard, lc=lc, prev_data=[]), *prev_data]
+
+            else:
+                prev = block_info.prev_ref.prev
+
+                if block_info.after_split:
+                    left_shard = BlockIdExt(BlockId(x.workchain, shard_parent(x.shard), prev.seq_no),
+                                            root_hash=int(prev.root_hash, 2), file_hash=int(prev.file_hash, 2))
+                else:
+                    left_shard = BlockIdExt(BlockId(x.workchain, x.shard, prev.seq_no),
+                                            root_hash=int(prev.root_hash, 2), file_hash=int(prev.file_hash, 2))
+
+                if left_shard.id not in known_shards and block_id.id not in stop_shards:
+                    prev_data = [*process_shard(left_shard, lc=lc, prev_data=[]), *prev_data]
+
+            del lc
+            new_data = {
+                'block_id': block_id,
+                'rand_seed': rand_seed,
+                'gen_utime': block_info.gen_utime,
+                'prev_key_block_seqno': prev_key_block_seqno,
+                'prev_block_left': left_shard,
+                'prev_block_right': right_shard,
+                'master': block_info.master_ref.master.seq_no,
+                'account_blocks': convert_account_blocks_to_txs(
+                    block_extra.account_blocks) if not parse_txs_over_ls else None
+            }
+
+            return [new_data, *prev_data]
+
+        if loglevel > 1:
+            shards_chunk = tqdm(shards_chunk, desc="Load shards")
+
+        for shard in shards_chunk:
+            answer.extend(process_shard(shard, lc=lc))
+
+        return answer
+    except Exception as e:
+        logger.error(f"{e}")
+        logger.error(f"{traceback.format_exc()}")
+        return None
 
 
 @curry
 def process_mc_blocks(seqnos, lcparams, loglevel, parse_txs_over_ls):
-    lcparams = json.loads(lcparams)
-    lc = LiteClient(**lcparams)
+    try:
+        lcparams = json.loads(lcparams)
+        lc = LiteClient(**lcparams)
 
-    answer = []
+        answer = []
 
-    if loglevel > 1:
-        seqnos = tqdm(seqnos, desc="Load MCs")
+        if loglevel > 1:
+            seqnos = tqdm(seqnos, desc="Load MCs")
 
-    for i in seqnos:
-        num_errs = 0
+        for i in seqnos:
+            num_errs = 0
 
-        while True:
-            try:
-                block_id = lc.lookup_block(BlockId(-1, 0x8000000000000000, i)).blk_id
-                current_full_block = lc.get_block(block_id)
-                block = Block().cell_unpack(current_full_block)
-                block_info = BlockInfo().cell_unpack(block.info, True)
-                block_extra = BlockExtra().cell_unpack(block.extra, False)
+            while True:
+                try:
+                    block_id = lc.lookup_block(BlockId(-1, 0x8000000000000000, i)).blk_id
+                    current_full_block = lc.get_block(block_id)
+                    block = Block().cell_unpack(current_full_block)
+                    block_info = BlockInfo().cell_unpack(block.info, True)
+                    block_extra = BlockExtra().cell_unpack(block.extra, False)
 
-                rand_seed = int(block_extra.rand_seed, 2)
-                prev_key_block_seqno = block_info.prev_key_block_seqno
+                    rand_seed = int(block_extra.rand_seed, 2)
+                    prev_key_block_seqno = block_info.prev_key_block_seqno
 
-                # todo: add prev hash
+                    # todo: add prev hash
 
-                answer.append({
-                    'block_id': block_id,
-                    'shards': lc.get_all_shards_info(block_id),
-                    'rand_seed': rand_seed,
-                    'gen_utime': block_info.gen_utime,
-                    'prev_key_block_seqno': prev_key_block_seqno,
-                    'gen_utime': block_info.gen_utime,
-                    'account_blocks': convert_account_blocks_to_txs(
-                        block_extra.account_blocks) if not parse_txs_over_ls else None
-                })
+                    answer.append({
+                        'block_id': block_id,
+                        'shards': lc.get_all_shards_info(block_id),
+                        'rand_seed': rand_seed,
+                        'gen_utime': block_info.gen_utime,
+                        'prev_key_block_seqno': prev_key_block_seqno,
+                        'gen_utime': block_info.gen_utime,
+                        'account_blocks': convert_account_blocks_to_txs(
+                            block_extra.account_blocks) if not parse_txs_over_ls else None
+                    })
 
-                break
-            except Exception as e:
-                num_errs += 1
-                if num_errs > 600:
-                    logger.error(
-                        f"Error in process_mc_blocks, block: (-1, 0x8000000000000000, {i}): {e}, {tb.format_exc()}")
+                    break
+                except Exception as e:
+                    num_errs += 1
+                    if num_errs > 600:
+                        logger.error(
+                            f"Error in process_mc_blocks, block: (-1, 0x8000000000000000, {i}): {e}, {tb.format_exc()}")
 
-                if num_errs > 3000:
-                    raise e
+                    if num_errs > 3000:
+                        raise e
 
-                sleep(0.1)
-    del lc
-    return answer
+                    sleep(0.1)
+        del lc
+        return answer
+    except Exception as e:
+        logger.error(f"{e}")
+        logger.error(f"{traceback.format_exc()}")
+        return None
 
 
 class BlockScanner(Thread):
@@ -477,6 +487,8 @@ class BlockScanner(Thread):
                 results = tqdm(results, desc="Download MC blocks", total=len(mc_seqnos_chunks))
 
             for result in results:
+                if result is None:
+                    raise ValueError(f"Invalid result in MC blocks")
                 mc_data.extend(result)
         # todo: check hashes
         return mc_data
@@ -492,9 +504,11 @@ class BlockScanner(Thread):
                 known_shards_chunks)
 
             if self.loglevel > 1:
-                results = tqdm(results, desc="Download shards", total=len(known_shards_chunks))
+                results = tqdm(results, desc=f"Download shards / {p}", total=len(known_shards_chunks))
 
             for result in results:
+                if result is None:
+                    raise ValueError(f"Invalid result in shards process")
                 shards_data.extend(result)
 
         return shards_data
