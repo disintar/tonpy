@@ -234,10 +234,12 @@ def load_process_shard(shards_chunk,
         lc = LiteClient(**lcparams)
 
         def process_shard(x, prev_data=None, lc=None):
+
             if loglevel > 2:
-                logger.info(
-                    f"Process shard call, {x}, {len(prev_data) if prev_data is not None}, LC: {lc}, "
-                    f"Known shards: {known_shards}")
+                data = f"Process shard call: {x}" \
+                       f"{len(prev_data) if prev_data is not None else ''}, " \
+                       f"Known shards: {len(known_shards)}"
+                logger.info(data)
 
             if prev_data is None:
                 prev_data = []
