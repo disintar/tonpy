@@ -245,7 +245,7 @@ class RRLiteClient:
                     if self.loglevel > 128:
                         start = time()
                         uid = str(uuid4())
-                        logger.info(f"Run request {uid} with: {args}, {kwargs}")
+                        logger.info(f"Run request {func} / {uid} with: {args}, {kwargs}")
 
                     answer = getattr(self.client, func)(*args, **kwargs)
 
