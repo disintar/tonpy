@@ -234,16 +234,30 @@ def load_process_shard(shards_chunk,
         lc = LiteClient(**lcparams)
 
         def process_shard(x, prev_data=None, lc=None):
+            if loglevel > 2:
+                logger.info(
+                    f"Process shard call, {x}, {len(prev_data) if prev_data is not None}, LC: {lc}, "
+                    f"Known shards: {known_shards}")
+
             if prev_data is None:
                 prev_data = []
 
             if isinstance(x, BlockId):
+                if loglevel > 2:
+                    logger.info(f"Call lookup block")
+
                 block_id = lc.lookup_block(x).blk_id
             else:
                 block_id = x
                 x = x.id
 
+            if loglevel > 2:
+                logger.info(f"Call get block: {block_id}")
+
             current_full_block = lc.get_block(block_id)
+
+            if loglevel > 2:
+                logger.info(f"Got block: {block_id}")
 
             # It's stored in blockExtra
             block = Block().cell_unpack(current_full_block)
@@ -285,7 +299,9 @@ def load_process_shard(shards_chunk,
                 if left_shard.id not in known_shards and block_id.id not in stop_shards:
                     prev_data = [*process_shard(left_shard, lc=lc, prev_data=[]), *prev_data]
 
-            del lc
+            if loglevel > 2:
+                logger.info(f"Done download shards")
+
             new_data = {
                 'block_id': block_id,
                 'rand_seed': rand_seed,
@@ -306,6 +322,7 @@ def load_process_shard(shards_chunk,
         for shard in shards_chunk:
             answer.extend(process_shard(shard, lc=lc))
 
+        del lc
         return answer
     except Exception as e:
         logger.error(f"{e}")
@@ -496,6 +513,9 @@ class BlockScanner(Thread):
     def load_process_shard(self, known_shards, stop_shards):
         shards_data = []
         known_shards_chunks, p = self.detect_cs_p(list(known_shards))
+
+        if self.loglevel > 2:
+            logger.debug(f"Start {p} processes with {len(known_shards_chunks)} chunks")
 
         with Pool(p) as pool:
             results = pool.imap_unordered(
