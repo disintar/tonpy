@@ -324,7 +324,7 @@ def load_process_shard(shards_chunk,
         for shard in shards_chunk:
             answer.extend(process_shard(shard, lc=lc))
 
-        del lc
+        # del lc
         return answer
     except Exception as e:
         logger.error(f"{e}")
@@ -381,7 +381,7 @@ def process_mc_blocks(seqnos, lcparams, loglevel, parse_txs_over_ls):
                         raise e
 
                     sleep(0.1)
-        del lc
+        # del lc
         return answer
     except Exception as e:
         logger.error(f"{e}")
