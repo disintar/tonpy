@@ -17,7 +17,8 @@ from base64 import b64decode
 from tonpy.types.lite_utils.server_list import servers
 from tonpy.types.blockid import BlockId, BlockIdExt
 from tonpy.types.vmdict import VmDict
-from time import sleep
+from time import sleep, time
+from uuid import uuid4
 
 from tonpy.utils.chunks import chunks
 
@@ -187,11 +188,17 @@ class RRLiteClient:
             return False
 
     def rotate(self):
+        if self.loglevel > 2:
+            logger.debug(f"Call rotate")
+
         self.current += 1
         if self.current > len(self.servers) - 1:
             self.current = 0
 
         server = self.servers[self.current]
+
+        if self.loglevel > 2:
+            logger.debug(f"New server: {server}")
 
         host = server['ip']
         port = server['port']
@@ -205,6 +212,9 @@ class RRLiteClient:
         pubkey = PublicKey(base64_to_hex(pubkey_base64))
 
         if self.client is not None:
+            if self.loglevel > 2:
+                logger.debug(f"Stop prev client")
+
             self.client.stop()
 
         self.client = PyLiteClient(
@@ -214,6 +224,9 @@ class RRLiteClient:
             timeout=timeout,
             threads=self.threads
         )
+
+        if self.loglevel > 128:
+            logger.debug(f"End rotate")
 
     def stop(self):
         self.client.stop()
@@ -226,7 +239,20 @@ class RRLiteClient:
 
             while True:
                 try:
+                    start = None
+                    uid = None
+
+                    if self.loglevel > 128:
+                        start = time()
+                        uid = str(uuid4())
+                        logger.info(f"Run request {uid} with: {args}, {kwargs}")
+
                     answer = getattr(self.client, func)(*args, **kwargs)
+
+                    if self.loglevel > 128:
+                        end = time() - start
+                        logger.info(f"End request {uid} at {end}")
+
                     return answer
                 except Exception as e:
                     if self.loglevel > 0:
@@ -266,6 +292,8 @@ class LiteClient:
             - ordinary
             - roundrobin
         """
+
+        self.loglevel = loglevel
 
         if mode == 'ordinary':
             if isinstance(host, int):
