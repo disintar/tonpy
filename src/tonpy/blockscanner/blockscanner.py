@@ -322,21 +322,27 @@ def load_process_shard(shards_chunk,
                        lcparams,
                        loglevel,
                        parse_txs_over_ls=False):
+    thread_id, shards_chunk = shards_chunk
+
+    if loglevel > 1:
+        logger.info(f"Start thread: {thread_id}")
+
     try:
         total_start_at = time()
         answer = []
 
         lcparams = json.loads(lcparams)
+        lcparams['logprefix'] = f'{thread_id}'
         lc = LiteClient(**lcparams)
 
         if loglevel > 1:
-            shards_chunk = tqdm(shards_chunk, desc="Load shards")
+            shards_chunk = tqdm(shards_chunk, desc=f"[{thread_id}] Load shards")
 
         for shard in shards_chunk:
             start = None
             if loglevel > 3:
                 start = time()
-                logger.debug(f"Call process shard: {shard}")
+                logger.debug(f"[{thread_id}] Call process shard: {shard}")
 
             answer.extend(
                 process_shard(shard, lc=lc, loglevel=loglevel, known_shards=known_shards, stop_shards=stop_shards,
@@ -346,11 +352,11 @@ def load_process_shard(shards_chunk,
                 logger.debug(f"Done process shard: {shard} at {time() - start}")
 
         if loglevel > 3:
-            logger.debug(f"Stop liteclient")
+            logger.debug(f"[{thread_id}] Stop liteclient")
         del lc
 
         if loglevel > 3:
-            logger.debug(f"Finally done at: {time() - total_start_at}")
+            logger.debug(f"[{thread_id}] Finally done at: {time() - total_start_at}")
 
         return answer
     except Exception as e:
@@ -550,7 +556,7 @@ class BlockScanner(Thread):
             results = pool.imap_unordered(
                 load_process_shard(known_shards=known_shards, stop_shards=stop_shards, lcparams=self.lcparams,
                                    loglevel=self.loglevel, parse_txs_over_ls=self.parse_txs_over_ls),
-                known_shards_chunks)
+                enumerate(known_shards_chunks))
 
             if self.loglevel > 1:
                 results = tqdm(results, desc=f"Download shards / {p}", total=len(known_shards_chunks))

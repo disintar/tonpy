@@ -144,7 +144,8 @@ class RRLiteClient:
                  timeout: int = 1,
                  num_try: int = 5,
                  threads: int = 1,
-                 loglevel: int = 0):
+                 loglevel: int = 0,
+                 logprefix: str = ''):
         random.shuffle(servers)
         self.servers = servers
 
@@ -160,6 +161,7 @@ class RRLiteClient:
         self.num_try = num_try
         self.threads = threads
         self.loglevel = loglevel
+        self.logprefix = logprefix
         self.rotate()
 
     def check_server(self, server):
@@ -189,7 +191,7 @@ class RRLiteClient:
 
     def rotate(self):
         if self.loglevel > 2:
-            logger.debug(f"Call rotate")
+            logger.debug(f"[{self.logprefix}] Call rotate")
 
         self.current += 1
         if self.current > len(self.servers) - 1:
@@ -198,7 +200,7 @@ class RRLiteClient:
         server = self.servers[self.current]
 
         if self.loglevel > 2:
-            logger.debug(f"New server: {server}")
+            logger.debug(f"[{self.logprefix}] New server: {server}")
 
         host = server['ip']
         port = server['port']
@@ -213,7 +215,7 @@ class RRLiteClient:
 
         if self.client is not None:
             if self.loglevel > 2:
-                logger.debug(f"Stop prev client")
+                logger.debug(f"[{self.logprefix}] Stop prev client")
 
             self.client.stop()
 
@@ -226,7 +228,7 @@ class RRLiteClient:
         )
 
         if self.loglevel > 128:
-            logger.debug(f"End rotate")
+            logger.debug(f"[{self.logprefix}] End rotate")
 
     def stop(self):
         self.client.stop()
@@ -245,18 +247,18 @@ class RRLiteClient:
                     if self.loglevel > 128:
                         start = time()
                         uid = str(uuid4())
-                        logger.info(f"Run request {func} / {uid} with: {args}, {kwargs}")
+                        logger.info(f"[{self.logprefix}] Run request {func} / {uid} with: {args}, {kwargs}")
 
                     answer = getattr(self.client, func)(*args, **kwargs)
 
                     if self.loglevel > 128:
                         end = time() - start
-                        logger.info(f"End request {uid} at {end}")
+                        logger.info(f"[{self.logprefix}] End request {uid} at {end}")
 
                     return answer
                 except Exception as e:
                     if self.loglevel > 0:
-                        logger.error(f"Error: {e}, {traceback.format_exc()}")
+                        logger.error(f"[{self.logprefix}] Error: {e}, {traceback.format_exc()}")
 
                     try_count -= 1
                     if try_count == 0:
@@ -278,7 +280,8 @@ class LiteClient:
                  mode: str = 'ordinary',
                  my_rr_servers: list = None,
                  num_try: int = 5,
-                 loglevel: int = 0):
+                 loglevel: int = 0,
+                 logprefix: str = ''):
         """
 
         :param host:
@@ -294,6 +297,7 @@ class LiteClient:
         """
 
         self.loglevel = loglevel
+        self.logprefix = logprefix
 
         if mode == 'ordinary':
             if isinstance(host, int):
@@ -302,7 +306,7 @@ class LiteClient:
             if pubkey is None:
                 if pubkey_hex is None:
                     if pubkey_base64 is None:
-                        raise ValueError("Pass pubkey in any format")
+                        raise ValueError(f"[{self.logprefix}] Pass pubkey in any format")
                     else:
                         pubkey = PublicKey(base64_to_hex(pubkey_base64))
                 else:
@@ -317,9 +321,9 @@ class LiteClient:
             )
         elif mode == 'roundrobin':
             self.client = RRLiteClient(servers=servers if my_rr_servers is None else my_rr_servers,
-                                       timeout=timeout, num_try=num_try, loglevel=loglevel)
+                                       timeout=timeout, num_try=num_try, loglevel=loglevel, logprefix=logprefix)
         else:
-            raise ValueError(f"{mode} is not supported")
+            raise ValueError(f"[{self.logprefix}] {mode} is not supported")
 
     def get_connected(self) -> bool:
         return self.client.get_connected()
