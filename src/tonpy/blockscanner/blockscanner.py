@@ -391,18 +391,26 @@ def load_process_shard(shards_chunk,
 
 @curry
 def process_mc_blocks(seqnos, lcparams, loglevel, parse_txs_over_ls):
+    thread_id, seqnos = seqnos
+
+    if loglevel > 2:
+        logger.debug(f"[{thread_id}] Start load MCs: {len(seqnos)}")
+
     try:
-        thread_id, seqnos = seqnos
         lcparams = json.loads(lcparams)
         lcparams['logprefix'] = f'{thread_id}'
+
+        if loglevel > 3:
+            logger.debug(f"[{thread_id}] Start LiteClient")
+
         lc = LiteClient(**lcparams)
+
+        if loglevel > 3:
+            logger.debug(f"[{thread_id}] Started LiteClient")
 
         answer = []
 
         if loglevel > 1:
-            if loglevel > 2:
-                logger.debug(f"[{thread_id}] Start load MCs: {len(seqnos)}")
-
             seqnos = tqdm(seqnos, desc=f"{thread_id} Load MCs")
 
         for i in seqnos:
@@ -461,8 +469,8 @@ def process_mc_blocks(seqnos, lcparams, loglevel, parse_txs_over_ls):
 
         return answer
     except Exception as e:
-        logger.error(f"{e}")
-        logger.error(f"{traceback.format_exc()}")
+        logger.error(f"[{thread_id}] Error {e}")
+        logger.error(f"[{thread_id}] Error {traceback.format_exc()}")
         return None
 
 
