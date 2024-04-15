@@ -229,15 +229,17 @@ def process_shard(x, prev_data=None, lc=None, loglevel=None, known_shards=None, 
                f"Stop shards: {len(stop_shards)}, "
 
         if loglevel > 3:
+            my_seqno = x.seqno if isinstance(x, BlockId) else x.id.seqno
+
             old_min = -1
             for i in known_shards + stop_shards:
                 if isinstance(i, BlockIdExt):
                     i = i.id
 
-                if old_min < i.seqno < x.seqno:
+                if old_min < i.seqno < my_seqno:
                     old_min = i.seqno
 
-            data += f" Nearest: {old_min}, it's {x.seqno - old_min} away"
+            data += f" Nearest: {old_min}, it's {my_seqno - old_min} away"
         logger.info(data)
 
     if prev_data is None:
