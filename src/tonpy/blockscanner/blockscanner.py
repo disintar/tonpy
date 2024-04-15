@@ -377,7 +377,7 @@ def load_process_shard(shards_chunk,
 
         if loglevel > 3:
             logger.debug(f"[{thread_id}] Stop liteclient")
-        del lc
+        #del lc
 
         if loglevel > 3:
             logger.debug(f"[{thread_id}] Finally done at: {time() - total_start_at}")
@@ -462,7 +462,7 @@ def process_mc_blocks(seqnos, lcparams, loglevel, parse_txs_over_ls):
         if loglevel > 3:
             logger.debug(f"[{thread_id}] Stop liteclient")
 
-        del lc
+        #del lc
 
         if loglevel > 2:
             logger.debug(f"[{thread_id}] Done load MCs")
