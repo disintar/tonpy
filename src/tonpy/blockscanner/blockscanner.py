@@ -392,19 +392,27 @@ def load_process_shard(shards_chunk,
 @curry
 def process_mc_blocks(seqnos, lcparams, loglevel, parse_txs_over_ls):
     try:
+        thread_id, seqnos = seqnos
         lcparams = json.loads(lcparams)
+        lcparams['logprefix'] = f'{thread_id}'
         lc = LiteClient(**lcparams)
 
         answer = []
 
         if loglevel > 1:
-            seqnos = tqdm(seqnos, desc="Load MCs")
+            if loglevel > 2:
+                logger.debug(f"[{thread_id}] Start load MCs: {len(seqnos)}")
+
+            seqnos = tqdm(seqnos, desc=f"{thread_id} Load MCs")
 
         for i in seqnos:
             num_errs = 0
 
             while True:
                 try:
+                    if loglevel > 2:
+                        logger.debug(f"[{thread_id}] Ask block")
+
                     block_id = lc.lookup_block(BlockId(-1, 0x8000000000000000, i)).blk_id
                     current_full_block = lc.get_block(block_id)
                     block = Block().cell_unpack(current_full_block)
@@ -430,11 +438,15 @@ def process_mc_blocks(seqnos, lcparams, loglevel, parse_txs_over_ls):
                     break
                 except Exception as e:
                     num_errs += 1
-                    if num_errs > 600:
+
+                    if loglevel > 3:
+                        logger.debug(f"[{thread_id}] ERROR in block: {e}")
+
+                    if num_errs > 200:
                         logger.error(
                             f"Error in process_mc_blocks, block: (-1, 0x8000000000000000, {i}): {e}, {tb.format_exc()}")
 
-                    if num_errs > 3000:
+                    if num_errs > 600:
                         raise e
 
                     sleep(0.1)
@@ -557,7 +569,7 @@ class BlockScanner(Thread):
         with Pool(p) as pool:
             results = pool.imap_unordered(process_mc_blocks(lcparams=self.lcparams, loglevel=self.loglevel,
                                                             parse_txs_over_ls=self.parse_txs_over_ls),
-                                          mc_seqnos_chunks)
+                                          enumerate(mc_seqnos_chunks))
 
             if self.loglevel > 1:
                 results = tqdm(results, desc="Download MC blocks", total=len(mc_seqnos_chunks))
