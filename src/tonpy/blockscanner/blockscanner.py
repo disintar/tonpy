@@ -220,6 +220,101 @@ def load_process_blocks(blocks_chunk, lcparams, loglevel, emulate_before_output,
     return blocks_txs
 
 
+def process_shard(x, prev_data=None, lc=None, loglevel=None, known_shards=None, stop_shards=None,
+                  parse_txs_over_ls=False):
+    if loglevel > 2:
+        data = f"Process shard call: {x}" \
+               f"{len(prev_data) if prev_data is not None else ''}, " \
+               f"Known shards: {len(known_shards)}"
+        logger.info(data)
+
+    if prev_data is None:
+        prev_data = []
+
+    if isinstance(x, BlockId):
+        if loglevel > 2:
+            logger.info(f"Call lookup block")
+
+        block_id = lc.lookup_block(x).blk_id
+    else:
+        block_id = x
+        x = x.id
+
+    if loglevel > 2:
+        logger.info(f"Call get block: {block_id}")
+
+    current_full_block = lc.get_block(block_id)
+
+    if loglevel > 2:
+        logger.info(f"Got block: {block_id}")
+
+    # It's stored in blockExtra
+    block = Block().cell_unpack(current_full_block)
+    block_info = BlockInfo().cell_unpack(block.info, True)
+    block_extra = BlockExtra().cell_unpack(block.extra, False)
+
+    rand_seed = int(block_extra.rand_seed, 2)
+    prev_key_block_seqno = block_info.prev_key_block_seqno
+    right_shard = None
+    if block_info.after_merge:
+        left = block_info.prev_ref.prev1
+        left_shard = BlockIdExt(BlockId(x.workchain,
+                                        shard_child(x.shard, True),
+                                        left.seq_no),
+                                root_hash=int(left.root_hash, 2), file_hash=int(left.file_hash, 2))
+
+        right = block_info.prev_ref.prev2
+        right_shard = BlockIdExt(BlockId(x.workchain,
+                                         shard_child(x.shard, False),
+                                         right.seq_no),
+                                 root_hash=int(right.root_hash, 2), file_hash=int(right.file_hash, 2))
+
+        if left_shard.id not in known_shards and block_id.id not in stop_shards:
+            prev_data = [
+                *process_shard(left_shard, lc=lc, prev_data=[], loglevel=loglevel, known_shards=known_shards,
+                               stop_shards=stop_shards,
+                               parse_txs_over_ls=parse_txs_over_ls), *prev_data]
+
+        if right_shard.id not in known_shards and block_id.id not in stop_shards:
+            prev_data = [
+                *process_shard(right_shard, lc=lc, prev_data=[], loglevel=loglevel, known_shards=known_shards,
+                               stop_shards=stop_shards,
+                               parse_txs_over_ls=parse_txs_over_ls), *prev_data]
+
+    else:
+        prev = block_info.prev_ref.prev
+
+        if block_info.after_split:
+            left_shard = BlockIdExt(BlockId(x.workchain, shard_parent(x.shard), prev.seq_no),
+                                    root_hash=int(prev.root_hash, 2), file_hash=int(prev.file_hash, 2))
+        else:
+            left_shard = BlockIdExt(BlockId(x.workchain, x.shard, prev.seq_no),
+                                    root_hash=int(prev.root_hash, 2), file_hash=int(prev.file_hash, 2))
+
+        if left_shard.id not in known_shards and block_id.id not in stop_shards:
+            prev_data = [
+                *process_shard(left_shard, lc=lc, prev_data=[], loglevel=loglevel, known_shards=known_shards,
+                               stop_shards=stop_shards,
+                               parse_txs_over_ls=parse_txs_over_ls), *prev_data]
+
+    if loglevel > 2:
+        logger.info(f"Done download shards")
+
+    new_data = {
+        'block_id': block_id,
+        'rand_seed': rand_seed,
+        'gen_utime': block_info.gen_utime,
+        'prev_key_block_seqno': prev_key_block_seqno,
+        'prev_block_left': left_shard,
+        'prev_block_right': right_shard,
+        'master': block_info.master_ref.master.seq_no,
+        'account_blocks': convert_account_blocks_to_txs(
+            block_extra.account_blocks) if not parse_txs_over_ls else None
+    }
+
+    return [new_data, *prev_data]
+
+
 @curry
 def load_process_shard(shards_chunk,
                        known_shards,
@@ -228,103 +323,35 @@ def load_process_shard(shards_chunk,
                        loglevel,
                        parse_txs_over_ls=False):
     try:
+        total_start_at = time()
         answer = []
 
         lcparams = json.loads(lcparams)
         lc = LiteClient(**lcparams)
 
-        def process_shard(x, prev_data=None, lc=None):
-
-            if loglevel > 2:
-                data = f"Process shard call: {x}" \
-                       f"{len(prev_data) if prev_data is not None else ''}, " \
-                       f"Known shards: {len(known_shards)}"
-                logger.info(data)
-
-            if prev_data is None:
-                prev_data = []
-
-            if isinstance(x, BlockId):
-                if loglevel > 2:
-                    logger.info(f"Call lookup block")
-
-                block_id = lc.lookup_block(x).blk_id
-            else:
-                block_id = x
-                x = x.id
-
-            if loglevel > 2:
-                logger.info(f"Call get block: {block_id}")
-
-            current_full_block = lc.get_block(block_id)
-
-            if loglevel > 2:
-                logger.info(f"Got block: {block_id}")
-
-            # It's stored in blockExtra
-            block = Block().cell_unpack(current_full_block)
-            block_info = BlockInfo().cell_unpack(block.info, True)
-            block_extra = BlockExtra().cell_unpack(block.extra, False)
-
-            rand_seed = int(block_extra.rand_seed, 2)
-            prev_key_block_seqno = block_info.prev_key_block_seqno
-            right_shard = None
-            if block_info.after_merge:
-                left = block_info.prev_ref.prev1
-                left_shard = BlockIdExt(BlockId(x.workchain,
-                                                shard_child(x.shard, True),
-                                                left.seq_no),
-                                        root_hash=int(left.root_hash, 2), file_hash=int(left.file_hash, 2))
-
-                right = block_info.prev_ref.prev2
-                right_shard = BlockIdExt(BlockId(x.workchain,
-                                                 shard_child(x.shard, False),
-                                                 right.seq_no),
-                                         root_hash=int(right.root_hash, 2), file_hash=int(right.file_hash, 2))
-
-                if left_shard.id not in known_shards and block_id.id not in stop_shards:
-                    prev_data = [*process_shard(left_shard, lc=lc, prev_data=[]), *prev_data]
-
-                if right_shard.id not in known_shards and block_id.id not in stop_shards:
-                    prev_data = [*process_shard(right_shard, lc=lc, prev_data=[]), *prev_data]
-
-            else:
-                prev = block_info.prev_ref.prev
-
-                if block_info.after_split:
-                    left_shard = BlockIdExt(BlockId(x.workchain, shard_parent(x.shard), prev.seq_no),
-                                            root_hash=int(prev.root_hash, 2), file_hash=int(prev.file_hash, 2))
-                else:
-                    left_shard = BlockIdExt(BlockId(x.workchain, x.shard, prev.seq_no),
-                                            root_hash=int(prev.root_hash, 2), file_hash=int(prev.file_hash, 2))
-
-                if left_shard.id not in known_shards and block_id.id not in stop_shards:
-                    prev_data = [*process_shard(left_shard, lc=lc, prev_data=[]), *prev_data]
-
-            if loglevel > 2:
-                logger.info(f"Done download shards")
-
-            new_data = {
-                'block_id': block_id,
-                'rand_seed': rand_seed,
-                'gen_utime': block_info.gen_utime,
-                'prev_key_block_seqno': prev_key_block_seqno,
-                'prev_block_left': left_shard,
-                'prev_block_right': right_shard,
-                'master': block_info.master_ref.master.seq_no,
-                'account_blocks': convert_account_blocks_to_txs(
-                    block_extra.account_blocks) if not parse_txs_over_ls else None
-            }
-
-            return [new_data, *prev_data]
-
         if loglevel > 1:
             shards_chunk = tqdm(shards_chunk, desc="Load shards")
 
         for shard in shards_chunk:
-            answer.extend(process_shard(shard, lc=lc))
+            start = None
+            if loglevel > 3:
+                start = time()
+                logger.debug(f"Call process shard: {shard}")
 
-        # del lc
+            answer.extend(
+                process_shard(shard, lc=lc, loglevel=loglevel, known_shards=known_shards, stop_shards=stop_shards,
+                              parse_txs_over_ls=parse_txs_over_ls))
+
+            if loglevel > 3:
+                logger.debug(f"Done process shard: {shard} at {time() - start}")
+
+        if loglevel > 3:
+            logger.debug(f"Stop liteclient")
+        del lc
+
+        if loglevel > 3:
+            logger.debug(f"Finally done at: {time() - total_start_at}")
+
         return answer
     except Exception as e:
         logger.error(f"{e}")
