@@ -234,7 +234,7 @@ def process_shard(x, prev_data=None, lc=None, loglevel=None, known_shards=None, 
                 if old_min < i.seqno < x.seqno:
                     old_min = i.seqno
 
-            data += f" Nearest: {old_min}, it's {x.id.seqno - old_min} away"
+            data += f" Nearest: {old_min}, it's {x.seqno - old_min} away"
         logger.info(data)
 
     if prev_data is None:
