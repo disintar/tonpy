@@ -359,13 +359,13 @@ def load_process_shard(shards_chunk,
         lcparams['logprefix'] = f'shards t{thread_id}'
         with LiteClient(**lcparams) as lc:
             if loglevel > 1:
-                shards_chunk = tqdm(shards_chunk, desc=f"[{thread_id}] Load shards")
+                shards_chunk = tqdm(shards_chunk, desc=f"[shards t{thread_id}] Load shards")
 
             for shard in shards_chunk:
                 start = None
                 if loglevel > 3:
                     start = time()
-                    logger.debug(f"[{thread_id}] Call process shard: {shard}")
+                    logger.debug(f"[shards t{thread_id}] Call process shard: {shard}")
 
                 answer.extend(
                     process_shard(shard, lc=lc, loglevel=loglevel,
@@ -376,10 +376,10 @@ def load_process_shard(shards_chunk,
                     logger.debug(f"Done process shard: {shard} at {time() - start}")
 
             if loglevel > 3:
-                logger.debug(f"[{thread_id}] Stop liteclient")
+                logger.debug(f"[shards t{thread_id}] Stop liteclient")
 
         if loglevel > 3:
-            logger.debug(f"[{thread_id}] Finally done at: {time() - total_start_at}")
+            logger.debug(f"[shards t{thread_id}] Finally done at: {time() - total_start_at}")
 
         return answer
     except Exception as e:
@@ -393,23 +393,23 @@ def process_mc_blocks(seqnos, lcparams, loglevel, parse_txs_over_ls):
     thread_id, seqnos = seqnos
 
     if loglevel > 2:
-        logger.debug(f"[{thread_id}] Start load MCs: {len(seqnos)}")
+        logger.debug(f"[mc t{thread_id}] Start load MCs: {len(seqnos)}")
 
     try:
         lcparams = json.loads(lcparams)
         lcparams['logprefix'] = f'mcblocks t{thread_id}'
 
         if loglevel > 3:
-            logger.debug(f"[{thread_id}] Start LiteClient")
+            logger.debug(f"[mc t{thread_id}] Start LiteClient")
 
         with LiteClient(**lcparams) as lc:
             if loglevel > 3:
-                logger.debug(f"[{thread_id}] Started LiteClient")
+                logger.debug(f"[mc t{thread_id}] Started LiteClient")
 
             answer = []
 
             if loglevel > 1:
-                seqnos = tqdm(seqnos, desc=f"{thread_id} Load MCs")
+                seqnos = tqdm(seqnos, desc=f"mc t{thread_id} Load MCs")
 
             for i in seqnos:
                 num_errs = 0
@@ -446,7 +446,7 @@ def process_mc_blocks(seqnos, lcparams, loglevel, parse_txs_over_ls):
                         num_errs += 1
 
                         if loglevel > 3:
-                            logger.debug(f"[{thread_id}] ERROR in block: {e}")
+                            logger.debug(f"[mc t{thread_id}] ERROR in block: {e}")
 
                         if num_errs > 200:
                             logger.error(
@@ -458,10 +458,10 @@ def process_mc_blocks(seqnos, lcparams, loglevel, parse_txs_over_ls):
                         sleep(0.1)
 
             if loglevel > 3:
-                logger.debug(f"[{thread_id}] Stop liteclient")
+                logger.debug(f"[mc t{thread_id}] Stop liteclient")
 
             if loglevel > 2:
-                logger.debug(f"[{thread_id}] Done load MCs")
+                logger.debug(f"[mc t{thread_id}] Done load MCs")
 
         return answer
     except Exception as e:
