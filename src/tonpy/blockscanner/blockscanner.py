@@ -530,7 +530,7 @@ class BlockScanner(Thread):
         blocks_ids = list(range(from_, to_))
         mc_seqnos_chunks, p = self.detect_cs_p(blocks_ids)
 
-        with Pool(p) as pool:
+        with Pool(20) as pool:
             results = pool.imap_unordered(process_mc_blocks(lcparams=self.lcparams, loglevel=self.loglevel,
                                                             parse_txs_over_ls=self.parse_txs_over_ls),
                                           mc_seqnos_chunks)
@@ -550,7 +550,7 @@ class BlockScanner(Thread):
         known_shards_chunks, p = self.detect_cs_p(list(known_shards))
 
         if self.loglevel > 2:
-            logger.debug(f"Start {p} processes with {len(known_shards_chunks)} chunks")
+            logger.debug(f"Start {p} processes with {len(known_shards_chunks)} chunks with {len(known_shards)}")
 
         with Pool(p) as pool:
             results = pool.imap_unordered(
