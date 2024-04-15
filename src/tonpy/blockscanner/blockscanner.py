@@ -737,6 +737,10 @@ class BlockScanner(Thread):
                 if self.loglevel > 1:
                     logger.debug(
                         f"End load LAST master chunk from seqno: {start_from} to {end_at} at {time() - mc_start_at}")
+
+                stop_shards = self.lc.get_all_shards_info(
+                    self.lc.lookup_block(BlockId(-1, 0x8000000000000000, start_from - 1)).blk_id
+                )
             else:
                 end_at = start_from + self.chunk_size
 
@@ -744,20 +748,19 @@ class BlockScanner(Thread):
                     logger.debug(f"Start load master from seqno: {start_from} to {end_at}")
 
                 mc_data = self.load_mcs(start_from, end_at)
-                start_from += self.chunk_size
 
                 if self.loglevel > 1:
                     logger.debug(
                         f"End load master chunk from seqno: {start_from} to {end_at} at {time() - mc_start_at}")
 
+                stop_shards = self.lc.get_all_shards_info(
+                    self.lc.lookup_block(BlockId(-1, 0x8000000000000000, start_from - 1)).blk_id
+                )
+                start_from += self.chunk_size
             mc_hashes = list(sorted(mc_data, key=lambda x: x['block_id'].id.seqno))
 
             if self.loglevel > 1:
                 logger.debug(f"End load historical MASTER to seqno: {end_at}, ask stop_shards")
-
-            stop_shards = self.lc.get_all_shards_info(
-                self.lc.lookup_block(BlockId(-1, 0x8000000000000000, self.start_from - 1)).blk_id
-            )  # mc_hashes[0]['shards']
 
             if self.loglevel > 1:
                 logger.debug(f"Got: {len(stop_shards)} stop shards")
