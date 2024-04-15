@@ -231,6 +231,9 @@ def process_shard(x, prev_data=None, lc=None, loglevel=None, known_shards=None, 
         if loglevel > 3:
             old_min = -1
             for i in known_shards + stop_shards:
+                if isinstance(i, BlockIdExt):
+                    i = i.id
+
                 if old_min < i.seqno < x.seqno:
                     old_min = i.seqno
 
