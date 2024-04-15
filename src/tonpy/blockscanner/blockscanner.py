@@ -207,6 +207,8 @@ def process_block(block, lc, emulate_before_output, tx_subscriptions):
 @curry
 def load_process_blocks(blocks_chunk, lcparams, loglevel, emulate_before_output, tx_subscriptions):
     lcparams = json.loads(lcparams)
+    lcparams['logprefix'] = 'blockprocessor'
+
     with LiteClient(**lcparams) as lc:
         blocks_txs = []
 
@@ -354,7 +356,7 @@ def load_process_shard(shards_chunk,
         answer = []
 
         lcparams = json.loads(lcparams)
-        lcparams['logprefix'] = f'{thread_id}'
+        lcparams['logprefix'] = f'shards t{thread_id}'
         with LiteClient(**lcparams) as lc:
             if loglevel > 1:
                 shards_chunk = tqdm(shards_chunk, desc=f"[{thread_id}] Load shards")
@@ -395,7 +397,7 @@ def process_mc_blocks(seqnos, lcparams, loglevel, parse_txs_over_ls):
 
     try:
         lcparams = json.loads(lcparams)
-        lcparams['logprefix'] = f'{thread_id}'
+        lcparams['logprefix'] = f'mcblocks t{thread_id}'
 
         if loglevel > 3:
             logger.debug(f"[{thread_id}] Start LiteClient")
