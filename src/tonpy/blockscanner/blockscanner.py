@@ -450,7 +450,15 @@ def process_mc_blocks(seqnos, lcparams, loglevel, parse_txs_over_ls):
                         raise e
 
                     sleep(0.1)
-        # del lc
+
+        if loglevel > 3:
+            logger.debug(f"[{thread_id}] Stop liteclient")
+
+        del lc
+
+        if loglevel > 2:
+            logger.debug(f"[{thread_id}] Done load MCs")
+
         return answer
     except Exception as e:
         logger.error(f"{e}")
@@ -732,7 +740,6 @@ class BlockScanner(Thread):
                 logger.debug(f"Start load historical from seqno: {start_from}")
 
             started_at = time()
-
             mc_start_at = time()
 
             end_at = None
@@ -879,10 +886,13 @@ class BlockScanner(Thread):
 
             if not self.emulate_before_output:
                 if self.loglevel > 1:
-                    logger.debug(f"Put transactions to output and continue to next chunk")
+                    logger.debug(f"Put transactions to output and continue to next chunk, stop: {stop}")
 
                 self.out_queue.put(txs)
                 self.latest_processed = end_at
+
+                if self.loglevel > 3:
+                    logger.debug(f"Data put, go")
                 continue
 
             start_emulate_at = time()
