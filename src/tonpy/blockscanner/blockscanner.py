@@ -225,7 +225,16 @@ def process_shard(x, prev_data=None, lc=None, loglevel=None, known_shards=None, 
     if loglevel > 2:
         data = f"Process shard call: {x}" \
                f"{len(prev_data) if prev_data is not None else ''}, " \
-               f"Known shards: {len(known_shards)}"
+               f"Known shards: {len(known_shards)}, " \
+               f"Stop shards: {len(stop_shards)}, "
+
+        if loglevel > 3:
+            old_min = -1
+            for i in known_shards + stop_shards:
+                if old_min < i.seqno < x.id.seqno:
+                    old_min = i.seqno
+
+            data += f" Nearest: {old_min}, it's {x.id.seqno - old_min} away"
         logger.info(data)
 
     if prev_data is None:
@@ -345,7 +354,8 @@ def load_process_shard(shards_chunk,
                 logger.debug(f"[{thread_id}] Call process shard: {shard}")
 
             answer.extend(
-                process_shard(shard, lc=lc, loglevel=loglevel, known_shards=known_shards, stop_shards=stop_shards,
+                process_shard(shard, lc=lc, loglevel=loglevel,
+                              known_shards=known_shards, stop_shards=stop_shards,
                               parse_txs_over_ls=parse_txs_over_ls))
 
             if loglevel > 3:
@@ -530,7 +540,7 @@ class BlockScanner(Thread):
         blocks_ids = list(range(from_, to_))
         mc_seqnos_chunks, p = self.detect_cs_p(blocks_ids)
 
-        with Pool(20) as pool:
+        with Pool(p) as pool:
             results = pool.imap_unordered(process_mc_blocks(lcparams=self.lcparams, loglevel=self.loglevel,
                                                             parse_txs_over_ls=self.parse_txs_over_ls),
                                           mc_seqnos_chunks)
@@ -751,7 +761,9 @@ class BlockScanner(Thread):
 
             shards_start_at = time()
             if not self.only_mc_blocks:
-                shards_data = self.load_process_shard(known_shards=known_shards, stop_shards=stop_shards)
+                # maybe better not to sort but force shuffle to distribute load
+                shards_data = self.load_process_shard(known_shards=list(sorted(known_shards, key=lambda x: x.seqno)),
+                                                      stop_shards=stop_shards)
 
                 if self.loglevel > 1:
                     logger.debug(f"Shards downloaded at: {time() - shards_start_at}")
