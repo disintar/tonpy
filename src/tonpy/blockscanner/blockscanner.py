@@ -207,15 +207,14 @@ def process_block(block, lc, emulate_before_output, tx_subscriptions):
 @curry
 def load_process_blocks(blocks_chunk, lcparams, loglevel, emulate_before_output, tx_subscriptions):
     lcparams = json.loads(lcparams)
-    lc = LiteClient(**lcparams)
+    with LiteClient(**lcparams) as lc:
+        blocks_txs = []
 
-    blocks_txs = []
+        if loglevel > 1:
+            blocks_chunk = tqdm(blocks_chunk, desc="Load block TXs")
 
-    if loglevel > 1:
-        blocks_chunk = tqdm(blocks_chunk, desc="Load block TXs")
-
-    for block in blocks_chunk:
-        blocks_txs.extend(process_block(block, lc, emulate_before_output, tx_subscriptions))
+        for block in blocks_chunk:
+            blocks_txs.extend(process_block(block, lc, emulate_before_output, tx_subscriptions))
 
     return blocks_txs
 
@@ -356,28 +355,26 @@ def load_process_shard(shards_chunk,
 
         lcparams = json.loads(lcparams)
         lcparams['logprefix'] = f'{thread_id}'
-        lc = LiteClient(**lcparams)
+        with LiteClient(**lcparams) as lc:
+            if loglevel > 1:
+                shards_chunk = tqdm(shards_chunk, desc=f"[{thread_id}] Load shards")
 
-        if loglevel > 1:
-            shards_chunk = tqdm(shards_chunk, desc=f"[{thread_id}] Load shards")
+            for shard in shards_chunk:
+                start = None
+                if loglevel > 3:
+                    start = time()
+                    logger.debug(f"[{thread_id}] Call process shard: {shard}")
 
-        for shard in shards_chunk:
-            start = None
+                answer.extend(
+                    process_shard(shard, lc=lc, loglevel=loglevel,
+                                  known_shards=known_shards, stop_shards=stop_shards,
+                                  parse_txs_over_ls=parse_txs_over_ls))
+
+                if loglevel > 3:
+                    logger.debug(f"Done process shard: {shard} at {time() - start}")
+
             if loglevel > 3:
-                start = time()
-                logger.debug(f"[{thread_id}] Call process shard: {shard}")
-
-            answer.extend(
-                process_shard(shard, lc=lc, loglevel=loglevel,
-                              known_shards=known_shards, stop_shards=stop_shards,
-                              parse_txs_over_ls=parse_txs_over_ls))
-
-            if loglevel > 3:
-                logger.debug(f"Done process shard: {shard} at {time() - start}")
-
-        if loglevel > 3:
-            logger.debug(f"[{thread_id}] Stop liteclient")
-        #del lc
+                logger.debug(f"[{thread_id}] Stop liteclient")
 
         if loglevel > 3:
             logger.debug(f"[{thread_id}] Finally done at: {time() - total_start_at}")
@@ -403,69 +400,66 @@ def process_mc_blocks(seqnos, lcparams, loglevel, parse_txs_over_ls):
         if loglevel > 3:
             logger.debug(f"[{thread_id}] Start LiteClient")
 
-        lc = LiteClient(**lcparams)
+        with LiteClient(**lcparams) as lc:
+            if loglevel > 3:
+                logger.debug(f"[{thread_id}] Started LiteClient")
 
-        if loglevel > 3:
-            logger.debug(f"[{thread_id}] Started LiteClient")
+            answer = []
 
-        answer = []
+            if loglevel > 1:
+                seqnos = tqdm(seqnos, desc=f"{thread_id} Load MCs")
 
-        if loglevel > 1:
-            seqnos = tqdm(seqnos, desc=f"{thread_id} Load MCs")
+            for i in seqnos:
+                num_errs = 0
 
-        for i in seqnos:
-            num_errs = 0
+                while True:
+                    try:
+                        if loglevel > 2:
+                            logger.debug(f"[{thread_id}] Ask block")
 
-            while True:
-                try:
-                    if loglevel > 2:
-                        logger.debug(f"[{thread_id}] Ask block")
+                        block_id = lc.lookup_block(BlockId(-1, 0x8000000000000000, i)).blk_id
+                        current_full_block = lc.get_block(block_id)
+                        block = Block().cell_unpack(current_full_block)
+                        block_info = BlockInfo().cell_unpack(block.info, True)
+                        block_extra = BlockExtra().cell_unpack(block.extra, False)
 
-                    block_id = lc.lookup_block(BlockId(-1, 0x8000000000000000, i)).blk_id
-                    current_full_block = lc.get_block(block_id)
-                    block = Block().cell_unpack(current_full_block)
-                    block_info = BlockInfo().cell_unpack(block.info, True)
-                    block_extra = BlockExtra().cell_unpack(block.extra, False)
+                        rand_seed = int(block_extra.rand_seed, 2)
+                        prev_key_block_seqno = block_info.prev_key_block_seqno
 
-                    rand_seed = int(block_extra.rand_seed, 2)
-                    prev_key_block_seqno = block_info.prev_key_block_seqno
+                        # todo: add prev hash
 
-                    # todo: add prev hash
+                        answer.append({
+                            'block_id': block_id,
+                            'shards': lc.get_all_shards_info(block_id),
+                            'rand_seed': rand_seed,
+                            'gen_utime': block_info.gen_utime,
+                            'prev_key_block_seqno': prev_key_block_seqno,
+                            'gen_utime': block_info.gen_utime,
+                            'account_blocks': convert_account_blocks_to_txs(
+                                block_extra.account_blocks) if not parse_txs_over_ls else None
+                        })
 
-                    answer.append({
-                        'block_id': block_id,
-                        'shards': lc.get_all_shards_info(block_id),
-                        'rand_seed': rand_seed,
-                        'gen_utime': block_info.gen_utime,
-                        'prev_key_block_seqno': prev_key_block_seqno,
-                        'gen_utime': block_info.gen_utime,
-                        'account_blocks': convert_account_blocks_to_txs(
-                            block_extra.account_blocks) if not parse_txs_over_ls else None
-                    })
+                        break
+                    except Exception as e:
+                        num_errs += 1
 
-                    break
-                except Exception as e:
-                    num_errs += 1
+                        if loglevel > 3:
+                            logger.debug(f"[{thread_id}] ERROR in block: {e}")
 
-                    if loglevel > 3:
-                        logger.debug(f"[{thread_id}] ERROR in block: {e}")
+                        if num_errs > 200:
+                            logger.error(
+                                f"Error in process_mc_blocks, block: (-1, 0x8000000000000000, {i}): {e}, {tb.format_exc()}")
 
-                    if num_errs > 200:
-                        logger.error(
-                            f"Error in process_mc_blocks, block: (-1, 0x8000000000000000, {i}): {e}, {tb.format_exc()}")
+                        if num_errs > 600:
+                            raise e
 
-                    if num_errs > 600:
-                        raise e
+                        sleep(0.1)
 
-                    sleep(0.1)
+            if loglevel > 3:
+                logger.debug(f"[{thread_id}] Stop liteclient")
 
-        if loglevel > 3:
-            logger.debug(f"[{thread_id}] Stop liteclient")
-
-        #del lc
-
-        if loglevel > 2:
-            logger.debug(f"[{thread_id}] Done load MCs")
+            if loglevel > 2:
+                logger.debug(f"[{thread_id}] Done load MCs")
 
         return answer
     except Exception as e:
@@ -514,9 +508,10 @@ class BlockScanner(Thread):
 
         self.only_mc_blocks = only_mc_blocks
         self.lcparams = json.dumps(lcparams)
+        lcparams['logprefix'] = f'main'
         self.lc = LiteClient(**lcparams)
         lcparams['timeout'] = 200
-
+        lcparams['logprefix'] = f'main longterm'
         self.lc_long = LiteClient(**lcparams)
         self.start_from = start_from
         self.load_chunks = load_chunks

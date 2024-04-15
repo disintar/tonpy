@@ -233,6 +233,15 @@ class RRLiteClient:
     def stop(self):
         self.client.stop()
 
+    def __del__(self):
+        self.client.stop()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.client.stop()
+
     def __getattr__(self, name):
         func = name
 
@@ -554,4 +563,4 @@ class LiteClient:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        del self
+        self.client.stop()
