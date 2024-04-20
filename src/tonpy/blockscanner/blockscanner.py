@@ -20,7 +20,7 @@ from tonpy.utils.shard_account import shard_is_ancestor, shard_child, shard_pare
 from tonpy.libs.python_ton import Bits256, globalSetVerbosity
 from tonpy.autogen.block import Account, Transaction, Block, BlockInfo, BlockExtra, MessageAny, AccountState
 from tonpy.utils.chunks import chunks
-from multiprocessing import Pool
+from multiprocessing import Pool, get_context
 from time import sleep, time
 from loguru import logger
 import traceback as tb
@@ -31,6 +31,7 @@ from datetime import datetime
 from typing import Callable
 from threading import Thread
 from queue import Queue
+from multiprocessing import set_start_method
 
 globalSetVerbosity(-1)
 
@@ -507,6 +508,7 @@ class BlockScanner(Thread):
         :param load_chunks: [[start_from, load_to], ...] chunks to loads
         """
         super(BlockScanner, self).__init__()
+        set_start_method("spawn")
 
         self.only_mc_blocks = only_mc_blocks
         self.lcparams = json.dumps(lcparams)
@@ -579,7 +581,7 @@ class BlockScanner(Thread):
         blocks_ids = list(range(from_, to_))
         mc_seqnos_chunks, p = self.detect_cs_p(blocks_ids)
 
-        with Pool(p) as pool:
+        with get_context("spawn").Pool(p) as pool:
             results = pool.imap_unordered(process_mc_blocks(lcparams=self.lcparams, loglevel=self.loglevel,
                                                             parse_txs_over_ls=self.parse_txs_over_ls),
                                           enumerate(mc_seqnos_chunks))
@@ -606,7 +608,7 @@ class BlockScanner(Thread):
         if self.loglevel > 2:
             logger.debug(f"Start {p} processes with {len(known_shards_chunks)} chunks with {len(known_shards)}")
 
-        with Pool(p) as pool:
+        with get_context("spawn").Pool(p) as pool:
             results = pool.imap_unordered(
                 load_process_shard_chunk(known_shards=known_shards, stop_shards=stop_shards, lcparams=self.lcparams,
                                    loglevel=self.loglevel, parse_txs_over_ls=self.parse_txs_over_ls),
@@ -728,7 +730,7 @@ class BlockScanner(Thread):
         txs_data = []
         blocks_chunks, p = self.detect_cs_p(list(blocks))
 
-        with Pool(p) as pool:
+        with get_context("spawn").Pool(p) as pool:
             results = pool.imap_unordered(load_process_blocks(lcparams=self.lcparams, loglevel=self.loglevel,
                                                               emulate_before_output=self.emulate_before_output,
                                                               tx_subscriptions=tx_subscriptions),
@@ -924,7 +926,7 @@ class BlockScanner(Thread):
                 if self.loglevel > 1:
                     logger.debug(f"Process chunk №{chunk_no} / {total}, {len(c)}")
 
-                with Pool(self.nproc) as pool:
+                with get_context("spawn").Pool(self.nproc) as pool:
                     results = pool.imap_unordered(self.f, c, chunksize=max(300, math.ceil(len(c) / self.nproc)))
 
                     for result_chunk in results:
