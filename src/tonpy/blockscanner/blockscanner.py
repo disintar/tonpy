@@ -395,13 +395,13 @@ def process_mc_blocks(seqnos, lcparams, loglevel, parse_txs_over_ls):
     if loglevel > 2:
         logger.debug(f"[mc t{thread_id}] Start load MCs: {len(seqnos)}")
 
+    lcparams = json.loads(lcparams)
+    lcparams['logprefix'] = f'mcblocks t{thread_id}'
+
+    if loglevel > 3:
+        logger.debug(f"[mc t{thread_id}] Start LiteClient")
+
     try:
-        lcparams = json.loads(lcparams)
-        lcparams['logprefix'] = f'mcblocks t{thread_id}'
-
-        if loglevel > 3:
-            logger.debug(f"[mc t{thread_id}] Start LiteClient")
-
         with LiteClient(**lcparams) as lc:
             if loglevel > 3:
                 logger.debug(f"[mc t{thread_id}] Started LiteClient")
@@ -579,22 +579,22 @@ class BlockScanner(Thread):
         blocks_ids = list(range(from_, to_))
         mc_seqnos_chunks, p = self.detect_cs_p(blocks_ids)
 
-        # with Pool(p) as pool:
-        #     results = pool.imap_unordered(process_mc_blocks(lcparams=self.lcparams, loglevel=self.loglevel,
-        #                                                     parse_txs_over_ls=self.parse_txs_over_ls),
-        #                                   enumerate(mc_seqnos_chunks))
-        #
-        #     if self.loglevel > 1:
-        #         results = tqdm(results, desc="Download MC blocks", total=len(mc_seqnos_chunks))
-        #
-        #     for result in results:
-        #         if result is None:
-        #             raise ValueError(f"Invalid result in MC blocks")
-        #         mc_data.extend(result)
+        with Pool(p) as pool:
+            results = pool.imap_unordered(process_mc_blocks(lcparams=self.lcparams, loglevel=self.loglevel,
+                                                            parse_txs_over_ls=self.parse_txs_over_ls),
+                                          enumerate(mc_seqnos_chunks))
 
-        for i in tqdm(enumerate(mc_seqnos_chunks), total=len(mc_seqnos_chunks)):
-            mc_data.extend(process_mc_blocks(i, lcparams=self.lcparams, loglevel=self.loglevel,
-                                             parse_txs_over_ls=self.parse_txs_over_ls))
+            if self.loglevel > 1:
+                results = tqdm(results, desc="Download MC blocks", total=len(mc_seqnos_chunks))
+
+            for result in results:
+                if result is None:
+                    raise ValueError(f"Invalid result in MC blocks")
+                mc_data.extend(result)
+
+        # for i in tqdm(enumerate(mc_seqnos_chunks), total=len(mc_seqnos_chunks)):
+        #     mc_data.extend(process_mc_blocks(i, lcparams=self.lcparams, loglevel=self.loglevel,
+        #                                      parse_txs_over_ls=self.parse_txs_over_ls))
 
         # todo: check hashes
         return mc_data
