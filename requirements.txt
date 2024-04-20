@@ -1,7 +1,7 @@
 loguru
 pytest
 bitstring
-toolz
 orjson
 tqdm
 requests
+cytoolz

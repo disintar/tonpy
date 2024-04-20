@@ -24,7 +24,7 @@ from multiprocessing import Pool
 from time import sleep, time
 from loguru import logger
 import traceback as tb
-from toolz import curry
+from cytoolz import curry
 import orjson as json
 from tqdm import tqdm
 from datetime import datetime
@@ -340,7 +340,7 @@ def process_shard(x, prev_data=None, lc=None, loglevel=None, known_shards=None, 
 
 
 @curry
-def load_process_shard(shards_chunk,
+def load_process_shard_chunk(shards_chunk,
                        known_shards,
                        stop_shards,
                        lcparams,
@@ -608,7 +608,7 @@ class BlockScanner(Thread):
 
         with Pool(p) as pool:
             results = pool.imap_unordered(
-                load_process_shard(known_shards=known_shards, stop_shards=stop_shards, lcparams=self.lcparams,
+                load_process_shard_chunk(known_shards=known_shards, stop_shards=stop_shards, lcparams=self.lcparams,
                                    loglevel=self.loglevel, parse_txs_over_ls=self.parse_txs_over_ls),
                 enumerate(known_shards_chunks))
 
