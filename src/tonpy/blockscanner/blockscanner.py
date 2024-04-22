@@ -566,7 +566,6 @@ class BlockScanner(Thread):
         self.emulate_before_output = emulate_before_output
         self.known_key_blocks = {}
         self.mega_libs = get_mega_libs()
-        self.latest_processed = None
 
         self.process_raw = raw_process is not None
         if self.process_raw:
@@ -915,8 +914,10 @@ class BlockScanner(Thread):
                 if self.loglevel > 1:
                     logger.debug(f"Put transactions to output and continue to next chunk, stop: {stop}")
 
-                self.out_queue.put(txs)
-                self.latest_processed = end_at
+                self.out_queue.put({
+                    'seqno': end_at,
+                    'txs': txs
+                })
 
                 if self.loglevel > 3:
                     logger.debug(f"Data put, go")
@@ -950,8 +951,6 @@ class BlockScanner(Thread):
 
             if self.loglevel > 0:
                 logger.info(f"\n\tProcessed TXs at: {time() - start_emulate_at}")
-
-            self.latest_processed = end_at
 
     def run(self):
         try:
