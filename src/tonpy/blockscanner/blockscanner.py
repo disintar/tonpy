@@ -126,6 +126,7 @@ def process_block(block, lc, emulate_before_output, tx_subscriptions):
     block_txs = {}
 
     if block['account_blocks'] is not None:
+        # load accounts from block
         block_txs = block['account_blocks']
         del block['account_blocks']
 
@@ -136,6 +137,7 @@ def process_block(block, lc, emulate_before_output, tx_subscriptions):
                     clear_tmp.append(x)
             block_txs[account] = clear_tmp
     else:
+        # load accounts from LC
         ready = False
 
         account_address = None
@@ -206,7 +208,11 @@ def process_block(block, lc, emulate_before_output, tx_subscriptions):
 
 
 @curry
-def load_process_blocks(blocks_chunk, lcparams, loglevel, emulate_before_output, tx_subscriptions):
+def load_process_blocks(blocks_chunk,
+                        lcparams,
+                        loglevel,
+                        emulate_before_output,
+                        tx_subscriptions):
     lcparams = json.loads(lcparams)
     lcparams['logprefix'] = 'blockprocessor'
 
@@ -342,11 +348,11 @@ def process_shard(x, prev_data=None, lc=None, loglevel=None, known_shards=None, 
 
 @curry
 def load_process_shard_chunk(shards_chunk,
-                       known_shards,
-                       stop_shards,
-                       lcparams,
-                       loglevel,
-                       parse_txs_over_ls=False):
+                             known_shards,
+                             stop_shards,
+                             lcparams,
+                             loglevel,
+                             parse_txs_over_ls=False):
     thread_id, shards_chunk = shards_chunk
 
     if loglevel > 1:
@@ -489,7 +495,8 @@ class BlockScanner(Thread):
                  database_provider: "BaseDatabaseProvider" = None,
                  emulate_before_output: bool = False,
                  live_load_enable: bool = False,
-                 load_chunks: typing.List[typing.Tuple[int, int]] = None):
+                 load_chunks: typing.List[typing.Tuple[int, int]] = None,
+                 allow_skip_mc_in_live: bool = True):
         """
 
         :param lcparams: Params for LiteClient
@@ -506,9 +513,14 @@ class BlockScanner(Thread):
         :param emulate_before_output: If True - will emulate transaction to get actual account state on TX, default False
         :param live_load_enable: If True - will load all new blocks, default False. If delta >90sec between updates - application will be killed
         :param load_chunks: [[start_from, load_to], ...] chunks to loads
+        :param allow_skip_mc_in_live: if True - will load last known MC block after process chunk, if True - will load exactly NEXT MC seqno
         """
         super(BlockScanner, self).__init__()
-        set_start_method("spawn")
+
+        try:
+            set_start_method("spawn")
+        except RuntimeError:
+            logger.warning(f"Multiprocess context already set(?)")
 
         self.only_mc_blocks = only_mc_blocks
         self.lcparams = json.dumps(lcparams)
@@ -539,6 +551,9 @@ class BlockScanner(Thread):
                 raise ValueError(f"Provide load_to or live_load_enable")
 
             self.load_to = self.lc.get_masterchain_info_ext().last.id.seqno
+
+        if self.live_load_enable:
+            self.allow_skip_mc_in_live = allow_skip_mc_in_live
 
         self.loglevel = loglevel
         self.nproc = nproc
@@ -611,7 +626,7 @@ class BlockScanner(Thread):
         with get_context("spawn").Pool(p) as pool:
             results = pool.imap_unordered(
                 load_process_shard_chunk(known_shards=known_shards, stop_shards=stop_shards, lcparams=self.lcparams,
-                                   loglevel=self.loglevel, parse_txs_over_ls=self.parse_txs_over_ls),
+                                         loglevel=self.loglevel, parse_txs_over_ls=self.parse_txs_over_ls),
                 enumerate(known_shards_chunks))
 
             if self.loglevel > 1:
