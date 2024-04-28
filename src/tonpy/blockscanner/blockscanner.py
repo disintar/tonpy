@@ -493,7 +493,7 @@ class BlockScanner(Thread):
                  transaction_subscriptions: "CustomSubscription" = None,
                  account_subscriptions: "CustomAccountSubscription" = None,
                  database_provider: "BaseDatabaseProvider" = None,
-                 emulate_before_output: bool = False,
+                 emulate_before_output: bool = None,
                  live_load_enable: bool = False,
                  load_chunks: typing.List[typing.Tuple[int, int]] = None,
                  allow_skip_mc_in_live: bool = True):
