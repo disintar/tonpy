@@ -28,7 +28,7 @@ from cytoolz import curry
 import orjson as json
 from tqdm import tqdm
 from datetime import datetime
-from typing import Callable
+from typing import Callable, List
 from threading import Thread
 from queue import Queue
 from multiprocessing import set_start_method
@@ -229,7 +229,7 @@ def load_process_blocks(blocks_chunk,
 
 
 def process_shard(x, prev_data=None, lc=None, loglevel=None, known_shards=None, stop_shards=None,
-                  parse_txs_over_ls=False):
+                  parse_txs_over_ls=False, load_only_known=False):
     if loglevel > 2:
         data = f"Process shard call: {x}" \
                f"{len(prev_data) if prev_data is not None else ''}, " \
@@ -300,13 +300,13 @@ def process_shard(x, prev_data=None, lc=None, loglevel=None, known_shards=None, 
                                          right.seq_no),
                                  root_hash=int(right.root_hash, 2), file_hash=int(right.file_hash, 2))
 
-        if left_shard.id not in known_shards and block_id.id not in stop_shards:
+        if not load_only_known and left_shard.id not in known_shards and block_id.id not in stop_shards:
             prev_data = [
                 *process_shard(left_shard, lc=lc, prev_data=[], loglevel=loglevel, known_shards=known_shards,
                                stop_shards=stop_shards,
                                parse_txs_over_ls=parse_txs_over_ls), *prev_data]
 
-        if right_shard.id not in known_shards and block_id.id not in stop_shards:
+        if not load_only_known and right_shard.id not in known_shards and block_id.id not in stop_shards:
             prev_data = [
                 *process_shard(right_shard, lc=lc, prev_data=[], loglevel=loglevel, known_shards=known_shards,
                                stop_shards=stop_shards,
@@ -322,7 +322,7 @@ def process_shard(x, prev_data=None, lc=None, loglevel=None, known_shards=None, 
             left_shard = BlockIdExt(BlockId(x.workchain, x.shard, prev.seq_no),
                                     root_hash=int(prev.root_hash, 2), file_hash=int(prev.file_hash, 2))
 
-        if left_shard.id not in known_shards and block_id.id not in stop_shards:
+        if not load_only_known and left_shard.id not in known_shards and block_id.id not in stop_shards:
             prev_data = [
                 *process_shard(left_shard, lc=lc, prev_data=[], loglevel=loglevel, known_shards=known_shards,
                                stop_shards=stop_shards,
@@ -352,7 +352,8 @@ def load_process_shard_chunk(shards_chunk,
                              stop_shards,
                              lcparams,
                              loglevel,
-                             parse_txs_over_ls=False):
+                             parse_txs_over_ls=False,
+                             load_only_known=False):
     thread_id, shards_chunk = shards_chunk
 
     if loglevel > 1:
@@ -377,7 +378,7 @@ def load_process_shard_chunk(shards_chunk,
                 answer.extend(
                     process_shard(shard, lc=lc, loglevel=loglevel,
                                   known_shards=known_shards, stop_shards=stop_shards,
-                                  parse_txs_over_ls=parse_txs_over_ls))
+                                  parse_txs_over_ls=parse_txs_over_ls, load_only_known=load_only_known))
 
                 if loglevel > 3:
                     logger.debug(f"Done process shard: {shard} at {time() - start}")
@@ -496,7 +497,8 @@ class BlockScanner(Thread):
                  emulate_before_output: bool = None,
                  live_load_enable: bool = False,
                  load_chunks: typing.List[typing.Tuple[int, int]] = None,
-                 allow_skip_mc_in_live: bool = True):
+                 allow_skip_mc_in_live: bool = True,
+                 blocks_to_load: List[BlockIdExt] = None):
         """
 
         :param lcparams: Params for LiteClient
@@ -522,6 +524,22 @@ class BlockScanner(Thread):
         except RuntimeError:
             logger.warning(f"Multiprocess context already set(?)")
 
+        self.load_specific = False
+        self.mc_to_load = []
+        self.shards_to_load = []
+
+        if blocks_to_load is not None:
+            if start_from is not None or load_to is not None:
+                raise ValueError(f"blocks_to_load and start_from/load_to is not compatible")
+
+            self.load_specific = True
+
+            for block in blocks_to_load:
+                if block.id.workchain == -1:
+                    self.mc_to_load.append(block.id.seqno)
+                else:
+                    self.shards_to_load.append(block)
+
         self.only_mc_blocks = only_mc_blocks
         self.lcparams = json.dumps(lcparams)
         lcparams['logprefix'] = f'main'
@@ -536,7 +554,7 @@ class BlockScanner(Thread):
             self.start_from = self.load_chunks[0][0]
             load_to = self.load_chunks[0][1]
             self.load_chunks = self.load_chunks[1:]
-        elif self.start_from is None:
+        elif self.start_from is None and not self.load_specific:
             raise ValueError("Provide start_from or load_chunks")
 
         self.live_load_enable = live_load_enable
@@ -547,7 +565,7 @@ class BlockScanner(Thread):
             if self.live_load_enable:
                 logger.info("Live load and load_to enabled (?)")
         else:
-            if not self.live_load_enable:
+            if not self.live_load_enable and not self.load_specific:
                 raise ValueError(f"Provide load_to or live_load_enable")
 
             self.load_to = self.lc.get_masterchain_info_ext().last.id.seqno
@@ -591,8 +609,19 @@ class BlockScanner(Thread):
         return list_, p
 
     def load_mcs(self, from_, to_):
+        if from_ is None and not self.load_specific:
+            raise ValueError(f"self.load_specific must be True")
+
+        if self.load_specific and len(self.mc_to_load) == 0:
+            return []
+
         mc_data = []
-        blocks_ids = list(range(from_, to_))
+
+        if not self.load_specific:
+            blocks_ids = list(range(from_, to_))
+        else:
+            blocks_ids = self.mc_to_load
+
         mc_seqnos_chunks, p = self.detect_cs_p(blocks_ids)
 
         with get_context("spawn").Pool(p) as pool:
@@ -617,6 +646,13 @@ class BlockScanner(Thread):
 
     def load_process_shard(self, known_shards, stop_shards):
         shards_data = []
+
+        if self.load_specific:
+            if len(self.shards_to_load) == 0:
+                return []
+
+            known_shards = self.shards_to_load
+
         known_shards_chunks, p = self.detect_cs_p(list(known_shards))
 
         if self.loglevel > 2:
@@ -625,7 +661,8 @@ class BlockScanner(Thread):
         with get_context("spawn").Pool(p) as pool:
             results = pool.imap_unordered(
                 load_process_shard_chunk(known_shards=known_shards, stop_shards=stop_shards, lcparams=self.lcparams,
-                                         loglevel=self.loglevel, parse_txs_over_ls=self.parse_txs_over_ls),
+                                         loglevel=self.loglevel, parse_txs_over_ls=self.parse_txs_over_ls,
+                                         load_only_known=self.load_specific),
                 enumerate(known_shards_chunks))
 
             if self.loglevel > 1:
@@ -673,10 +710,11 @@ class BlockScanner(Thread):
 
             to_load_masters = []
 
-            last_mc = min(known_mcs.keys())
+            if len(known_mcs.keys()) > 0:
+                last_mc = min(known_mcs.keys())
 
-            for i in range(last_mc - 16, last_mc):
-                to_load_masters.append(i)
+                for i in range(last_mc - 16, last_mc):
+                    to_load_masters.append(i)
 
             for s in shards_data:
                 for i in range(s['master'] - 15, s['master'] + 1):
@@ -770,7 +808,7 @@ class BlockScanner(Thread):
 
             end_at = None
 
-            if start_from + self.chunk_size >= self.load_to:
+            if self.load_specific or (start_from + self.chunk_size >= self.load_to):
                 end_at = self.load_to
 
                 if self.loglevel > 1:
@@ -783,9 +821,12 @@ class BlockScanner(Thread):
                     logger.debug(
                         f"End load LAST master chunk from seqno: {start_from} to {end_at} at {time() - mc_start_at}")
 
-                stop_shards = self.lc.get_all_shards_info(
-                    self.lc.lookup_block(BlockId(-1, 0x8000000000000000, start_from - 1)).blk_id
-                )
+                if not self.load_specific:
+                    stop_shards = self.lc.get_all_shards_info(
+                        self.lc.lookup_block(BlockId(-1, 0x8000000000000000, start_from - 1)).blk_id
+                    )
+                else:
+                    stop_shards = []
             else:
                 end_at = start_from + self.chunk_size
 
@@ -812,8 +853,9 @@ class BlockScanner(Thread):
 
             known_shards = []
 
-            for i in mc_hashes:
-                known_shards.extend(i['shards'])
+            if not self.load_specific:
+                for i in mc_hashes:
+                    known_shards.extend(i['shards'])
 
             known_shards = set(known_shards)
             mc_end_at = time() - mc_start_at
@@ -891,8 +933,8 @@ class BlockScanner(Thread):
                 logger.debug(f"End download and process transactions at: {process_block_end_at}")
 
             if self.loglevel > 0:
-                gen_utimes = [datetime.fromtimestamp(i['gen_utime']) for i in mc_data]
-                seqnos = [i['block_id'].id.seqno for i in mc_data]
+                gen_utimes = [datetime.fromtimestamp(i['gen_utime']) for i in mc_data + shards_data]
+                seqnos = [i['block_id'].id.seqno for i in mc_data + shards_data]
 
                 start_block_gen_utime = min(gen_utimes)
                 end_block_gen_utime = max(gen_utimes)
