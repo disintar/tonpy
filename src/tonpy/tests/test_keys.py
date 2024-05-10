@@ -69,3 +69,4 @@ def test_signature_cell():
     signature = key.sign(data)
 
     assert pub.verify_signature(data, signature)
+
