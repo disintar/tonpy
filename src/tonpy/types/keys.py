@@ -55,7 +55,7 @@ class PrivateKey:
         if isinstance(data, str):
             data = bytes.fromhex(data)
 
-        return self.key.sign(data)[:128]
+        return self.key.sign(data)[:64]
 
 
 class Mnemonic:
