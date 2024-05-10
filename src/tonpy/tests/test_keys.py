@@ -47,7 +47,7 @@ def test_public_key_v2():
 
 
 def test_signature():
-    key = PrivateKey()
+    key = PrivateKey('4B8A8882B9F0E542A47CA297F87447CCB69106917CF36B4505D5C6C3D3BDC0AF')
     key2 = PrivateKey('8A9184CC9D0A26F846BB85A1178425C0EB4BB5C489E8C8A9436960CCAF93C271')
     data = "lolkek".encode()
 
