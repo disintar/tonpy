@@ -199,8 +199,8 @@ class RRLiteClient:
 
         server = self.servers[self.current]
 
-        if self.loglevel > 2:
-            logger.debug(f"[{self.logprefix}] New server: {server}")
+        if self.loglevel > 200:
+            logger.debug(f"[{self.logprefix}] New server: {server['ip']}:{server['port']}")
 
         host = server['ip']
         port = server['port']

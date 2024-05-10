@@ -44,3 +44,28 @@ def test_public_key():
 def test_public_key_v2():
     key = PublicKey('5F0A08B035F60A0A13BC38D033EBE5B808FAD0DAF954E3305CE4438E7FBC9548')
     assert key.to_hex() == '5F0A08B035F60A0A13BC38D033EBE5B808FAD0DAF954E3305CE4438E7FBC9548'
+
+
+def test_signature():
+    key = PrivateKey()
+    key2 = PrivateKey('8A9184CC9D0A26F846BB85A1178425C0EB4BB5C489E8C8A9436960CCAF93C271')
+    data = "lolkek".encode()
+
+    pub = key.get_public_key()
+    signature = key.sign(data)
+    signature2 = key2.sign(data)
+
+    assert pub.verify_signature(data, signature)
+    assert not pub.verify_signature(data, signature2, False)
+
+
+def test_signature_cell():
+    from tonpy import CellBuilder
+
+    key = PrivateKey('8A9184CC9D0A26F846BB85A1178425C0EB4BB5C489E8C8A9436960CCAF93C271')
+    data = CellBuilder().store_uint(0, 32).end_cell().get_hash()
+
+    pub = key.get_public_key()
+    signature = key.sign(data)
+
+    assert pub.verify_signature(data, signature)

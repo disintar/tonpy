@@ -1,7 +1,6 @@
 from tonpy.libs.python_ton import PyMnemonic, create_new_mnemo, PyPrivateKey, PyPublicKey
 from tonpy.libs.python_ton import get_bip39_words as c_get_bip39_words
-from typing import List
-
+from typing import List, Union
 
 def get_bip39_words():
     return c_get_bip39_words()
@@ -19,6 +18,17 @@ class PublicKey:
     def to_hex(self):
         return self.key.get_public_key_hex().zfill(64)
 
+    def verify_signature(self, data: bytes, signature: bytes, raise_on_error=True) -> bool:
+        if isinstance(data, str):
+            data = bytes.fromhex(data)
+
+        result, err_msg = self.key.verify_signature(data, signature)
+
+        if not result and raise_on_error:
+            raise ValueError(err_msg)
+
+        return result
+
 
 class PrivateKey:
     def __init__(self, private_key_hex: str = None, key: PyPrivateKey = None):
@@ -35,6 +45,17 @@ class PrivateKey:
 
     def get_public_key(self) -> PublicKey:
         return PublicKey(key=self.key.get_public_key())
+
+    def sign(self, data: Union[bytes, str]) -> bytes:
+        """
+
+        :param data: bytes or hexstring
+        :return: bytes signature
+        """
+        if isinstance(data, str):
+            data = bytes.fromhex(data)
+
+        return self.key.sign(data)
 
 
 class Mnemonic:
