@@ -49,10 +49,14 @@ jobs:
           python -m pip install -r built_requirements.txt
           python -m pip install -r requirements.txt
 
+      - name: Install deps linux
+        run: |
+          sudo apt update
+          sudo apt install -y curl
+        if: matrix.os == 'kuber'
+
       - name: Download prebuilt
         run: |
-          sudo apt update -y
-          sudo apt install -y curl
           curl -Lo ./src/tonpy/libs/${{ matrix.file }} ${{ matrix.link }}${{ matrix.file }}
 
       - name: Run tests
