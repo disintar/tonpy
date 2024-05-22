@@ -93,7 +93,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python }}
@@ -105,10 +105,14 @@ jobs:
           python -m pip install -r built_requirements.txt
           python -m pip install -r requirements.txt
 
+      - name: Install deps linux
+        run: |
+          sudo apt update
+          sudo apt install -y curl
+        if: matrix.os == 'kuber'
+
       - name: Download prebuilt
         run: |
-          sudo apt update -y
-          sudo apt install -y curl
           curl -Lo ./src/tonpy/libs/${{ matrix.file }} ${{ matrix.link }}${{ matrix.file }}
 
       - name: Win fix manifest
@@ -155,7 +159,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install python3.9
         run: |
           /opt/homebrew/bin/brew install python@3.9
@@ -224,7 +228,7 @@ jobs:
   #      - build
   #
   #    steps:
-  #      - uses: actions/checkout@v3
+  #      - uses: actions/checkout@v4
   #
   #      - name: Save download prebuilt
   #        run: |
@@ -254,7 +258,7 @@ jobs:
       - buildMacOs39
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v3
         with:
           python-version: "3.11"
