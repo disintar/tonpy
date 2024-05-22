@@ -52,7 +52,7 @@ def test_set_get_keycs_direct():
         pass
 
 
-def test_set_get_keycs_direct():
+def test_set_get_large():
     d = VmDict(264)
 
     v1 = CellBuilder().store_uint(0, 8).store_uint(2 ** 254, 256).end_cell().begin_parse()

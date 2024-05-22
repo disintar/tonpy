@@ -82,7 +82,6 @@ def test_load_uint():
         cb.store_uint(random_int_neg, bits)
 
         cs = CellSlice(cb.to_boc())
-        print("\n\nWTF: ", cs.to_bitstring())
 
         assert cs.load_uint(bits) == min_int
 

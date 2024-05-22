@@ -1,4 +1,5 @@
 from tonpy.libs.python_ton import func_string_to_asm, func_to_asm
+from tonpy.fift.fift import convert_assembler
 
 
 def func_to_assembler(sources: list[str],
