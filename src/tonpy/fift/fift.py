@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 
 from tonpy import Cell
-from tonpy.libs.python_ton import PyFift, func_string_to_asm, func_to_asm
+from tonpy.libs.python_ton import PyFift
 from tonpy.types import Stack
 
 libs_root = Path(__file__).parents[0]
@@ -48,26 +48,3 @@ def convert_assembler(assembler_code: str) -> Cell:
     f.run(assembler_code)
     return f.last()
 
-
-def func_to_assembler(sources: list[str], 
-                      preamble: bool = False, 
-                      indent: int = 0, 
-                      verbosity: bool = False, 
-                      optimization: int = 2, 
-                      envelope: bool = True, 
-                      stack_comments: bool = False, 
-                      op_comments: bool = False) -> str:
-    result = func_to_asm(sources, preamble, indent, verbosity, optimization, envelope, stack_comments, op_comments)
-    return result
-
-
-def func_string_to_assembler(source: str, 
-                      preamble: bool = False, 
-                      indent: int = 0, 
-                      verbosity: bool = False, 
-                      optimization: int = 2, 
-                      envelope: bool = True, 
-                      stack_comments: bool = False, 
-                      op_comments: bool = False) -> str:
-    result = func_string_to_asm(source, preamble, indent, verbosity, optimization, envelope, stack_comments, op_comments)
-    return result

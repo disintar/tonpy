@@ -3,8 +3,8 @@
 import os
 
 from tonpy.fift import Fift
-from tonpy.fift.fift import (convert_assembler, func_string_to_assembler,
-                             func_to_assembler)
+from tonpy.fift.fift import convert_assembler
+from tonpy.func.func import *
 from tonpy.types.stack import StackEntry
 
 
@@ -50,8 +50,7 @@ def test_func_to_asm():
                         'test-nft-item/nft-item.fc']
     sources = [os.path.join(script_dir, rel_path) for rel_path in relative_sources]
 
-    asm = func_to_assembler(sources, preamble=True, stack_comments=True, envelope=True)
-    cell = convert_assembler(asm)
+    cell = func_to_assembler(sources, preamble=True, stack_comments=True, envelope=True)
     assert cell.get_hash() == "BA4D975D2B66231C1F0A0CCCA6E8FF8F7BA0610C4B7639584B8E98303DC3128C"
 
 
@@ -73,6 +72,5 @@ def test_func_string_to_asm():
                 throw_unless(104, sdeq(s, "abacaba"));
             }
             """
-    asm = func_string_to_assembler(string)
-    cell = convert_assembler(asm)
+    cell = func_string_to_assembler(string)
     assert cell.get_hash() == "456F78EC3453CE253D4CD43F27EF9A9811FA300448C9620B28819C919212B6EC"
