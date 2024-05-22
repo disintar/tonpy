@@ -1,7 +1,6 @@
 # Copyright (c) 2023 Disintar LLP Licensed under the Apache License Version 2.0
 
 from typing import Union, Iterable, Optional, Tuple, Callable
-import warnings
 
 from tonpy.libs.python_ton import PyDict, PyCellSlice, PyAugmentationCheckData
 
@@ -127,10 +126,6 @@ class VmDict:
         :param cell_root: Root of HashmapE, can be BOC string, CellSlice or Cell
         :return:
         """
-
-        if key_len > 256:
-            if not (key_len == 257 and signed):
-                warnings.warn("Key len larger than 256 for unsigned / 257 for signed supports only in `.map` method")
 
         self.key_len = key_len
         self.signed = signed
