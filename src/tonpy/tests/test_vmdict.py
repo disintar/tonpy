@@ -675,3 +675,6 @@ def test_large_key_map():
                                  '-1:ED2CBA0B988BDAA12C4A5F5B177E51D93B54C7CD2F91515214BB1FA04FAEF290',
                                  '-1:EF03AC917E6B763F85079F196B4146457019CABB1F262F678CA8182978C14FA2',
                                  '-1:FC3D252D2B2FD4F8964348D50DA8DE5C56C9FD39126A4BDDCBE8344CF476ECA1']
+
+if __name__ == '__main__':
+    test_vm_dict_large()
