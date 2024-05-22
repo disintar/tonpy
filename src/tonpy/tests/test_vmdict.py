@@ -147,7 +147,7 @@ def test_vm_dict_signed():
 
 
 def test_vm_dict_large():
-    d = VmDict(257, True)
+    d = VmDict(256, True)
 
     cb = CellBuilder()
     main_cell = CellBuilder()

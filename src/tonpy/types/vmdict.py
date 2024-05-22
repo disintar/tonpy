@@ -276,7 +276,7 @@ class VmDict:
             signed = self._process_sgnd(key, signed)
 
             if (self.signed and self.key_len > 256) or self.key_len > 257:
-                key = CellBuilder().store_bitstring(bin(key)[2:]).end_cell().begin_parse()
+                key = CellBuilder().store_bitstring(bin(key)[2:].zfill(self.key_len)).end_cell().begin_parse()
 
         if isinstance(key, CellSlice):
             return self.set_keycs(key, value, mode)
@@ -309,7 +309,7 @@ class VmDict:
             signed = self._process_sgnd(key, signed)
 
             if (self.signed and self.key_len > 256) or self.key_len > 257:
-                key = CellBuilder().store_bitstring(bin(key)[2:]).end_cell().begin_parse()
+                key = CellBuilder().store_bitstring(bin(key)[2:].zfill(self.key_len)).end_cell().begin_parse()
 
         if isinstance(key, CellSlice):
             return self.set_ref_keycs(key, value, mode)
@@ -343,7 +343,7 @@ class VmDict:
             signed = self._process_sgnd(key, signed)
 
             if (self.signed and self.key_len > 256) or self.key_len > 257:
-                key = CellBuilder().store_bitstring(bin(key)[2:]).end_cell().begin_parse()
+                key = CellBuilder().store_bitstring(bin(key)[2:].zfill(self.key_len)).end_cell().begin_parse()
 
         if isinstance(key, CellSlice):
             return self.set_builder_keycs(key, value, mode)
@@ -374,7 +374,7 @@ class VmDict:
             signed = self._process_sgnd(key, signed)
 
             if (self.signed and self.key_len > 256) or self.key_len > 257:
-                key = CellBuilder().store_bitstring(bin(key)[2:]).end_cell().begin_parse()
+                key = CellBuilder().store_bitstring(bin(key)[2:].zfill(self.key_len)).end_cell().begin_parse()
 
         if isinstance(key, CellSlice):
             return self.lookup_keycs(key)
@@ -405,7 +405,7 @@ class VmDict:
             signed = self._process_sgnd(key, signed)
 
             if (self.signed and self.key_len > 256) or self.key_len > 257:
-                key = CellBuilder().store_bitstring(bin(key)[2:]).end_cell().begin_parse()
+                key = CellBuilder().store_bitstring(bin(key)[2:].zfill(self.key_len)).end_cell().begin_parse()
 
         if isinstance(key, CellSlice):
             return self.lookup_delete_keycs(key)
@@ -432,7 +432,7 @@ class VmDict:
             signed = self._process_sgnd(key, signed)
 
             if (self.signed and self.key_len > 256) or self.key_len > 257:
-                key = CellBuilder().store_bitstring(bin(key)[2:]).end_cell().begin_parse()
+                key = CellBuilder().store_bitstring(bin(key)[2:].zfill(self.key_len)).end_cell().begin_parse()
 
         if isinstance(key, CellSlice):
             return self.lookup_ref_keycs(key)
@@ -456,7 +456,7 @@ class VmDict:
             signed = self._process_sgnd(key, signed)
 
             if (self.signed and self.key_len > 256) or self.key_len > 257:
-                key = CellBuilder().store_bitstring(bin(key)[2:]).end_cell().begin_parse()
+                key = CellBuilder().store_bitstring(bin(key)[2:].zfill(self.key_len)).end_cell().begin_parse()
 
         if isinstance(key, CellSlice):
             return self.lookup_delete_ref_keycs(key)

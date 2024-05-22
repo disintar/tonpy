@@ -45,7 +45,7 @@ Development setup (compile from sources)
 If you want to setup ``tonpy`` package for local development (including C++ code) you need to:
 
 1. Download Disintar TON monorepo fork:
-    ``git clone --recurse-submodules https://github.com/disintar/ton``
+    ``git clone --recurse-submodules -j8 https://github.com/disintar/ton``
 
 2. Compile ``python_ton`` target with ``cmake``:
     .. code-block:: console
@@ -57,7 +57,7 @@ If you want to setup ``tonpy`` package for local development (including C++ code
           -DPYTHON_LIBRARY=$(python3 -c "import distutils.sysconfig as sysconfig; print(sysconfig.get_config_var('LIBDIR'))") \
          -DPYTHON_EXECUTABLE=$(which python3)
 
-        cmake --build . --target python_ton
+        cmake --build . -j 8 --target python_ton
 
     Optionally add path to openssl ``-DOPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl@3``
 
