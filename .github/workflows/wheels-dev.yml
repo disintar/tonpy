@@ -27,6 +27,13 @@ jobs:
             file: python_ton.cpython-39-x86_64-linux-gnu.so
             fix_tag: manylinux2014_x86_64
 
+          - arch: aarch64
+            os: macOS
+            python: "3.10"
+            link: https://github.com/disintar/ton/releases/download/ton-cpython-310-aarch64-darwin/
+            file: python_ton.cpython-310-darwin.so
+            fix_tag: arm64
+
     runs-on: ${{ matrix.os }}
 
     steps:
