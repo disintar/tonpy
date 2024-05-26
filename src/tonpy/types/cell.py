@@ -30,6 +30,11 @@ class Cell:
 
         return self.cell.get_hash()
 
+    def get_depth(self) -> int:
+        """Get cell depth"""
+
+        return self.cell.get_depth()
+
     def begin_parse(self, allow_special=True) -> CellSlice:
         """Convert cell to CellSlice"""
 
