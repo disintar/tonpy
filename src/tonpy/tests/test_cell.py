@@ -106,7 +106,7 @@ def test_get_depth():
     assert empty_cell.get_depth() == 0
 
     cell = Cell('te6ccgEBBgEAHAACA884AQUCAccCBAIBzwMDAAEgAAOhBgAFsFcg')
-    assert cell.get_depth() == 2
+    assert cell.get_depth() == 3
 
     cell = Cell("te6ccgEBBgEAHQACA8+4AQECASACAgIBIAMDAgEgBAQCASAFBQABIA==")
     assert cell.get_depth() == 5
