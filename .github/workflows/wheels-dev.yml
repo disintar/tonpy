@@ -34,6 +34,13 @@ jobs:
             file: python_ton.cpython-310-darwin.so
             fix_tag: arm64
 
+          - arch: x86_64
+            os: kuber
+            python: "3.10"
+            link: https://github.com/disintar/ton/releases/download/ton-cpython-310-x86_64-linux/
+            file: python_ton.cpython-310-x86_64-linux-gnu.so
+            fix_tag: manylinux2014_x86_64
+
     runs-on: ${{ matrix.os }}
 
     steps:
