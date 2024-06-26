@@ -72,7 +72,7 @@ jobs:
 
       - name: Build wheel
         run: |
-          python -m build --no-isolation --wheel --outdir dist/ .
+          python -m build --wheel --outdir dist/ .
           python fix_whl_name.py
         env:
           TAG_FIX: ${{ matrix.fix_tag }}
