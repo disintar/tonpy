@@ -5,3 +5,4 @@ orjson
 tqdm
 requests
 cytoolz
+setuptools==68.0.0
