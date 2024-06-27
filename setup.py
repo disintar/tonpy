@@ -61,3 +61,4 @@ setup(
     cmdclass={'bdist_wheel': bdist_wheel},
     include_package_data=True
 )
+
