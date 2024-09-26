@@ -47,8 +47,8 @@ class C7:
             self.address = begin_cell().end_cell()
         else:
             self.address = begin_cell().store_bitstring("100") \
-                .store_int(address['workchain'], 8) \
-                .store_uint(int(address['address'], 16), 256)
+                .store_int(address.wc, 8) \
+                .store_uint(int(address.address, 16), 256)
         self.global_config = global_config
 
     def to_data(self):
