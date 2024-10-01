@@ -96,10 +96,19 @@ jobs:
           python-version: "3.10"
         env:
           USER: tvorogme
+
+      - name: Merge coverage
+        uses: actions/upload-artifact/merge@v4
+        if: always()
+        with:
+          name: python-package-distributions-${{ github.run_id }}
+          pattern: python-package-distributions-${{ github.run_id }}-*
+          delete-merged: true
+
       - name: Download all the dists
         uses: actions/download-artifact@v4
         with:
-          name: python-package-distributions-${{ github.run_id }}-*
+          name: python-package-distributions-${{ github.run_id }}
           path: dist/
 
       - name: Install deps
