@@ -78,7 +78,7 @@ jobs:
           TAG_FIX: ${{ matrix.fix_tag }}
           DEV_PYPI: true
       - name: Store the binary wheel
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: python-package-distributions
           path: dist
