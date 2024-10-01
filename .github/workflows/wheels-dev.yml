@@ -21,7 +21,7 @@ jobs:
       matrix:
         include:
           - arch: x86_64
-            os: kuber
+            os: Linux
             python: "3.12"
             link: https://github.com/disintar/ton/releases/download/ton-cpython-312-x86_64-linux/
             file: python_ton.cpython-312-x86_64-linux-gnu.so
@@ -35,7 +35,7 @@ jobs:
             fix_tag: arm64
 
           - arch: x86_64
-            os: kuber
+            os: Linux
             python: "3.10"
             link: https://github.com/disintar/ton/releases/download/ton-cpython-310-x86_64-linux/
             file: python_ton.cpython-310-x86_64-linux-gnu.so
