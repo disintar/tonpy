@@ -85,7 +85,7 @@ jobs:
 
   deploy:
     name: Publish DEV 🐍📦 to PyPI
-    runs-on: kuber
+    runs-on: Linux
     needs:
       - build
 
