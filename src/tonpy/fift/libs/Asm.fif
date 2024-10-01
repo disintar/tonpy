@@ -2,7 +2,7 @@ library TVM_Asm
 // simple TVM Assembler
 namespace Asm
 Asm definitions
-"0.4.4" constant asm-fif-version
+"0.4.5" constant asm-fif-version
 
 variable @atend
 variable @was-split
@@ -184,7 +184,7 @@ x{6E} @Defop ISNULL
 x{6F0} @Defop(4u) TUPLE
 x{6F00} @Defop NIL
 x{6F01} @Defop SINGLE
-x{6F02} dup @Defop PAIR @Defop CONS 
+x{6F02} dup @Defop PAIR @Defop CONS
 x{6F03} @Defop TRIPLE
 x{6F1} @Defop(4u) INDEX
 x{6F10} dup @Defop FIRST @Defop CAR
@@ -251,7 +251,7 @@ x{7F} @Defop TRUE
     { dup 16 fits
       { <b x{81} s, swap 16 i, }
       { 11 { dup 259 > abort"integer too large" 8 + 2dup fits } until
-        <b x{82} s, over 3 >> 2- 5 u, -rot i, 
+        <b x{82} s, over 3 >> 2- 5 u, -rot i,
       } cond
     } cond
   } cond
@@ -461,19 +461,109 @@ x{B7A3} @Defop QNEGATE
 x{B7A4} @Defop QINC
 x{B7A5} @Defop QDEC
 x{B7A8} @Defop QMUL
+
 x{B7A904} @Defop QDIV
 x{B7A905} @Defop QDIVR
 x{B7A906} @Defop QDIVC
 x{B7A908} @Defop QMOD
+x{B7A909} @Defop QMODR
+x{B7A90A} @Defop QMODC
 x{B7A90C} @Defop QDIVMOD
 x{B7A90D} @Defop QDIVMODR
 x{B7A90E} @Defop QDIVMODC
 x{B7A900} @Defop QADDDIVMOD
 x{B7A901} @Defop QADDDIVMODR
 x{B7A902} @Defop QADDDIVMODC
+
+x{B7A925} @Defop QRSHIFTR
+x{B7A926} @Defop QRSHIFTC
+x{B7A928} @Defop QMODPOW2
+x{B7A929} @Defop QMODPOW2R
+x{B7A92A} @Defop QMODPOW2C
+x{B7A92C} @Defop QRSHIFTMOD
+x{B7A92D} @Defop QRSHIFTMODR
+x{B7A92E} @Defop QRSHIFTMODC
+x{B7A920} @Defop QADDRSHIFTMOD
+x{B7A921} @Defop QADDRSHIFTMODR
+x{B7A922} @Defop QADDRSHIFTMODC
+
+x{B7A935} @Defop(8u+1) QRSHIFTR#
+x{B7A936} @Defop(8u+1) QRSHIFTC#
+x{B7A938} @Defop(8u+1) QMODPOW2#
+x{B7A939} @Defop(8u+1) QMODPOW2R#
+x{B7A93A} @Defop(8u+1) QMODPOW2C#
+x{B7A93C} @Defop(8u+1) QRSHIFT#MOD
+x{B7A93D} @Defop(8u+1) QRSHIFTR#MOD
+x{B7A93E} @Defop(8u+1) QRSHIFTC#MOD
+x{B7A930} @Defop(8u+1) QADDRSHIFT#MOD
+x{B7A931} @Defop(8u+1) QADDRSHIFTR#MOD
+x{B7A932} @Defop(8u+1) QADDRSHIFTC#MOD
+
+x{B7A984} @Defop QMULDIV
 x{B7A985} @Defop QMULDIVR
+x{B7A986} @Defop QMULDIVC
+x{B7A988} @Defop QMULMOD
+x{B7A989} @Defop QMULMODR
+x{B7A98A} @Defop QMULMODC
 x{B7A98C} @Defop QMULDIVMOD
-x{B7A980} @Defop QADDMULDIVMOD
+x{B7A98D} @Defop QMULDIVMODR
+x{B7A98E} @Defop QMULDIVMODC
+x{B7A980} @Defop QMULADDDIVMOD
+x{B7A981} @Defop QMULADDDIVMODR
+x{B7A982} @Defop QMULADDDIVMODC
+
+x{B7A9A4} @Defop QMULRSHIFT
+x{B7A9A5} @Defop QMULRSHIFTR
+x{B7A9A6} @Defop QMULRSHIFTC
+x{B7A9A8} @Defop QMULMODPOW2
+x{B7A9A9} @Defop QMULMODPOW2R
+x{B7A9AA} @Defop QMULMODPOW2C
+x{B7A9AC} @Defop QMULRSHIFTMOD
+x{B7A9AD} @Defop QMULRSHIFTRMOD
+x{B7A9AE} @Defop QMULRSHIFTCMOD
+x{B7A9A0} @Defop QMULADDRSHIFTMOD
+x{B7A9A1} @Defop QMULADDRSHIFTRMOD
+x{B7A9A2} @Defop QMULADDRSHIFTCMOD
+
+x{B7A9B4} @Defop(8u+1) QMULRSHIFT#
+x{B7A9B5} @Defop(8u+1) QMULRSHIFTR#
+x{B7A9B6} @Defop(8u+1) QMULRSHIFTC#
+x{B7A9B8} @Defop(8u+1) QMULMODPOW2#
+x{B7A9B9} @Defop(8u+1) QMULMODPOW2R#
+x{B7A9BA} @Defop(8u+1) QMULMODPOW2C#
+x{B7A9BC} @Defop(8u+1) QMULRSHIFT#MOD
+x{B7A9BD} @Defop(8u+1) QMULRSHIFTR#MOD
+x{B7A9BE} @Defop(8u+1) QMULRSHIFTC#MOD
+x{B7A9B0} @Defop(8u+1) QMULADDRSHIFT#MOD
+x{B7A9B1} @Defop(8u+1) QMULADDRSHIFTR#MOD
+x{B7A9B2} @Defop(8u+1) QMULADDRSHIFTC#MOD
+
+x{B7A9C4} @Defop QLSHIFTDIV
+x{B7A9C5} @Defop QLSHIFTDIVR
+x{B7A9C6} @Defop QLSHIFTDIVC
+x{B7A9C8} @Defop QLSHIFTMOD
+x{B7A9C9} @Defop QLSHIFTMODR
+x{B7A9CA} @Defop QLSHIFTMODC
+x{B7A9CC} @Defop QLSHIFTDIVMOD
+x{B7A9CD} @Defop QLSHIFTDIVMODR
+x{B7A9CE} @Defop QLSHIFTDIVMODC
+x{B7A9C0} @Defop QLSHIFTADDDIVMOD
+x{B7A9C1} @Defop QLSHIFTADDDIVMODR
+x{B7A9C2} @Defop QLSHIFTADDDIVMODC
+
+x{B7A9D4} @Defop(8u+1) QLSHIFT#DIV
+x{B7A9D5} @Defop(8u+1) QLSHIFT#DIVR
+x{B7A9D6} @Defop(8u+1) QLSHIFT#DIVC
+x{B7A9D8} @Defop(8u+1) QLSHIFT#MOD
+x{B7A9D9} @Defop(8u+1) QLSHIFT#MODR
+x{B7A9DA} @Defop(8u+1) QLSHIFT#MODC
+x{B7A9DC} @Defop(8u+1) QLSHIFT#DIVMOD
+x{B7A9DD} @Defop(8u+1) QLSHIFT#DIVMODR
+x{B7A9DE} @Defop(8u+1) QLSHIFT#DIVMODC
+x{B7A9D0} @Defop(8u+1) QLSHIFT#ADDDIVMOD
+x{B7A9D1} @Defop(8u+1) QLSHIFT#ADDDIVMODR
+x{B7A9D2} @Defop(8u+1) QLSHIFT#ADDDIVMODC
+
 x{B7AC} @Defop QLSHIFT
 x{B7AD} @Defop QRSHIFT
 x{B7AE} @Defop QPOW2
@@ -723,6 +813,12 @@ x{D761} @Defop LDONES
 x{D762} @Defop LDSAME
 x{D764} @Defop SDEPTH
 x{D765} @Defop CDEPTH
+x{D766} @Defop CLEVEL
+x{D767} @Defop CLEVELMASK
+{ <b x{D76A_} s, swap 2 u, @addopb } : CHASHI
+{ <b x{D76E_} s, swap 2 u, @addopb } : CDEPTHI
+x{D770} @Defop CHASHIX
+x{D771} @Defop CDEPTHIX
 //
 // continuation / flow control primitives
 x{D8} dup @Defop EXECUTE @Defop CALLX
@@ -810,24 +906,24 @@ recursive IFELSE-cont2 {
 { 1 { swap @normal? swap IFELSE-cont2 } does @doafter<{ } : @doifelse
 { 1 { swap @normal? IFELSE-cont2 } does @doafter<{ } : @doifnotelse
 {
-  { dup `else eq? 
+  { dup `else eq?
     { drop @doifelse }
     { dup `else: eq?
       { drop IFJMP-cont }
       { @normal? IF-cont
-      } cond 
-    } cond 
-  } @doafter<{ 
+      } cond
+    } cond
+  } @doafter<{
 } : IF:<{
 {
-  { dup `else eq? 
+  { dup `else eq?
     { drop @doifnotelse }
     { dup `else: eq?
       { drop IFNOTJMP-cont }
       { @normal? IFNOT-cont
-      } cond 
-    } cond 
-  } @doafter<{ 
+      } cond
+    } cond
+  } @doafter<{
 } : IFNOT:<{
 
 x{E304} @Defop CONDSEL
@@ -855,12 +951,12 @@ x{EB} dup @Defop AGAINEND @Defop AGAIN:
 { }> PUSHCONT UNTIL } : }>UNTIL
 { { @normal? PUSHCONT UNTIL } @doafter<{ } : UNTIL:<{
 { PUSHCONT { @normal? PUSHCONT WHILE } @doafter<{ } : @dowhile
-{ 
-  { dup `do eq? 
-    { drop @dowhile } 
-    { `do: eq? not abort"`}>DO<{` expected" PUSHCONT WHILEEND 
-    } cond 
-  } @doafter<{ 
+{
+  { dup `do eq?
+    { drop @dowhile }
+    { `do: eq? not abort"`}>DO<{` expected" PUSHCONT WHILEEND
+    } cond
+  } @doafter<{
 } : WHILE:<{
 { }> PUSHCONT AGAIN } : }>AGAIN
 { { @normal? PUSHCONT AGAIN } @doafter<{ } : AGAIN:<{
@@ -880,11 +976,11 @@ x{E31B} dup @Defop AGAINENDBRK @Defop AGAINBRK:
 { { @normal? PUSHCONT UNTILBRK } @doafter<{ } : UNTILBRK:<{
 { PUSHCONT { @normal? PUSHCONT WHILEBRK } @doafter<{ } : @dowhile
 {
-  { dup `do eq? 
-    { drop @dowhile } 
+  { dup `do eq?
+    { drop @dowhile }
     { `do: eq? not abort"`}>DO<{` expected" PUSHCONT WHILEENDBRK
-    } cond 
-  } @doafter<{ 
+    } cond
+  } @doafter<{
 } : WHILEBRK:<{
 { }> PUSHCONT AGAINBRK } : }>AGAINBRK
 { { @normal? PUSHCONT AGAINBRK } @doafter<{ } : AGAINBRK:<{
@@ -910,8 +1006,8 @@ x{ED1F} @Defop BLESSVARARGS
 { c4 PUSHCTR } : PUSHROOT
 { c4 POPCTR } : POPROOT
 x{ED6} dup @Defop(c) SETCONTCTR @Defop(c) SETCONT
-x{ED7} @Defop(c) SETRETCTR 
-x{ED8} @Defop(c) SETALTCTR 
+x{ED7} @Defop(c) SETRETCTR
+x{ED8} @Defop(c) SETALTCTR
 x{ED9} dup @Defop(c) POPSAVE @Defop(c) POPCTRSAVE
 x{EDA} dup @Defop(c) SAVE @Defop(c) SAVECTR
 x{EDB} dup @Defop(c) SAVEALT @Defop(c) SAVEALTCTR
@@ -964,7 +1060,7 @@ x{EDFB} @Defop SAMEALTSAVE
 { dup sbits
    { @addop }
    {
-    dup srefs // 
+    dup srefs //
       { ref@ CALLREF }
       { drop }
       cond
@@ -1001,9 +1097,9 @@ x{F2FF} @Defop TRY
 x{F3} @Defop(4u,4u) TRYARGS
 { `catch @endblk } : }>CATCH<{
 { PUSHCONT { @normal? PUSHCONT TRY } @doafter<{ } : @trycatch
-{ 
+{
   { `catch eq? not abort"`}>CATCH<{` expected" @trycatch
-  } @doafter<{ 
+  } @doafter<{
 } : TRY:<{
 //
 // dictionary manipulation
@@ -1153,7 +1249,7 @@ x{F4A1} @Defop DICTUGETJMP
 x{F4A2} @Defop DICTIGETEXEC
 x{F4A3} @Defop DICTUGETEXEC
 { dup sbitrefs tuck 1 > swap 1 <> or abort"not a dictionary" swap 1 u@ over <> abort"not a dictionary" } : @chkdicts
-{ dup null? tuck { <s } ifnot drop not } : @chkdict 
+{ dup null? tuck { <s } ifnot drop not } : @chkdict
 { over @chkdict
   { swap <b x{F4A6_} s, swap ref, swap 10 u, @addopb }
   { nip swap NEWDICT swap PUSHINT }
@@ -1185,7 +1281,7 @@ x{F4BF} @Defop DICTUGETEXECZ
 
 x{F800} @Defop ACCEPT
 x{F801} @Defop SETGASLIMIT
-x{F802} @Defop GASCONSUMED
+x{F807} @Defop GASCONSUMED
 x{F80F} @Defop COMMIT
 
 x{F810} @Defop RANDU256
@@ -1205,12 +1301,21 @@ x{F82A} @Defop MYCODE
 x{F82B} @Defop INCOMINGVALUE
 x{F82C} @Defop STORAGEFEES
 x{F82D} @Defop PREVBLOCKSINFOTUPLE
+x{F82E} @Defop UNPACKEDCONFIGTUPLE
+x{F82F} @Defop DUEPAYMENT
 x{F830} @Defop CONFIGDICT
 x{F832} @Defop CONFIGPARAM
 x{F833} @Defop CONFIGOPTPARAM
 x{F83400} @Defop PREVMCBLOCKS
 x{F83401} @Defop PREVKEYBLOCK
 x{F835} @Defop GLOBALID
+x{F836} @Defop GETGASFEE
+x{F837} @Defop GETSTORAGEFEE
+x{F838} @Defop GETFORWARDFEE
+x{F839} @Defop GETPRECOMPILEDGAS
+x{F83A} @Defop GETORIGINALFWDFEE
+x{F83B} @Defop GETGASFEESIMPLE
+x{F83C} @Defop GETFORWARDFEESIMPLE
 
 x{F840} @Defop GETGLOBVAR
 { dup 1 31 @rangechk <b x{F85_} s, swap 5 u, @addopb } : GETGLOB

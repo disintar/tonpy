@@ -3,7 +3,6 @@ import datetime
 import random
 import traceback
 from typing import Union, TYPE_CHECKING, Tuple, List, Optional
-from types import MethodType
 
 from loguru import logger
 from tonpy.libs.python_ton import PyLiteClient, ipv4_int_to_str, globalSetVerbosity, BlockId as ton_BlockId, \
@@ -19,6 +18,7 @@ from tonpy.types.blockid import BlockId, BlockIdExt
 from tonpy.types.vmdict import VmDict
 from time import sleep, time
 from uuid import uuid4
+import orjson
 
 from tonpy.utils.chunks import chunks
 
@@ -538,6 +538,9 @@ class LiteClient:
             pubkey = str(pubkey)
 
         return self.client.admin_AddUser(pubkey, valid_until, ratelimit)
+
+    def get_parsed_block(self, blkid: BlockId) -> dict:
+        return orjson.loads(self.client.get_ParsedBlockInfo(blkid.blockid))
 
     def admin_get_stats(self):
         return self.client.admin_getStatData()
