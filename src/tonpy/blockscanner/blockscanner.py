@@ -108,13 +108,19 @@ def process_subscriptions(data,
         raise NotImplementedError("Emulation not supported yet")
 
 
-def get_mega_libs(num_try=100):
+def get_mega_libs(dton_key, num_try=100):
     cur = 0
 
     while cur < num_try:
         try:
             query = '''query{mega_libs_cell}'''
-            response = requests.post("https://dton.io/graphql", json={'query': query})
+
+            if dton_key is not None:
+                url = f"https://dton.io/{dton_key}/graphql"
+            else:
+                url = f"https://dton.io/graphql"
+
+            response = requests.post(url, json={'query': query})
             return response.json()['data']['mega_libs_cell']
         except Exception as e:
             logger.error(f"Can't get dton.io/graphql: {e}, {tb.format_exc()}")
@@ -498,7 +504,8 @@ class BlockScanner(Thread):
                  live_load_enable: bool = False,
                  load_chunks: typing.List[typing.Tuple[int, int]] = None,
                  allow_skip_mc_in_live: bool = True,
-                 blocks_to_load: List[BlockIdExt] = None):
+                 blocks_to_load: List[BlockIdExt] = None,
+                 dton_key: str = None):
         """
 
         :param lcparams: Params for LiteClient
@@ -583,7 +590,7 @@ class BlockScanner(Thread):
         self.account_subscriptions = account_subscriptions
         self.emulate_before_output = emulate_before_output
         self.known_key_blocks = {}
-        self.mega_libs = get_mega_libs()
+        self.mega_libs = get_mega_libs(dton_key)
 
         self.process_raw = raw_process is not None
         if self.process_raw:
@@ -901,7 +908,7 @@ class BlockScanner(Thread):
                 if self.loglevel > 1:
                     logger.debug(f"Start get mega libs: {time() - key_blocks_start_at}")
 
-                mega_libs = get_mega_libs()
+                mega_libs = self.mega_libs
 
                 for i in shards_data:
                     i['libs'] = mega_libs

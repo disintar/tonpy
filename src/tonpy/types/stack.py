@@ -2,6 +2,8 @@
 
 from tonpy.libs.python_ton import PyStackEntry, PyStack, make_tuple, deserialize_stack_entry, deserialize_stack, \
     PyContinuation
+
+from tonpy.types.address import Address
 from tonpy.types import Cell, CellSlice, CellBuilder
 from typing import Union, Iterable, List
 from enum import Enum
@@ -60,6 +62,8 @@ class StackEntry:
             self.entry = StackEntry.create_tuple(value).entry
         elif isinstance(value, Continuation):
             self.entry = PyStackEntry(continuation=value)
+        elif isinstance(value, Address):
+            self.entry = PyStackEntry(cell_slice=value.to_cs().cell_slice)
         else:
             raise ValueError(f"Type {type(value)} is not supported")
 

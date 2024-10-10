@@ -7,6 +7,9 @@ from time import time
 
 import pytest
 
+from tonpy import LiteClient
+from tonpy.autogen.block import Account
+
 path_root = Path(__file__).parents[2]
 sys.path.append(str(path_root))
 
@@ -62,7 +65,7 @@ def test_set_get_large():
     d.set_ref(CellBuilder().store_uint(1, 8).store_uint(2 ** 254, 256).end_cell().begin_parse(), v2)
 
     d.set_builder(CellBuilder().store_uint(2, 8).store_uint(2 ** 254, 256).end_cell().begin_parse(),
-                        CellBuilder().store_uint(0, 8))
+                  CellBuilder().store_uint(0, 8))
 
     value = d.lookup(CellBuilder().store_uint(0, 8).store_uint(2 ** 254, 256).end_cell().begin_parse())
     assert value.get_hash() == v1.get_hash()

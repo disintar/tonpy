@@ -67,6 +67,7 @@ class Address:
         return self.my_address.shard_prefix(size)
 
     def to_cs(self) -> CellSlice:
+        from tonpy.types.cellbuilder import CellBuilder
         return CellBuilder().store_address(self).end_cell().begin_parse()
 
     def __eq__(self, other):

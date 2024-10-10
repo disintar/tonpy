@@ -8,8 +8,12 @@ from loguru import logger
 from tonpy.libs.python_ton import PyLiteClient, ipv4_int_to_str, globalSetVerbosity, BlockId as ton_BlockId, \
     BlockIdExt as ton_BlockIdExt
 
+from tonpy.types.lite_utils.constants import MASTER_SHARD
+from tonpy.types.cellbuilder import CellBuilder
+from tonpy.types.stack import Stack
 from tonpy.types.cell import Cell
 from tonpy.types.address import Address
+from tonpy.tvm.tvm import TVM, method_name_to_id
 
 from tonpy.types.keys import PublicKey
 from base64 import b64decode
@@ -73,6 +77,23 @@ class AccountStateInfo:
         self.last_trans_hash = ac.last_trans_hash
         self.gen_lt = ac.gen_lt
         self.gen_utime = ac.gen_utime
+
+    def to_shard_state(self):
+        if not self.root.is_null():
+            return CellBuilder() \
+                .store_ref(self.root) \
+                .store_uint(int(self.last_trans_hash, 16), 256) \
+                .store_uint(self.last_trans_lt, 64).end_cell()
+        else:
+            return CellBuilder() \
+                .store_ref(CellBuilder().store_uint(0, 1).end_cell()) \
+                .store_uint(int(self.last_trans_hash, 16), 256) \
+                .store_uint(self.last_trans_lt, 64) \
+                .end_cell()
+
+    def get_parsed(self):
+        from tonpy.autogen.block import Account
+        return Account().cell_unpack(self.root, rec_unpack=True)
 
 
 class BlockHdrInfo:
@@ -148,13 +169,6 @@ class RRLiteClient:
                  logprefix: str = ''):
         random.shuffle(servers)
         self.servers = servers
-
-        # for s in servers:
-        #     if self.check_server(s):
-        #         self.servers.append(s)
-        # print(len(self.servers), len(servers))
-        # print(servers)
-
         self.current = -1
         self.client: Optional[LiteClient] = None
         self.timeout = timeout
@@ -548,6 +562,52 @@ class LiteClient:
     def wait_connected(self, timeout: int):
         """Wait until connected with timeout, throw error if not connected"""
         return self.client.wait_connected(datetime.datetime.now().timestamp() + timeout)
+
+    def run_get_method(self, account: Address,
+                       method: str,
+                       stack: Union[Stack, List] = None,
+                       mc_seqno: int = None,
+                       block: BlockIdExt = None,
+                       c7=None,
+                       allow_non_success=False,
+                       gas_limit=5000000,
+                       gas_max=5000000):
+        from tonpy.tvm.c7 import C7
+
+        if stack is None:
+            stack = []
+
+        if mc_seqno is not None:
+            if block:
+                raise ValueError(f"Can't run get_method with block {block} because block {mc_seqno} is provided")
+            block = BlockId(workchain=-1, shard=MASTER_SHARD, seqno=mc_seqno)
+
+        if block is None:
+            block = self.get_masterchain_info_ext().last
+
+        account_state = self.get_account_state(account, block).get_parsed()
+
+        code = account_state.storage.state.x.code.value
+        data = account_state.storage.state.x.data.value
+
+        tvm = TVM(data=data, code=code, allow_debug=True)
+        tvm.set_gas_limit(gas_limit, gas_max)
+
+        if c7 is None:
+            config = self.get_config_all(block)
+
+            # Todo: last_mc_blocks, prev_key_block, income_extra
+            tvm.set_c7(C7(
+                time=datetime.datetime.now(),
+                balance_grams=account_state.storage.balance.grams.amount.value,
+                address=account,
+                my_code=code,
+                global_config=config[1].get_cell()
+            ))
+
+        tvm.set_stack([*stack, method_name_to_id(method)])
+
+        return tvm.run(allow_non_success=True)
 
     @staticmethod
     def get_one(timeout: int = 1, threads: int = 1) -> "LiteClient":

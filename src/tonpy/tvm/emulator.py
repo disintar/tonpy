@@ -2,7 +2,7 @@
 
 from tonpy.libs.python_ton import PyEmulator
 
-from tonpy import Stack, StackEntry
+from tonpy.types.stack import Stack, StackEntry
 from tonpy.types import VmDict, Cell, CellSlice, begin_cell
 from tonpy.types.blockid import BlockId
 from typing import Union, Tuple, List

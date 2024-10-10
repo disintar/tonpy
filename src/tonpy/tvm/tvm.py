@@ -58,7 +58,13 @@ class TVM:
     def fetch_detailed_step_info(self) -> None:
         self.vm_steps_detailed = [StepInfo(i) for i in self.tvm.get_stacks()]
         ops = self.tvm.get_ops()
-        assert len(ops) == len(self.vm_steps_detailed)
+        if len(ops) != len(self.vm_steps_detailed):
+            if len(self.vm_steps_detailed) - len(ops) == 1:
+                self.vm_steps_detailed = self.vm_steps_detailed[1:]
+            else:
+                logger.error(f"VM steps: {len(ops)} != {len(self.vm_steps_detailed)}")
+                return
+
         for i, op in enumerate(ops):
             self.vm_steps_detailed[i].next_op = op
 
@@ -112,6 +118,50 @@ class TVM:
         if self.tvm.exit_code < 0:
             return ~self.tvm.exit_code
         return self.tvm.exit_code
+
+    def exit_code_description(self):
+        exit_codes = {
+            0: {"Phase": "Compute Phase", "Description": "Standard successful execution exit code."},
+            1: {"Phase": "Compute Phase", "Description": "Alternative successful execution exit code."},
+            2: {"Phase": "Compute Phase",
+                "Description": "Stack underflow. Last op-code consumed more elements than there are on the stacks."},
+            3: {"Phase": "Compute Phase",
+                "Description": "Stack overflow. More values have been stored on a stack than allowed by this version of TVM."},
+            4: {"Phase": "Compute Phase",
+                "Description": "Integer overflow. Integer does not fit into −2^256 ≤ x < 2^256 or a division by zero has occurred."},
+            5: {"Phase": "Compute Phase", "Description": "Integer out of expected range."},
+            6: {"Phase": "Compute Phase",
+                "Description": "Invalid opcode. Instruction is unknown in the current TVM version."},
+            7: {"Phase": "Compute Phase",
+                "Description": "Type check error. An argument to a primitive is of an incorrect value type."},
+            8: {"Phase": "Compute Phase",
+                "Description": "Cell overflow. Writing to builder is not possible since after operation there would be more than 1023 bits or 4 references."},
+            9: {"Phase": "Compute Phase",
+                "Description": "Cell underflow. Read from slice primitive tried to read more bits or references than there are."},
+            10: {"Phase": "Compute Phase",
+                 "Description": "Dictionary error. Error during manipulation with dictionary (hashmaps)."},
+            11: {"Phase": "Compute Phase",
+                 "Description": "Most often caused by trying to call get-method whose id wasn't found in the code (missing method_id modifier or wrong get-method name specified when trying to call it)."},
+            12: {"Phase": "Compute Phase", "Description": "Thrown by TVM in situations deemed impossible."},
+            13: {"Phase": "Compute Phase",
+                 "Description": "Out of gas error. Thrown by TVM when the remaining gas becomes negative."},
+            32: {"Phase": "Action Phase",
+                 "Description": "Action list is invalid. Set during action phase if c5 register after execution contains unparsable object."},
+            33: {"Phase": "Action Phase", "Description": "Action list is too long."},
+            34: {"Phase": "Action Phase",
+                 "Description": "Action is invalid or not supported. Set during action phase if current action cannot be applied."},
+            35: {"Phase": "Action Phase", "Description": "Invalid Source address in outbound message."},
+            36: {"Phase": "Action Phase", "Description": "Invalid Destination address in outbound message."},
+            37: {"Phase": "Action Phase",
+                 "Description": "Not enough TON. Message sends too much TON (or there is not enough TON after deducting fees)."},
+            38: {"Phase": "Action Phase", "Description": "Not enough extra-currencies."},
+            40: {"Phase": "Action Phase",
+                 "Description": "Not enough funds to process a message. This error is thrown when there is only enough gas to cover part of the message, but does not cover it completely."},
+            43: {"Phase": "Action Phase",
+                 "Description": "The maximum number of cells in the library is exceeded or the maximum depth of the Merkle tree is exceeded."}
+        }
+
+        return exit_codes[self.exit_code]
 
     @property
     def vm_steps(self) -> int:

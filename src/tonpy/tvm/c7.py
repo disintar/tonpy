@@ -1,8 +1,12 @@
 from typing import Union, List
 
-from tonpy.types import Cell, CellSlice, Stack, begin_cell, Address
+from tonpy.types.cell import Cell
+from tonpy.types.cellslice import CellSlice
+from tonpy.types.cellbuilder import begin_cell
+from tonpy.types.address import Address
 from datetime import datetime
 from tonpy.types.blockid import BlockIdExt
+from tonpy.types.stack import Stack
 
 
 class C7:
