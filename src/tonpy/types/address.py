@@ -71,9 +71,7 @@ class Address:
         return CellBuilder().store_address(self).end_cell().begin_parse()
 
     def __eq__(self, other):
-        # TODO: made this work
-        raise NotImplementedError
-        # return self.my_address == other.my_address
+        return self.workchain == other.workchain and self.address == other.address
 
     def __getstate__(self):
         return self.serialize()
