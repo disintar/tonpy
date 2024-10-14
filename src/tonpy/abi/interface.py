@@ -1,61 +1,50 @@
-from collections import defaultdict
 from typing import List
 
-from tonpy.tvm import TVM
-from tonpy.abi.instance import ABIInterfaceInstance
+from tonpy import TVM
+from tonpy.abi.getter import ABIGetterInstance
 from loguru import logger
 
-class ABIInstance:
-    def __init__(self, abi_data):
-        self.abi_data = abi_data
 
-        self.by_code_hash = defaultdict(set)
-        self.by_get_method = defaultdict(set)
-        self.by_name = {}
+class ABIInterfaceInstance:
+    def __init__(self, instance):
+        self.instance = instance
+        self.name = self.instance["labels"]["name"]
 
-        for (i, j) in abi_data['by_name'].items():
-            self.by_name[i] = ABIInterfaceInstance(j)
+        if 'dton_parse_prefix' not in self.instance['labels']:
+            self.dton_parse_prefix = f'parsed_abi_{self.name}_'
+        else:
+            self.dton_parse_prefix = self.instance['labels']['dton_parse_prefix']
 
-        for code_hash in abi_data['by_code_hash']:
-            for name in abi_data['by_code_hash'][code_hash]:
-                self.by_code_hash[code_hash].add(self.by_name[name])
+        self.getters = []
 
-        for get_method in abi_data['by_get_method']:
-            for name in abi_data['by_get_method'][get_method]:
-                self.by_get_method[get_method].add(self.by_name[name])
+        for i in self.instance['get_methods']:
+            for getter in self.instance['get_methods'][i]:
+                self.getters.append(ABIGetterInstance(getter))
 
-    def get_columns(self):
+    def __hash__(self):
+        return hash(self.instance['labels']['name'])
+
+    def get_columns(self) -> dict:
         columns = {}
 
-        for interface in self.by_name.values():
-            columns.update(interface.get_columns())
+        for getter in self.getters:
+            tmp = getter.get_columns()
+            for c in tmp:
+                columns[f"{self.dton_parse_prefix}{c}"] = tmp[c]
 
         return columns
 
-    def abi_for_getters(self, getters: List[int]):
-        tmp = set()
-
-        for getter in getters:
-            tmp.add(self.by_get_method[getter])
-
-        return tmp
-
-    def parse_getters(self, tvm: TVM, getters: List[int] = None):
-        parsers = set()
-
-        if tvm.code_hash in self.by_code_hash:
-            for parser in self.by_code_hash[tvm.code_hash]:
-                parsers.add(parser)
-        else:
-            if getters is not None:
-                for parser in self.abi_for_getters(getters):
-                    parsers.add(parser)
-            else:
-                logger.warning("Code hash not found in ABI, provide getters for parse methods")
-
+    def parse_getters(self, tvm: TVM):
         result = {}
 
-        for parser in parsers:
-            result.update(parser.parse_getters(tvm))
+        for getter in self.getters:
+            try:
+                tmp = getter.parse_getters(tvm)
+
+                for i in tmp:
+                    result[f"{self.dton_parse_prefix}{i}"] = tmp[i]
+
+            except Exception as e:
+                logger.info(f"Can't parse {self.name}, (getter: {getter.method_name}): {e}")
 
         return result

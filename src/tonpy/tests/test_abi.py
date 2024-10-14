@@ -1,4 +1,4 @@
-from tonpy.abi.interface import ABIInstance
+from tonpy.abi.instance import ABIInstance
 import orjson as json
 from tonpy import TVM, Cell
 
