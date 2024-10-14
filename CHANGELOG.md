@@ -14,6 +14,7 @@
 - Add BlockId / BlockIdExt python native support in C++, add wrappers
 - Allow VmDict initialization from PyDict
 - Add `combine_with` in VmDict to fast combine dictionaries
+- Add [dABI](https://github.com/disintar/dABI) support
 - Add FunC string / sources support (tonpy.func.func)
 - Critical change: TLB dump - forced `dump_bin_as_hex` to true. This means if bitsting is `x % 8 == 0` then it'll be
   dumped as hex (this is most of use-cases)

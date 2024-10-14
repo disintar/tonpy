@@ -28,6 +28,7 @@ class TVM:
                          same_c3,
                          skip_c7,
                          enable_stack_dump)
+        self.code_hash = code.get_hash()
         self.vm_steps_detailed: Optional[List[StepInfo]] = None
         self.enable_stack_dump = enable_stack_dump
 
