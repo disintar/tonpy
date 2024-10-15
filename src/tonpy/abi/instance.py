@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import List
+from typing import List, Callable
 
 from tonpy.tvm import TVM
 from tonpy.abi.interface import ABIInterfaceInstance
@@ -41,11 +41,11 @@ class ABIInstance:
 
         return tmp
 
-    def get_parsers(self, tvm: TVM, getters: List[int]):
+    def get_parsers(self, code_hash: str, getters: List[int]):
         parsers = set()
 
-        if tvm.code_hash in self.by_code_hash:
-            for parser in self.by_code_hash[tvm.code_hash]:
+        if code_hash in self.by_code_hash:
+            for parser in self.by_code_hash[code_hash]:
                 parsers.add(parser)
         else:
             if getters is not None:
@@ -54,18 +54,31 @@ class ABIInstance:
                     parsers.add(parser)
                     tmp_parsers.add(parser)
 
-                self.by_code_hash[tvm.code_hash] = tmp_parsers
+                self.by_code_hash[code_hash] = tmp_parsers
             else:
                 logger.warning("Code hash not found in ABI, provide getters for parse methods")
 
         return parsers
 
     def parse_getters(self, tvm: TVM, getters: List[int] = None):
-        parsers = self.get_parsers(tvm, getters)
+        parsers = self.get_parsers(tvm.code_hash, getters)
 
         result = {}
 
         for parser in parsers:
             result.update(parser.parse_getters(tvm))
+
+        return result
+
+    def parse_getter_lazy(self, code_hash, get_tvm: Callable, getters: List[int] = None):
+        parsers = self.get_parsers(code_hash, getters)
+
+        result = {}
+
+        if len(parsers) > 0:
+            tvm = get_tvm()
+
+            for parser in parsers:
+                result.update(parser.parse_getters(tvm))
 
         return result
