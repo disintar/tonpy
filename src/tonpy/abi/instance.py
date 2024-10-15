@@ -5,6 +5,7 @@ from tonpy.tvm import TVM
 from tonpy.abi.interface import ABIInterfaceInstance
 from loguru import logger
 
+
 class ABIInstance:
     def __init__(self, abi_data):
         self.abi_data = abi_data
@@ -36,11 +37,11 @@ class ABIInstance:
         tmp = set()
 
         for getter in getters:
-            tmp.add(self.by_get_method[getter])
+            tmp.update(self.by_get_method[str(getter)])
 
         return tmp
 
-    def parse_getters(self, tvm: TVM, getters: List[int] = None):
+    def get_parsers(self, tvm: TVM, getters: List[int]):
         parsers = set()
 
         if tvm.code_hash in self.by_code_hash:
@@ -48,10 +49,19 @@ class ABIInstance:
                 parsers.add(parser)
         else:
             if getters is not None:
+                tmp_parsers = set()
                 for parser in self.abi_for_getters(getters):
                     parsers.add(parser)
+                    tmp_parsers.add(parser)
+
+                self.by_code_hash[tvm.code_hash] = tmp_parsers
             else:
                 logger.warning("Code hash not found in ABI, provide getters for parse methods")
+
+        return parsers
+
+    def parse_getters(self, tvm: TVM, getters: List[int] = None):
+        parsers = self.get_parsers(tvm, getters)
 
         result = {}
 

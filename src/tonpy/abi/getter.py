@@ -10,7 +10,8 @@ supported_types = [
     'UInt128',
     'UInt256',
     'String',
-    'Address'
+    'Address',
+    'Datetime'
 ]
 
 
@@ -50,8 +51,9 @@ class ABIGetterResultInstance:
     def get_columns(self):
         if self.dton_type == 'Address':
             return {
-                f'{self.dton_parse_prefix}{self.name}_workchain': 'UInt8',
+                f'{self.dton_parse_prefix}{self.name}_workchain': 'Int16',
                 f'{self.dton_parse_prefix}{self.name}_address': 'FixedString(64)',
+                f'{self.dton_parse_prefix}{self.name}_type': 'String',
             }
         else:
             return {f'{self.dton_parse_prefix}{self.name}': self.dton_type}
@@ -68,11 +70,18 @@ class ABIGetterResultInstance:
             return {
                 f'{self.dton_parse_prefix}{self.name}_workchain': address.workchain,
                 f'{self.dton_parse_prefix}{self.name}_address': address.address,
+                f'{self.dton_parse_prefix}{self.name}_type': address.type,
             }
         elif self.type in ['Slice', 'Cell', 'Continuation', 'Builder']:
             return {f"{self.dton_parse_prefix}{self.name}": stack_entry.get().to_boc()}
         elif self.dton_type in ['UInt8', 'UInt16', 'UInt32', 'UInt64', 'UInt128', 'UInt256']:
-            return {f"{self.dton_parse_prefix}{self.name}": stack_entry.as_int()}
+            return {
+                f"{self.dton_parse_prefix}{self.name}":
+                    stack_entry.as_uint(int(self.dton_type.replace('UInt', '')))}
+        elif self.dton_type == 'Datetime':
+            return {
+                f"{self.dton_parse_prefix}{self.name}": stack_entry.as_uint(64)
+            }
         else:
             raise ValueError(f'Unsupported ABI type {self.dton_type}')
 

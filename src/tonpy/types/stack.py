@@ -79,8 +79,27 @@ class StackEntry:
     def as_cell_slice(self):
         return CellSlice(self.entry.as_cell_slice())
 
-    def as_int(self):
-        return int(self.entry.as_int())
+    def as_int(self, int_type=None):
+        me = int(self.entry.as_int())
+
+        if int_type is None:
+            return me
+
+        if (-1 * 2 ** (int_type - 1)) <= me <= (2 ** (int_type - 1) - 1):
+            return me
+        else:
+            raise OverflowError(f"Cannot convert {me} to Int{int_type}")
+
+    def as_uint(self, uint_type=None):
+        me = int(self.entry.as_int())
+
+        if uint_type is None:
+            return me
+
+        if 0 <= me <= 2 ** uint_type - 1:
+            return me
+        else:
+            raise OverflowError(f"Cannot convert {me} to UInt{uint_type}")
 
     def as_cont(self):
         return Continuation(self.entry.as_cont())

@@ -128,6 +128,10 @@ class CellSlice:
         """
         from tonpy.types.address import Address
 
+        if self.preload_uint(2) == 0:
+            self.load_uint(2)
+            return Address()
+
         return Address(self.cell_slice)
 
     def to_bitstring(self) -> str:
