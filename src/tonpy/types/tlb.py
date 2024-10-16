@@ -7,12 +7,16 @@ from typing import Optional, List, Union, Callable
 from tonpy.types import CellSlice, CellBuilder, Cell
 
 
-def rec_dump(item, dump_bin_as_hex):
+def rec_dump(item, dump_bin_as_hex, with_types: bool = False):
     output = {}
+
+    if with_types:
+        output['type'] = str(type(item)).replace("<class 'tonpy.tlb_gen.py.Asset.Record_", "")[:-2]
+
     for name in item.field_names:
         value = getattr(item, name)
         if issubclass(type(value), RecordBase):
-            output[name] = rec_dump(value, dump_bin_as_hex=dump_bin_as_hex)
+            output[name] = rec_dump(value, dump_bin_as_hex=dump_bin_as_hex, with_types=with_types)
         else:
             if dump_bin_as_hex and isinstance(value, str) and len(value) % 8 == 0:
                 try:
@@ -109,9 +113,9 @@ class RecordBase:
         """Recursively pack TLB type to CellBuilder"""
         cb.store_slice_or_tlb(value)
 
-    def dump(self, dump_bin_as_hex=True):
+    def dump(self, dump_bin_as_hex=True, with_types=False):
         """Recursively convert TLB to dict"""
-        return rec_dump(self, dump_bin_as_hex=dump_bin_as_hex)
+        return rec_dump(self, dump_bin_as_hex=dump_bin_as_hex, with_types=with_types)
 
     def to_dict(self, rec_unpack=False, convert_cells_to_bocs=False):
         answer = {}
