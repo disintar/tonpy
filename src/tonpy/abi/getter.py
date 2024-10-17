@@ -1,3 +1,5 @@
+from traceback import format_exc
+
 from tonpy import StackEntry, add_tlb
 from tonpy.tvm import TVM
 from loguru import logger
@@ -213,6 +215,9 @@ class ABIGetterInstance:
         return tmp
 
     def parse_getters(self, tvm: TVM, tlb_sources) -> dict:
+        if self.method_args and len(self.method_args) > 0:
+            return {}
+
         tvm.set_stack([self.method_id])
         stack = tvm.run(allow_non_success=True, unpack_stack=False)
 
@@ -229,6 +234,6 @@ class ABIGetterInstance:
             try:
                 tmp.update(getter.parse_stack_item(stack_entry, tlb_sources))
             except Exception as e:
-                logger.error(f"Can't parse {getter}: {e}")
+                logger.error(f"Can't parse {getter}: {e}, {format_exc()}")
 
         return tmp
