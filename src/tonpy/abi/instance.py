@@ -80,6 +80,6 @@ class ABIInstance:
             tvm = get_tvm()
 
             for parser in parsers:
-                result.update(parser.parse_getters(tvm))
+                result.update(parser.parse_getters(tvm, self.tlb_sources))
 
         return result
