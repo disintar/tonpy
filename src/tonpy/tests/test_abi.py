@@ -65,7 +65,7 @@ def test_abi_tlb():
     assert getters == {'abi_dedust_pool_asset0_type': 'native',
                        'abi_dedust_pool_asset1_type': 'jetton',
                        'abi_dedust_pool_asset1_workchain': 0,
-                       'abi_dedust_pool_asset1_address': 80094114697736120986500270255863362917017842516456021593250675439249236565502,
+                       'abi_dedust_pool_asset1_address': 'B113A994B5024A16719F69139328EB759596C38A25F59028B146FECDC3621DFE',
                        'abi_dedust_pool_reserve0': 6638885535887014,
                        'abi_dedust_pool_reserve1': 34775678877017,
                        'abi_dedust_pool_is_stable': 0,
