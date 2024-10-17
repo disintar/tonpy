@@ -204,6 +204,9 @@ class ABIGetterInstance:
             self.dton_parse_prefix = self.labels['dton_parse_prefix']
 
     def get_columns(self):
+        if self.method_args and len(self.method_args) > 0:
+            return {}
+
         tmp = {}
 
         for getter in self.method_result:
