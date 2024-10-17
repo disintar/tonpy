@@ -34,12 +34,12 @@ class ABIInterfaceInstance:
 
         return columns
 
-    def parse_getters(self, tvm: TVM):
+    def parse_getters(self, tvm: TVM, tlb_sources):
         result = {}
 
         for getter in self.getters:
             try:
-                tmp = getter.parse_getters(tvm)
+                tmp = getter.parse_getters(tvm, tlb_sources)
 
                 for i in tmp:
                     result[f"{self.dton_parse_prefix}{i}"] = tmp[i]

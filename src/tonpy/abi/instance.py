@@ -13,6 +13,7 @@ class ABIInstance:
         self.by_code_hash = defaultdict(set)
         self.by_get_method = defaultdict(set)
         self.by_name = {}
+        self.tlb_sources = self.abi_data['tlb_sources']
 
         for (i, j) in abi_data['by_name'].items():
             self.by_name[i] = ABIInterfaceInstance(j)
@@ -66,7 +67,7 @@ class ABIInstance:
         result = {}
 
         for parser in parsers:
-            result.update(parser.parse_getters(tvm))
+            result.update(parser.parse_getters(tvm, self.tlb_sources))
 
         return result
 

@@ -23,7 +23,8 @@ def parse_tlb(tlb_text: str) -> str:
 
 
 def add_tlb(tlb_text: str,
-            imported_globals: globals):
+            imported_globals: globals,
+            debug=False):
     """
     Parse & Run generated python code, so after that you can operate with new loaded class objects
 
@@ -35,15 +36,17 @@ def add_tlb(tlb_text: str,
     constants, tlb_text = tlb_text[1], tlb_text[0]
 
     # Debug
-    tlb_text_t = tlb_text.split("\n")
-    for i, j in zip(range(len(tlb_text_t)), tlb_text_t):
-        print(i, ": ", j)
+    if debug:
+        tlb_text_t = tlb_text.split("\n")
+        for i, j in zip(range(len(tlb_text_t)), tlb_text_t):
+            print(i, ": ", j)
 
     exec(tlb_text, globals(), locals())
 
     # Write new classes to imported globals
     for i in locals()['tlb_classes']:
-        print("Found class: ", i)
+        if debug:
+            print("Found class: ", i)
         imported_globals[i] = locals()[i]
         globals()[i] = locals()[i]
 
