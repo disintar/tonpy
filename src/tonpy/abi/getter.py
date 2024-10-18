@@ -159,7 +159,7 @@ class ABIGetterResultInstance:
                                     old = old.get(item, None)
                         if old is not None:
                             if dtype == 'FixedString(64)':
-                                old = hex(old).upper()[2:]
+                                old = hex(old).upper()[2:].zfill(64)
 
                             tmp[f'{self.dton_parse_prefix}{self.name}_{name}'] = old
 
