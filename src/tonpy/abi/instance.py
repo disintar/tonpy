@@ -26,7 +26,7 @@ class ABIInstance:
             for name in abi_data['by_get_method'][get_method]:
                 self.by_get_method[get_method].add(self.by_name[name])
 
-    def get_columns(self):
+    def get_columns(self) -> dict:
         columns = {}
 
         for interface in self.by_name.values():
@@ -34,7 +34,7 @@ class ABIInstance:
 
         return columns
 
-    def abi_for_getters(self, getters: List[int]):
+    def abi_for_getters(self, getters: List[int]) -> set[ABIInterfaceInstance]:
         tmp = set()
 
         for getter in getters:
@@ -42,7 +42,7 @@ class ABIInstance:
 
         return tmp
 
-    def get_parsers(self, code_hash: str, getters: List[int]):
+    def get_parsers(self, code_hash: str, getters: List[int]) -> set[ABIInterfaceInstance]:
         parsers = set()
 
         if code_hash in self.by_code_hash:
@@ -61,25 +61,31 @@ class ABIInstance:
 
         return parsers
 
-    def parse_getters(self, tvm: TVM, getters: List[int] = None):
+    def parse_getters(self, tvm: TVM, getters: List[int] = None) -> dict:
         parsers = self.get_parsers(tvm.code_hash, getters)
 
         result = {}
 
-        for parser in parsers:
-            result.update(parser.parse_getters(tvm, self.tlb_sources))
+        if len(parsers) > 0:
+            result['abi_interfaces'] = []
+
+            for parser in parsers:
+                result['abi_interfaces'].append(parser.name)
+                result.update(parser.parse_getters(tvm, self.tlb_sources))
 
         return result
 
-    def parse_getter_lazy(self, code_hash, get_tvm: Callable, getters: List[int] = None):
+    def parse_getter_lazy(self, code_hash, get_tvm: Callable, getters: List[int] = None) -> dict:
         parsers = self.get_parsers(code_hash, getters)
 
         result = {}
 
         if len(parsers) > 0:
+            result['abi_interfaces'] = []
             tvm = get_tvm()
 
             for parser in parsers:
+                result['abi_interfaces'].append(parser.name)
                 result.update(parser.parse_getters(tvm, self.tlb_sources))
 
         return result

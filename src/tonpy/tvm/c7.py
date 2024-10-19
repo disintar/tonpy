@@ -16,7 +16,7 @@ class C7:
                  address: Union[Union[dict, Cell], Address] = None, global_config: Cell = None, my_code: Cell = None,
                  storage_fees: int = 0, income_grams: int = 0, income_extra: Cell = None,
                  last_mc_blocks: Union[List[BlockIdExt], List[List]] = None,
-                 prev_key_block: Union[BlockIdExt, List] = None):
+                 prev_key_block: Union[BlockIdExt, List] = None, due_payment: int = 0):
 
         if last_mc_blocks is None:
             self.last_mc_blocks = []
@@ -69,24 +69,28 @@ class C7:
         self.income_grams = income_grams
         self.income_extra = income_extra
         self.storage_fees = storage_fees
+        self.due_payment = due_payment
 
     def to_data(self):
         return [
-            self.magic,  # [ magic:0x076ef1ea
-            self.actions,  # actions:Integer
-            self.msgs_sent,  # msgs_sent:Integer
-            self.time,  # unixtime:Integer
-            self.block_lt,  # block_lt:Integer
-            self.trans_lt,  # trans_lt:Integer
-            self.rand_seed,  # rand_seed:Integer
-            [self.balance_grams, self.balance_extra],  # balance_remaining:[Integer (Maybe Cell)]
-            self.address,  # myself:MsgAddressInt
-            self.global_config,  # global_config:(Maybe Cell)
-            self.my_code,
-            [self.income_grams, self.income_extra],
-            self.storage_fees,
-            self.last_mc_blocks,
-            self.prev_key_block
+            self.magic,                           # [0] magic: 0x076ef1ea
+            self.actions,                         # [1] actions: Integer
+            self.msgs_sent,                       # [2] msgs_sent: Integer
+            self.time,                            # [3] unixtime: Integer
+            self.block_lt,                        # [4] block_lt: Integer
+            self.trans_lt,                        # [5] trans_lt: Integer
+            self.rand_seed,                       # [6] rand_seed: Integer
+            [self.balance_grams, self.balance_extra],  # [7] balance_remaining: [Integer (Maybe Cell)]
+            self.address,                         # [8] myself: MsgAddressInt
+            self.global_config,                   # [9] global_config: (Maybe Cell)
+            self.my_code,                         # [10] my_code
+            [self.income_grams, self.income_extra],    # [11] income_remaining: [Integer (Maybe Cell)]
+            self.storage_fees,                    # [12] storage_fees
+            self.last_mc_blocks,                  # [13] last_mc_blocks
+            self.prev_key_block,                  # [14] prev_key_block
+            0,                                    # [15] unpacked_config_tuple (computed in C++ with config)
+            self.due_payment,                     # [16] due_payment
+            0                                     # [17] precompiled_gas_usage (computed in C++ with config)
         ]
 
 

@@ -15,12 +15,18 @@ def method_name_to_id(method_name: str):
 
 class TVM:
     def __init__(self, log_level: int = 0,
-                 code: Cell = None,
-                 data: Cell = None,
+                 code: Union[str, Cell] = None,
+                 data: Union[str, Cell] = None,
                  allow_debug: bool = False,
                  same_c3: bool = True,
                  skip_c7: bool = False,
                  enable_stack_dump=True):
+        if isinstance(code, str):
+            code = Cell(code)
+
+        if isinstance(data, str):
+            data = Cell(data)
+
         self.tvm = PyTVM(log_level,
                          code.cell if code is not None else code,
                          data.cell if data is not None else data,
@@ -49,6 +55,9 @@ class TVM:
 
     def set_state_init(self, state_init: Cell) -> bool:
         return self.tvm.set_state_init(state_init)
+
+    def set_unsafe_ignore_chksig(self, chksig: bool):
+        self.tvm.set_unsafe_ignore_chksig(chksig)
 
     def set_gas_limit(self, gas_limit=0, gas_max=-1) -> bool:
         return self.tvm.set_gasLimit(str(gas_limit), str(gas_max))

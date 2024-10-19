@@ -25,6 +25,7 @@ def test_abi_simple():
                        'parsed_object_royalty_denominator': 100,
                        'parsed_object_royalty_address_workchain': 0,
                        'parsed_object_royalty_address_type': 'addr_std',
+                       'abi_interfaces': ['royalty'],
                        'parsed_object_royalty_address_address': '19F4236E811D0991294C4A783EA0ECD5EDD65576992DC11E5F1AF15DE74521E6'}
 
 
@@ -33,7 +34,7 @@ def test_abi_tlb():
         abi = ABIInstance(json.loads(f.read()))
 
     columns = abi.get_columns()
-    print(columns)
+
     assert columns == {'parsed_object_royalty_numerator': 'UInt16',
                        'parsed_object_royalty_denominator': 'UInt16',
                        'parsed_object_royalty_address_workchain': 'Int16',
@@ -67,4 +68,5 @@ def test_abi_tlb():
                        'abi_dedust_pool_reserve1': 34775678877017,
                        'abi_dedust_pool_is_stable': 0,
                        'abi_dedust_pool_trade_fee_numerator': 10,
-                       'abi_dedust_pool_trade_fee_denominator': 10000}
+                       'abi_dedust_pool_trade_fee_denominator': 10000,
+                       'abi_interfaces': ['dedust_pool']}

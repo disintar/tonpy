@@ -28,7 +28,7 @@ jobs:
             fix_tag: manylinux2014_x86_64
 
           - arch: aarch64
-            os: macos-14
+            os: macos-15
             python: "3.12"
             link: https://github.com/disintar/ton/releases/download/ton-cpython-312-aarch64-darwin/
             file: python_ton.cpython-312-darwin.so
