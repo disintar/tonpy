@@ -45,6 +45,8 @@ class ABIGetterResultInstance:
                 self.dton_type = 'String'
         elif self.dton_type == 'Null':
             self.dton_type = 'UInt8'
+        elif self.type == 'Bool':
+            self.dton_type = 'UInt8'
 
         if self.dton_type != 'Tuple':
             assert self.dton_type in supported_types, f'Unsupported ABI type {self.dton_type}'
@@ -58,6 +60,11 @@ class ABIGetterResultInstance:
             self.dton_parse_prefix = self.labels['dton_parse_prefix']
 
     def get_columns(self):
+        if self.labels.get('skipLive', False):
+            return {}
+        elif self.required is not None:
+            return {}
+
         if self.dton_type == 'Address':
             return {
                 f'{self.dton_parse_prefix}{self.name}_workchain': 'Int16',
@@ -169,6 +176,8 @@ class ABIGetterResultInstance:
 
                 return {f"{self.dton_parse_prefix}{self.name}": stack_entry.get().to_boc()}
         elif self.dton_type in ['UInt8', 'UInt16', 'UInt32', 'UInt64', 'UInt128', 'UInt256']:
+            if self.type == 'Bool':
+                return {f"{self.dton_parse_prefix}{self.name}": stack_entry.get() == -1}
             return {
                 f"{self.dton_parse_prefix}{self.name}":
                     stack_entry.as_uint(int(self.dton_type.replace('UInt', '')))}
@@ -206,6 +215,8 @@ class ABIGetterInstance:
     def get_columns(self):
         if self.method_args and len(self.method_args) > 0:
             return {}
+        elif self.labels.get('skipLive', False):
+            return {}
 
         tmp = {}
 
@@ -234,6 +245,10 @@ class ABIGetterInstance:
         tmp = {}
 
         for getter, stack_entry in zip(self.method_result, stack):
+            if getter.required is not None:
+                # todo: check before go
+                continue
+
             try:
                 tmp.update(getter.parse_stack_item(stack_entry, tlb_sources))
             except Exception as e:
