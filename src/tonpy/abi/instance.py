@@ -50,10 +50,13 @@ class ABIInstance:
                 parsers.add(parser)
         else:
             if getters is not None:
-                tmp_parsers = set()
+                tmp_parsers = None
                 for parser in self.abi_for_getters(getters):
                     parsers.add(parser)
-                    tmp_parsers.add(parser)
+                    if tmp_parsers is None:
+                        tmp_parsers = set(parser)
+                    else:
+                        tmp_parsers &= set(parser)
 
                 self.by_code_hash[code_hash] = tmp_parsers
             else:
