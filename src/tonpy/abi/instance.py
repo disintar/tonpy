@@ -54,9 +54,9 @@ class ABIInstance:
                 for parser in self.abi_for_getters(getters):
                     parsers.add(parser)
                     if tmp_parsers is None:
-                        tmp_parsers = set(parser)
+                        tmp_parsers = {parser}
                     else:
-                        tmp_parsers &= set(parser)
+                        tmp_parsers &= {parser}
 
                 self.by_code_hash[code_hash] = tmp_parsers
             else:
