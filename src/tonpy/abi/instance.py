@@ -45,7 +45,7 @@ class ABIInstance:
     def get_parsers(self, code_hash: str, getters: List[int]) -> set[ABIInterfaceInstance]:
         parsers = set()
 
-        if code_hash in self.by_code_hash:
+        if code_hash in self.by_code_hash and self.by_code_hash[code_hash]:
             for parser in self.by_code_hash[code_hash]:
                 parsers.add(parser)
         else:

@@ -82,7 +82,7 @@ class TVM:
         st = Stack(prev_stack=self.tvm.run_vm())
 
         if allow_non_success is False:
-            assert self.exit_code in [-1, 0], f"TVM run failed with exit code: {self.exit_code}"
+            assert self.exit_code in [-1, 0], f"TVM run failed with exit code: {self.exit_code} ({self.exit_code_description()})"
 
         if self.enable_stack_dump:
             self.fetch_detailed_step_info()
@@ -171,7 +171,10 @@ class TVM:
                  "Description": "The maximum number of cells in the library is exceeded or the maximum depth of the Merkle tree is exceeded."}
         }
 
-        return exit_codes[self.exit_code]
+        if self.exit_code in exit_codes:
+            return exit_codes[self.exit_code]
+        else:
+            return ''
 
     @property
     def vm_steps(self) -> int:
