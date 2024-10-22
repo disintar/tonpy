@@ -35,12 +35,25 @@ class ABIInstance:
         return columns
 
     def abi_for_getters(self, getters: List[int]) -> set[ABIInterfaceInstance]:
-        tmp = set()
+        tmp_parsers = set()
 
         for getter in getters:
-            tmp.update(self.by_get_method[str(getter)])
+            current_set = set(self.by_get_method[str(getter)])
+            tmp_parsers.update(current_set)
 
-        return tmp
+        clear_parsers = set()
+
+        for parser in tmp_parsers:
+            not_valid = False
+            for method in parser.getters:
+                if method.method_id not in getters:
+                    not_valid = True
+                    break
+
+            if not not_valid:
+                clear_parsers.add(parser)
+
+        return clear_parsers
 
     def get_parsers(self, code_hash: str, getters: List[int]) -> set[ABIInterfaceInstance]:
         parsers = set()
@@ -50,13 +63,9 @@ class ABIInstance:
                 parsers.add(parser)
         else:
             if getters is not None:
-                tmp_parsers = None
+                tmp_parsers = set()
                 for parser in self.abi_for_getters(getters):
                     parsers.add(parser)
-                    if tmp_parsers is None:
-                        tmp_parsers = {parser}
-                    else:
-                        tmp_parsers &= {parser}
 
                 self.by_code_hash[code_hash] = tmp_parsers
             else:
