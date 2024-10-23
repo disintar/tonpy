@@ -45,6 +45,6 @@ class ABIInterfaceInstance:
                     result[f"{self.dton_parse_prefix}{i}"] = tmp[i]
 
             except Exception as e:
-                logger.info(f"Can't parse {self.name}, (getter: {getter.method_name}): {e}")
+                logger.warning(f"Can't parse {self.name}, (getter: {getter.method_name}): {e}")
 
         return result

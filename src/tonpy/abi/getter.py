@@ -1,6 +1,6 @@
 from traceback import format_exc
 
-from tonpy import StackEntry, add_tlb
+from tonpy import StackEntry, add_tlb, Address
 from tonpy.tvm import TVM
 from loguru import logger
 
@@ -35,12 +35,17 @@ class ABIGetterResultInstance:
         self.dton_type = self.labels.get('dton_type', self.instance['type'])
         self.type = self.instance['type']
         self.required = self.instance['required']
+        self.parse_special = None
+        self.skip_parse = self.labels.get('skipParse', False)
 
         if self.dton_type == 'Int':
             self.dton_type = 'UInt256'
         elif self.dton_type in ['Slice', 'Cell', 'Continuation', 'Builder']:
-            if self.labels.get('address'):
+            if self.labels.get('address', False):
                 self.dton_type = 'Address'
+            elif self.labels.get('string', False):
+                self.dton_type = 'String'
+                self.parse_special = 'String'
             else:
                 self.dton_type = 'String'
         elif self.dton_type == 'Null':
@@ -60,7 +65,7 @@ class ABIGetterResultInstance:
             self.dton_parse_prefix = self.labels['dton_parse_prefix']
 
     def get_columns(self):
-        if self.labels.get('skipLive', False):
+        if self.skip_parse:
             return {}
         elif self.required is not None:
             return {}
@@ -101,7 +106,10 @@ class ABIGetterResultInstance:
 
         return {f'{self.dton_parse_prefix}{self.name}': self.dton_type}
 
-    def parse_stack_item(self, stack_entry: StackEntry, tlb_sources) -> dict:
+    def parse_stack_item(self, stack_entry: StackEntry, tlb_sources, force_all: bool = False) -> dict:
+        if self.skip_parse and not force_all:
+            return {}
+
         if self.dton_type == 'Address':
             if stack_entry.get_type() is StackEntry.Type.t_cell:
                 address = stack_entry.as_cell().begin_parse().load_address()
@@ -109,12 +117,25 @@ class ABIGetterResultInstance:
                 address = stack_entry.as_cell_slice().load_address()
             elif stack_entry.get_type() is StackEntry.Type.t_builder:
                 address = stack_entry.as_cell_builder().end_cell().begin_parse().load_address()
+            else:
+                address = Address()
 
             return {
                 f'{self.dton_parse_prefix}{self.name}_workchain': address.workchain,
                 f'{self.dton_parse_prefix}{self.name}_address': address.address,
                 f'{self.dton_parse_prefix}{self.name}_type': address.type,
             }
+        elif self.parse_special == 'String':
+            if stack_entry.get_type() is StackEntry.Type.t_cell:
+                tmp = stack_entry.as_cell().begin_parse().load_string()
+            elif stack_entry.get_type() is StackEntry.Type.t_slice:
+                tmp = stack_entry.as_cell_slice().load_string()
+            elif stack_entry.get_type() is StackEntry.Type.t_builder:
+                tmp = stack_entry.as_cell_builder().end_cell().begin_parse().load_string()
+            else:
+                tmp = None
+
+            return {f"{self.dton_parse_prefix}{self.name}": tmp}
         elif self.type in ['Slice', 'Cell', 'Continuation', 'Builder']:
             if self.instance.get('tlb', None):
                 tlb = self.instance.get('tlb')
@@ -171,8 +192,6 @@ class ABIGetterResultInstance:
                             tmp[f'{self.dton_parse_prefix}{self.name}_{name}'] = old
 
                     return tmp
-                else:
-                    pass
 
                 return {f"{self.dton_parse_prefix}{self.name}": stack_entry.get().to_boc()}
         elif self.dton_type in ['UInt8', 'UInt16', 'UInt32', 'UInt64', 'UInt128', 'UInt256']:
@@ -228,7 +247,7 @@ class ABIGetterInstance:
 
         return tmp
 
-    def parse_getters(self, tvm: TVM, tlb_sources) -> dict:
+    def parse_getters(self, tvm: TVM, tlb_sources, force_all: bool = False) -> dict:
         if self.method_args and len(self.method_args) > 0:
             return {}
 
@@ -250,7 +269,7 @@ class ABIGetterInstance:
                 continue
 
             try:
-                tmp.update(getter.parse_stack_item(stack_entry, tlb_sources))
+                tmp.update(getter.parse_stack_item(stack_entry, tlb_sources, force_all))
             except Exception as e:
                 logger.error(f"Can't parse {getter}: {e}, {format_exc()}")
 

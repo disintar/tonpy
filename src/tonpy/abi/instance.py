@@ -71,6 +71,9 @@ class ABIInstance:
             else:
                 logger.warning("Code hash not found in ABI, provide getters for parse methods")
 
+        unique_by_versions = set()
+        versioned = {}
+
         return parsers
 
     def parse_getters(self, tvm: TVM, getters: List[int] = None) -> dict:
@@ -98,6 +101,14 @@ class ABIInstance:
 
             for parser in parsers:
                 result['abi_interfaces'].append(parser.name)
-                result.update(parser.parse_getters(tvm, self.tlb_sources))
+                for key, value in parser.parse_getters(tvm, self.tlb_sources).items():
+                    if key not in result:
+                        result[key] = value
+                    else:
+                        if result[key] is not None:
+                            result[key] = value
+                        else:
+                            logger.warning(f"Got multiple not null answers for getter {key} in {parser.name}")
+                result.update()
 
         return result
