@@ -37,6 +37,7 @@ class TVM:
         self.code_hash = code.get_hash()
         self.vm_steps_detailed: Optional[List[StepInfo]] = None
         self.enable_stack_dump = enable_stack_dump
+        self.c7 = None
 
     def set_stack(self, value: Union[Stack, List]) -> None:
         if isinstance(value, list):
@@ -48,6 +49,7 @@ class TVM:
         if isinstance(value, list):
             self.tvm.set_c7(StackEntry(value=value).entry)
         elif isinstance(value, C7):
+            self.c7 = value
             self.tvm.set_c7(StackEntry(value=value.to_data()).entry)
         else:
             assert value.get_type() is StackEntry.Type.t_tuple, "C7 must be tuple"

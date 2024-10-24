@@ -1,6 +1,6 @@
 from traceback import format_exc
 
-from tonpy import StackEntry, add_tlb, Address
+from tonpy import StackEntry, add_tlb, Address, CellSlice
 from tonpy.tvm import TVM
 from loguru import logger
 
@@ -76,6 +76,11 @@ class ABIGetterResultInstance:
                 f'{self.dton_parse_prefix}{self.name}_address': 'FixedString(64)',
                 f'{self.dton_parse_prefix}{self.name}_type': 'String',
             }
+        elif self.type == 'Int' and self.labels.get('address', False):
+            return {
+                f'{self.dton_parse_prefix}{self.name}_workchain': 'Int16',
+                f'{self.dton_parse_prefix}{self.name}_address': 'FixedString(64)'
+            }
         elif self.type in ['Slice', 'Cell', 'Continuation', 'Builder'] and self.instance.get('tlb', None):
             tlb = self.instance.get('tlb')
 
@@ -106,7 +111,7 @@ class ABIGetterResultInstance:
 
         return {f'{self.dton_parse_prefix}{self.name}': self.dton_type}
 
-    def parse_stack_item(self, stack_entry: StackEntry, tlb_sources, force_all: bool = False) -> dict:
+    def parse_stack_item(self, stack_entry: StackEntry, tlb_sources, force_all: bool = False, tvm: TVM = None) -> dict:
         if self.skip_parse and not force_all:
             return {}
 
@@ -124,6 +129,17 @@ class ABIGetterResultInstance:
                 f'{self.dton_parse_prefix}{self.name}_workchain': address.workchain,
                 f'{self.dton_parse_prefix}{self.name}_address': address.address,
                 f'{self.dton_parse_prefix}{self.name}_type': address.type,
+            }
+        elif self.type == 'Int' and self.labels.get('address', False):
+            wc = None
+            if tvm is not None and tvm.c7 is not None:
+                cs: CellSlice = tvm.c7.address.copy()
+                address = cs.load_address()
+                wc = address.wc
+
+            return {
+                f'{self.dton_parse_prefix}{self.name}_workchain': wc,
+                f'{self.dton_parse_prefix}{self.name}_address': hex(stack_entry.get()).upper()[2:].zfill(64),
             }
         elif self.parse_special == 'String':
             if stack_entry.get_type() is StackEntry.Type.t_cell:
@@ -269,7 +285,7 @@ class ABIGetterInstance:
                 continue
 
             try:
-                tmp.update(getter.parse_stack_item(stack_entry, tlb_sources, force_all))
+                tmp.update(getter.parse_stack_item(stack_entry, tlb_sources, force_all, tvm=tvm))
             except Exception as e:
                 logger.error(f"Can't parse {getter}: {e}, {format_exc()}")
 
