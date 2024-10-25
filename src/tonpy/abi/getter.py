@@ -266,6 +266,8 @@ class ABIGetterInstance:
     def parse_getters(self, tvm: TVM, tlb_sources, force_all: bool = False) -> dict:
         if self.method_args and len(self.method_args) > 0:
             return {}
+        elif self.labels.get('skipLive', False):
+            return {}
 
         tvm.set_stack([self.method_id])
         stack = tvm.run(allow_non_success=True, unpack_stack=False)
