@@ -20,6 +20,7 @@ supported_types = [
     'String',
     'FixedString(64)',
     'Address',
+    'Boolean',
     'Datetime'
 ]
 
@@ -51,13 +52,13 @@ class ABIGetterResultInstance:
         elif self.dton_type == 'Null':
             self.dton_type = 'UInt8'
         elif self.type == 'Bool':
-            self.dton_type = 'UInt8'
+            self.dton_type = 'Boolean'
 
         if self.dton_type != 'Tuple':
             assert self.dton_type in supported_types, f'Unsupported ABI type {self.dton_type}'
         else:
             self.dton_type = None
-            self.items = self.instance['items']
+            self.items = [ABIGetterResultInstance(i) for i in self.instance['items']]
 
         if 'dton_parse_prefix' not in self.labels:
             self.dton_parse_prefix = f''
@@ -108,6 +109,16 @@ class ABIGetterResultInstance:
                     tmp[f'{self.dton_parse_prefix}{self.name}_{name}'] = dtype
 
                 return tmp
+        elif self.type == 'Tuple':
+            if not self.items or not len(self.items):
+                return {}
+
+            data = {}
+
+            for tmp in self.items:
+                data.update(tmp.get_columns())
+
+            return data
 
         return {f'{self.dton_parse_prefix}{self.name}': self.dton_type}
 
@@ -220,6 +231,13 @@ class ABIGetterResultInstance:
             return {
                 f"{self.dton_parse_prefix}{self.name}": stack_entry.as_uint(64)
             }
+        elif self.type == 'Tuple' and stack_entry.get_type() is StackEntry.Type.t_tuple:
+            data = {}
+
+            for tmp, result_item in zip(self.items, stack_entry.get()):
+                data.update(tmp.parse_stack_item(result_item, tlb_sources, force_all, tvm))
+
+            return data
         else:
             raise ValueError(f'Unsupported ABI type {self.dton_type}')
 
