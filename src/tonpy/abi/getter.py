@@ -229,7 +229,7 @@ class ABIGetterResultInstance:
                     stack_entry.as_uint(int(self.dton_type.replace('UInt', '')))}
         elif self.dton_type == 'Datetime':
             return {
-                f"{self.dton_parse_prefix}{self.name}": stack_entry.as_uint(64)
+                f"{self.dton_parse_prefix}{self.name}": stack_entry.as_uint(32)
             }
         elif self.type == 'Tuple' and stack_entry.get_type() is StackEntry.Type.t_tuple:
             data = {}
