@@ -221,8 +221,8 @@ class ABIGetterResultInstance:
                     return tmp
 
                 return {f"{self.dton_parse_prefix}{self.name}": stack_entry.get().to_boc()}
-        elif self.dton_type in ['UInt8', 'UInt16', 'UInt32', 'UInt64', 'UInt128', 'UInt256']:
-            if self.type == 'Bool':
+        elif self.dton_type in ['UInt8', 'UInt16', 'UInt32', 'UInt64', 'UInt128', 'UInt256', 'Boolean']:
+            if self.type == 'Bool' or self.dton_type == 'Boolean' or self.dton_type == 'Bool':
                 return {f"{self.dton_parse_prefix}{self.name}": stack_entry.get() == -1}
             return {
                 f"{self.dton_parse_prefix}{self.name}":
