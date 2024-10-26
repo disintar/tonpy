@@ -15,7 +15,7 @@ class Address:
         if isinstance(value, str):
             self.my_address: PySmcAddress = address_from_string(value)
             self.type = 'addr_std'
-        elif value is None:
+        elif value is None or value == 0:
             self.my_address = None
             self.type = 'addr_none'
         else:
