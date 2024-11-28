@@ -941,5 +941,4 @@ chan_signed_msg$_ sig_A:(Maybe ^bits512) sig_B:(Maybe ^bits512) msg:ChanMsg = Ch
 
 chan_op_cmd#912838d1 msg:ChanSignedMsg = ChanOp;
 
-
 chan_data$_ config:^ChanConfig state:^ChanState = ChanData;
