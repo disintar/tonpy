@@ -73,6 +73,13 @@ class Address:
 
         return self.my_address.testnet
 
+    @property
+    def raw(self) -> Union[None, str]:
+        if self.my_address is None:
+            return None
+
+        return f"{self.wc}:{self.address}"
+
     @testnet.setter
     def testnet(self, flag: bool):
         if self.my_address is None:
@@ -127,3 +134,7 @@ class Address:
 
     def __repr__(self):
         return f'<Address value="{self.serialize()}">'
+
+    def __hash__(self):
+        return int(f"{self.wc}{self.address}", 16)
+
