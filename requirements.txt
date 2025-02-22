@@ -5,3 +5,5 @@ orjson
 tqdm
 requests
 cytoolz
+asgiref
+pytest-asyncio

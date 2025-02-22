@@ -31,6 +31,34 @@ One command: `pip install tonpy`
 
 Complex installation for not supported systems and python versions are described in [documentation](https://tonpy.dton.io/installation.html#development-setup-compile-from-sources)
 
+## Speed compare
+
+`compare/pytoniq.py`
+
+Cell load tests 
+
+| module  | 100.000 Cells, 1 ref, 1024 bits | vs tonpy |
+|---------|---------------------------------|----------|
+| tonpy   | 0.02                            | 1        |
+| pytoniq | 1.39                            | 69.5     |
+
+`compare/tvm_run.py`
+
+TVM Run
+
+> Be careful, `enable_stack_dump=True` increase time of execution
+
+| mode            | Secs   | TVM Instances Count |
+|-----------------|--------|---------------------|
+| sync            | 3.53   | 10                  |
+| multiprocessing | 1.10   | 10                  |
+| async           | 0.59   | 10                  |
+|                 |        |                     |
+| sync            | 36.36  | 100                 |
+| multiprocessing | 5.36   | 100                 |
+| async           | 5.15   | 100                 |
+
+
 ## Documentation
 
 Documentation can be found on [tonpy.dton.io](https://tonpy.dton.io)

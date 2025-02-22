@@ -5,11 +5,20 @@ from typing import Union, List, Optional
 from tonpy.libs.python_ton import PyTVM, method_name_to_id as py_method_name_to_id
 from tonpy.types import Cell, Stack, StackEntry, VmDict
 from tonpy.tvm.c7 import StepInfo, C7
+import asyncio
+import functools
+
+
+def make_async(method):
+    @functools.wraps(method)
+    async def wrapper(self, *args, **kwargs):
+        loop = asyncio.get_running_loop()
+        return await loop.run_in_executor(None, functools.partial(method, self, *args, **kwargs))
+
+    return wrapper
 
 
 def method_name_to_id(method_name: str):
-    """Compute crc for method name, to pass to TVM"""
-
     return py_method_name_to_id(method_name)
 
 
@@ -20,7 +29,7 @@ class TVM:
                  allow_debug: bool = False,
                  same_c3: bool = True,
                  skip_c7: bool = False,
-                 enable_stack_dump=True):
+                 enable_stack_dump=False):
         if isinstance(code, str):
             code = Cell(code)
 
@@ -53,7 +62,7 @@ class TVM:
             self.tvm.set_c7(StackEntry(value=value.to_data()).entry)
         else:
             assert value.get_type() is StackEntry.Type.t_tuple, "C7 must be tuple"
-            self.tvm.set_c7(value)
+            self.tvm.set_c7(value.entry)
 
     def set_state_init(self, state_init: Cell) -> bool:
         return self.tvm.set_state_init(state_init)
@@ -84,7 +93,34 @@ class TVM:
         st = Stack(prev_stack=self.tvm.run_vm())
 
         if allow_non_success is False:
-            assert self.exit_code in [-1, 0], f"TVM run failed with exit code: {self.exit_code} ({self.exit_code_description()})"
+            assert self.exit_code in [-1,
+                                      0], f"TVM run failed with exit code: {self.exit_code} ({self.exit_code_description()})"
+
+        if self.enable_stack_dump:
+            self.fetch_detailed_step_info()
+
+        if not unpack_stack:
+            return st
+        return st.unpack_rec()
+
+    # @make_async
+    # def arun_vm(self):
+    #     return self.tvm.run_vm()
+
+    async def arun_vm(self):
+        self.tvm.start_async_vm()
+
+        while (result := self.tvm.check_async_vm()) is None:
+            await asyncio.sleep(0.01)
+
+        return result
+
+    async def arun(self, unpack_stack=True, allow_non_success=False):
+        st = Stack(prev_stack=await self.arun_vm())
+
+        if allow_non_success is False:
+            assert self.exit_code in [-1, 0], \
+                f"TVM run failed with exit code: {self.exit_code} ({self.exit_code_description()})"
 
         if self.enable_stack_dump:
             self.fetch_detailed_step_info()

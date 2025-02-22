@@ -6,7 +6,7 @@ from tonpy.types.cellbuilder import begin_cell
 from tonpy.types.address import Address
 from datetime import datetime
 from tonpy.types.blockid import BlockIdExt
-from tonpy.types.stack import Stack
+from tonpy.types.stack import Stack, StackEntry
 
 
 class C7:
@@ -92,6 +92,9 @@ class C7:
             self.due_payment,                     # [16] due_payment
             0                                     # [17] precompiled_gas_usage (computed in C++ with config)
         ]
+
+    def to_stack_entry(self):
+        return StackEntry(value=self.to_data())
 
 
 class StepInfo:
