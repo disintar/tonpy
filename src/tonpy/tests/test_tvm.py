@@ -117,7 +117,7 @@ def test_tvm_continuation():
 def test_tvm_step_info():
     # language=fift
     code = """<{ BLESS 2 INT }>c"""
-    t = TVM(code=convert_assembler(code))
+    t = TVM(code=convert_assembler(code), enable_stack_dump=True)
     # language=fift
     t.set_stack([convert_assembler("""<{ 228 PUSHINT }>s""")])
     t.run()
