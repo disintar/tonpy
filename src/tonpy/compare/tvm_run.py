@@ -11,14 +11,13 @@ from time import time
 import multiprocessing
 from tonpy.tvm.c7 import C7
 from tqdm import tqdm
-from c7_data import c7_data
+from tonpy.tests.c7_data import c7_data
 from tonpy.scheduler import init_thread_scheduler
 
 faulthandler.enable()
 
 
 def f(params):
-    """Synchronous function: Creates TVM, sets C7, and runs."""
     index, code, c7_entry = params  # Unpack arguments
     if isinstance(c7_entry, Cell):
         c7_entry = C7(time=321, block_lt=999, trans_lt=291, global_config=c7_entry).to_stack_entry()
@@ -34,14 +33,12 @@ def f(params):
 
 
 async def af(tvm_instance):
-    """Asynchronous function execution."""
     final_stack = await tvm_instance.arun(True, allow_non_success=True)
     assert tvm_instance.success is False
     return True
 
 
 def run_multiprocessing(num_instances, code, c7_data):
-    """Run TVM instances in parallel using multiprocessing."""
     params = [(i, code, c7_data) for i in range(num_instances)]  # Generate args for processes
     with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
         results = pool.map(f, params, chunksize=1)
@@ -50,7 +47,7 @@ def run_multiprocessing(num_instances, code, c7_data):
 
 @pytest.mark.asyncio
 async def test_tvm_c7_complex(cs, mode):
-    init_thread_scheduler(128)
+    init_thread_scheduler(30)
 
     code = """<{ ZERO ZERO WHILE:<{ 1 INT }>DO<{ DUP }> }>c"""
     num_instances = cs

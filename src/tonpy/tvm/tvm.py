@@ -107,16 +107,8 @@ class TVM:
     # def arun_vm(self):
     #     return self.tvm.run_vm()
 
-    async def arun_vm(self):
-        self.tvm.start_async_vm()
-
-        while (result := self.tvm.check_async_vm()) is None:
-            await asyncio.sleep(0.01)
-
-        return result
-
     async def arun(self, unpack_stack=True, allow_non_success=False):
-        st = Stack(prev_stack=await self.arun_vm())
+        st = Stack(prev_stack=await self.tvm.arun_vm())
 
         if allow_non_success is False:
             assert self.exit_code in [-1, 0], \
