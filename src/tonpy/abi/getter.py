@@ -310,3 +310,33 @@ class ABIGetterInstance:
                 logger.error(f"Can't parse {getter}: {e}, {format_exc()}")
 
         return tmp
+
+    async def aparse_getters(self, tvm: TVM, tlb_sources, force_all: bool = False) -> dict:
+        if self.method_args and len(self.method_args) > 0:
+            return {}
+        elif self.labels.get('skipLive', False):
+            return {}
+
+        tvm.set_stack([self.method_id])
+        stack = await tvm.arun(allow_non_success=True, unpack_stack=False)
+
+        if self.result_length_strict_check:
+            assert len(stack) == len(self.method_result)
+
+        if self.result_strict_type_check:
+            my_result_hash = stack.get_abi_hash()
+            assert my_result_hash == self.method_result_hash
+
+        tmp = {}
+
+        for getter, stack_entry in zip(self.method_result, stack):
+            if getter.required is not None:
+                # todo: check before go
+                continue
+
+            try:
+                tmp.update(getter.parse_stack_item(stack_entry, tlb_sources, force_all, tvm=tvm))
+            except Exception as e:
+                logger.error(f"Can't parse {getter}: {e}, {format_exc()}")
+
+        return tmp

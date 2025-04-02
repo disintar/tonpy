@@ -90,6 +90,20 @@ class ABIInstance:
 
         return result
 
+    async def aparse_getters(self, tvm: TVM, getters: List[int] = None) -> dict:
+        parsers = self.get_parsers(tvm.code_hash, getters)
+
+        result = {}
+
+        if len(parsers) > 0:
+            result['abi_interfaces'] = []
+
+            for parser in parsers:
+                result['abi_interfaces'].append(parser.name)
+                result.update(await parser.aparse_getters(tvm, self.tlb_sources))
+
+        return result
+
     def parse_getter_lazy(self, code_hash, get_tvm: Callable, getters: List[int] = None) -> dict:
         parsers = self.get_parsers(code_hash, getters)
 

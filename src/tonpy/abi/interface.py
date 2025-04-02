@@ -3,12 +3,13 @@ from typing import List
 from tonpy import TVM
 from tonpy.abi.getter import ABIGetterInstance
 from loguru import logger
-
+import asyncio
 
 class ABIInterfaceInstance:
     def __init__(self, instance):
         self.instance = instance
         self.name = self.instance["labels"]["name"]
+        self.tlb_sources__ = None
 
         if 'dton_parse_prefix' not in self.instance['labels']:
             self.dton_parse_prefix = f'parsed_abi_{self.name}_'
@@ -48,3 +49,20 @@ class ABIInterfaceInstance:
                 logger.warning(f"Can't parse {self.name}, (getter: {getter.method_name}): {e}")
 
         return result
+
+    async def aparse_getters(self, tvm: TVM, tlb_sources):
+        result = {}
+
+        # can't do gether because of diffrent stack
+        for getter in self.getters:
+            try:
+                tmp = await getter.parse_getters(tvm, tlb_sources)
+
+                for i in tmp:
+                    result[f"{self.dton_parse_prefix}{i}"] = tmp[i]
+
+            except Exception as e:
+                logger.warning(f"Can't parse {self.name}, (getter: {getter.method_name}): {e}")
+
+        return result
+
