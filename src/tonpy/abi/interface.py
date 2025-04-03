@@ -4,6 +4,7 @@ from tonpy import TVM
 from tonpy.abi.getter import ABIGetterInstance
 from loguru import logger
 import asyncio
+import traceback
 
 class ABIInterfaceInstance:
     def __init__(self, instance):
@@ -46,7 +47,7 @@ class ABIInterfaceInstance:
                     result[f"{self.dton_parse_prefix}{i}"] = tmp[i]
 
             except Exception as e:
-                logger.warning(f"Can't parse {self.name}, (getter: {getter.method_name}): {e}")
+                logger.warning(f"Can't parse {self.name}, (getter: {getter.method_name}): {e} {traceback.format_exc()}")
 
         return result
 
@@ -62,7 +63,7 @@ class ABIInterfaceInstance:
                     result[f"{self.dton_parse_prefix}{i}"] = tmp[i]
 
             except Exception as e:
-                logger.warning(f"Can't parse {self.name}, (getter: {getter.method_name}): {e}")
+                logger.warning(f"Can't parse {self.name}, (getter: {getter.method_name}): {e} {traceback.format_exc()}")
 
         return result
 
