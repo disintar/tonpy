@@ -2,7 +2,7 @@ import os.path
 
 from tonpy.abi.instance import ABIInstance
 import orjson as json
-from tonpy import TVM, Cell
+from tonpy import TVM, Cell, VmDict
 
 
 def test_abi_simple():
@@ -98,3 +98,28 @@ def test_abi_tlb():
                        'abi_dedust_pool_trade_fee_numerator': 10,
                        'abi_dedust_pool_trade_fee_denominator': 10000,
                        'abi_interfaces': ['dedust_pool']}
+
+
+def test_abi_required():
+    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'abi_test_required.json')) as f:
+        abi = ABIInstance(json.loads(f.read()))
+    
+    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'abi_test_libs.txt')) as f:
+        libs = str(f.read())
+
+    tvm = TVM(
+        log_level=0,
+        code="te6ccuEBAQEAIwBGCEICnlA4q3NZc9VFD64aFOdwezMtzY50T127O2oNmU1ADFksqS6P",
+        data="te6ccuECBQEAASsAAFAA+AHKAhACVgJHMUq09vTGIzAoQlnGHjhx6FH3epOagg9bmu8oJPTRp5gACAADAQIAowAAAAAAAAACteOvFrGIAAAAAAAAAAAAAA7EFlzZBAAAAAAAAAAAAAADeC2s6dkAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABACyYAMZX8kbHKP4dGSaL7+unquYtaUpQoQX8BxyxBluQl4TlABiy9ltu3lkML1i/MAVW2yaXOsPeJ3NXCXQLlcAx+6lKoAMExfiEDcd3CAq1rdsjt/ozVBT+jXwEZsmAH6QD3I5frAAwQIQgLACDZEDQhORPuUMWEyrFohQX709CnuCbVWC1Z4szTD6AhCAuOYyHTiuwAXt0R8PLxTTKNo2WUzwbEgEB1MjAl9Esbj2jC6YQ=="
+    )
+    tvm.set_libs(VmDict(key_len=256, signed=False, cell_root=Cell(libs)))
+    # Test parse getters
+    getters = abi.parse_getters(tvm, [0, 76, 88, 81689, 82492, 87316, 103289, 106029])
+    assert set(getters["abi_interfaces"]) == {'stonfi_pool_v2', 'stonfi_pool_v2_weighted_stableswap'}
+    # Test parse getter lazy
+    getters = abi.parse_getter_lazy(
+        "F04A14C3231221056C3499965E4604417E324F8E9121D840120D803288715594",
+        lambda: tvm,
+        [0, 76, 88, 81689, 82492, 87316, 103289, 106029]
+    )
+    assert set(getters["abi_interfaces"]) == {'stonfi_pool_v2', 'stonfi_pool_v2_weighted_stableswap'}
