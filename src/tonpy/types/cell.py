@@ -41,7 +41,10 @@ class Cell:
         return CellSlice(load_as_cell_slice(self.cell, allow_special))
 
     def is_empty(self) -> bool:
-        return self.cell.bits == 0 and self.cell.refs == 0
+        cs = self.begin_parse()
+        b = cs.bits
+        r = cs.refs
+        return b == 0 and r == 0
 
     def is_null(self) -> bool:
         return self.cell.is_null() or self.is_empty()
