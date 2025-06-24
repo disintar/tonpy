@@ -5,6 +5,7 @@ from tonpy.types.cellslice import CellSlice
 from tonpy.types.cellbuilder import begin_cell
 from tonpy.types.address import Address
 from datetime import datetime
+from tonpy.types.vmdict import VmDict
 from tonpy.types.blockid import BlockIdExt
 from tonpy.types.stack import Stack, StackEntry
 
@@ -13,7 +14,7 @@ class C7:
     def __init__(self, magic: int = 0x076ef1ea, actions: int = 0, msgs_sent: int = 0,
                  time: Union[int, datetime] = None, block_lt: int = 0, trans_lt: int = 0,
                  rand_seed: Union[int, str] = None, balance_grams: int = 0, balance_extra: Cell = None,
-                 address: Union[Union[dict, Cell], Address] = None, global_config: Cell = None, my_code: Cell = None,
+                 address: Union[Union[dict, Cell], Address] = None, global_config: Cell | VmDict = None, my_code: Cell = None,
                  storage_fees: int = 0, income_grams: int = 0, income_extra: Cell = None,
                  last_mc_blocks: Union[List[BlockIdExt], List[List]] = None,
                  prev_key_block: Union[BlockIdExt, List] = None, due_payment: int = 0):
@@ -64,7 +65,11 @@ class C7:
             self.address = begin_cell().store_address(
                 f"{address['workchain']}:{address['address']}").end_cell().begin_parse()
 
-        self.global_config = global_config
+        if isinstance(global_config, Cell):
+            self.global_config = global_config
+        else:
+            self.global_config = global_config.get_cell()
+
         self.my_code = my_code
         self.income_grams = income_grams
         self.income_extra = income_extra

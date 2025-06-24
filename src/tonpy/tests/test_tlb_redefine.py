@@ -43,7 +43,8 @@ def test_builtin_unpack():
     assert rec.d.d.c == 6
 
     # Pack will create the same cell
-    assert rec.cell_pack().get_hash() == '8FC752179C5AD3870CD9A70A205548E8F7389B865316707339DFA33875F0808A'
+    assert rec.
+    ().get_hash() == '8FC752179C5AD3870CD9A70A205548E8F7389B865316707339DFA33875F0808A'
 
     py_dict = rec.to_dict(rec_unpack=True, convert_cells_to_bocs=True)  # it's json dumpable
     result = {"a": 1, "b": 2, "c": 3, "d": {"a": "te6ccuEBAQEAAwAGAAGYwZ06Tg==", "b": "te6ccuEBAQEAAwAGAAFotPJUvQ==",

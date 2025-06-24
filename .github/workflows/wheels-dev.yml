@@ -20,12 +20,19 @@ jobs:
     strategy:
       matrix:
         include:
-          - arch: x86_64
-            os: arc-runner-set
-            python: "3.12"
-            link: https://github.com/disintar/ton/releases/download/ton-cpython-312-x86_64-linux/
-            file: python_ton.cpython-312-x86_64-linux-gnu.so
-            fix_tag: manylinux2014_x86_64
+          - arch: aarch64
+            os: macos-15
+            python: "3.13"
+            link: https://github.com/disintar/ton/releases/download/ton-cpython-313-aarch64-darwin/
+            file: python_ton.cpython-313-darwin.so
+            fix_tag: arm64
+
+          - arch: aarch64
+            os: macos-15
+            python: "3.10"
+            link: https://github.com/disintar/ton/releases/download/ton-cpython-310-aarch64-darwin/
+            file: python_ton.cpython-310-darwin.so
+            fix_tag: arm64
 
           - arch: aarch64
             os: macos-15
@@ -33,6 +40,20 @@ jobs:
             link: https://github.com/disintar/ton/releases/download/ton-cpython-312-aarch64-darwin/
             file: python_ton.cpython-312-darwin.so
             fix_tag: arm64
+
+          - arch: x86_64
+            os: arc-runner-set
+            python: "3.13"
+            link: https://github.com/disintar/ton/releases/download/ton-cpython-313-x86_64-linux/
+            file: python_ton.cpython-313-x86_64-linux-gnu.so
+            fix_tag: manylinux2014_x86_64
+
+          - arch: x86_64
+            os: arc-runner-set
+            python: "3.12"
+            link: https://github.com/disintar/ton/releases/download/ton-cpython-312-x86_64-linux/
+            file: python_ton.cpython-312-x86_64-linux-gnu.so
+            fix_tag: manylinux2014_x86_64
 
           - arch: x86_64
             os: arc-runner-set

@@ -91,6 +91,8 @@ class ABIInstance:
         return result
 
     async def aparse_getters(self, tvm: TVM, getters: List[int] = None) -> dict:
+        # TODO: Optimize same getters. If we have same getter return diffrent types / arrays -
+        #                       cache first call, then propagate call result to all other getters
         parsers = self.get_parsers(tvm.code_hash, getters)
 
         result = {}
@@ -116,6 +118,29 @@ class ABIInstance:
             for parser in parsers:
                 result['abi_interfaces'].append(parser.name)
                 for key, value in parser.parse_getters(tvm, self.tlb_sources).items():
+                    if key not in result:
+                        result[key] = value
+                    else:
+                        if result[key] is not None:
+                            result[key] = value
+                        else:
+                            logger.warning(f"Got multiple not null answers for getter {key} in {parser.name}")
+                result.update()
+
+        return result
+
+    async def aparse_getter_lazy(self, code_hash, get_tvm: Callable, getters: List[int] = None) -> dict:
+        parsers = self.get_parsers(code_hash, getters)
+
+        result = {}
+
+        if len(parsers) > 0:
+            result['abi_interfaces'] = []
+            tvm = await get_tvm()
+
+            for parser in parsers:
+                result['abi_interfaces'].append(parser.name)
+                for key, value in (await parser.aparse_getters(tvm, self.tlb_sources)).items():
                     if key not in result:
                         result[key] = value
                     else:
