@@ -67,7 +67,7 @@ class C7:
 
         if isinstance(global_config, Cell):
             self.global_config = global_config
-        else:
+        elif isinstance(global_config, VmDict):
             self.global_config = global_config.get_cell()
 
         self.my_code = my_code
