@@ -42,13 +42,13 @@ def test_begin_parse():
     c = Cell("te6ccuEBAQEABQAKAAVBX/xo8FXp")
     assert isinstance(c.begin_parse(), CellSlice)
 
-# Now on Cell() creates empty cell with 0 bits / 0 refs
-# def test_null():
-#     c = Cell()
-#     assert c.is_null() is True
-#
-#     c = Cell("te6ccuEBAQEABQAKAAVBX/xo8FXp")
-#     assert c.is_null() is False
+
+def test_null():
+    c = Cell()
+    assert c.is_null() is True
+
+    c = Cell("te6ccuEBAQEABQAKAAVBX/xo8FXp")
+    assert c.is_null() is False
 
 
 def test_get_hash():
