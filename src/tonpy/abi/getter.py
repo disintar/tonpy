@@ -302,9 +302,7 @@ class ABIGetterInstance:
         for getter, stack_entry in zip(self.method_result, stack):
             if getter.required is not None:
                 stack_entry_value = stack_entry.as_int() if getter.type == "Int" else stack_entry.get().get_hash()
-                if stack_entry_value != getter.required:
-                    logger.debug(f"Getter {getter.name} skipped: required {getter.required}, got {stack_entry_value}")
-                    return {}
+                assert stack_entry_value == getter.required
 
             try:
                 tmp.update(getter.parse_stack_item(stack_entry, tlb_sources, force_all, tvm=tvm))
@@ -334,9 +332,7 @@ class ABIGetterInstance:
         for getter, stack_entry in zip(self.method_result, stack):
             if getter.required is not None:
                 stack_entry_value = stack_entry.as_int() if getter.type == "Int" else stack_entry.get().get_hash()
-                if stack_entry_value != getter.required:
-                    logger.debug(f"Getter {getter.name} skipped: required {getter.required}, got {stack_entry_value}")
-                    return {}
+                assert stack_entry_value == getter.required
 
             try:
                 tmp.update(getter.parse_stack_item(stack_entry, tlb_sources, force_all, tvm=tvm))
