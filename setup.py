@@ -50,7 +50,7 @@ setup(
     ],
     setup_requires=install_requires,
     install_requires=install_requires,
-    python_requires=">3.8,<3.13",
+    python_requires=">3.8,<=3.13",
     packages=find_packages(
         where='src',  # '.' by default
     ),
