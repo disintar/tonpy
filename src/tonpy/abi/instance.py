@@ -85,8 +85,10 @@ class ABIInstance:
             result['abi_interfaces'] = []
 
             for parser in parsers:
-                result['abi_interfaces'].append(parser.name)
-                result.update(parser.parse_getters(tvm, self.tlb_sources))
+                data = parser.parse_getters(tvm, self.tlb_sources)
+                if data:
+                    result['abi_interfaces'].append(parser.name)
+                    result.update(data)
 
         return result
 
@@ -101,8 +103,10 @@ class ABIInstance:
             result['abi_interfaces'] = []
 
             for parser in parsers:
-                result['abi_interfaces'].append(parser.name)
-                result.update(await parser.aparse_getters(tvm, self.tlb_sources))
+                data = await parser.aparse_getters(tvm, self.tlb_sources)
+                if data:
+                    result['abi_interfaces'].append(parser.name)
+                    result.update(data)
 
         return result
 
@@ -116,16 +120,18 @@ class ABIInstance:
             tvm = get_tvm()
 
             for parser in parsers:
-                result['abi_interfaces'].append(parser.name)
-                for key, value in parser.parse_getters(tvm, self.tlb_sources).items():
-                    if key not in result:
-                        result[key] = value
-                    else:
-                        if result[key] is not None:
+                data = parser.parse_getters(tvm, self.tlb_sources)
+                if data:
+                    result['abi_interfaces'].append(parser.name)
+                    for key, value in data.items():
+                        if key not in result:
                             result[key] = value
                         else:
-                            logger.warning(f"Got multiple not null answers for getter {key} in {parser.name}")
-                result.update()
+                            if result[key] is not None:
+                                result[key] = value
+                            else:
+                                logger.warning(f"Got multiple not null answers for getter {key} in {parser.name}")
+                    result.update()
 
         return result
 

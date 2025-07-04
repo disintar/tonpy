@@ -32,6 +32,7 @@ class TVM:
                          skip_c7,
                          enable_stack_dump)
         self.code_hash = code.get_hash()
+        self.data_hash = data.get_hash() if data else None
         self.vm_steps_detailed: Optional[List[StepInfo]] = None
         self.enable_stack_dump = enable_stack_dump
         self.c7 = None
