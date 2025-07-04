@@ -40,10 +40,14 @@ class Cell:
 
         return CellSlice(load_as_cell_slice(self.cell, allow_special))
 
-    def is_null(self) -> bool:
-        """Some cells are nulls, you can't operate with such ones"""
+    def is_empty(self) -> bool:
+        cs = self.begin_parse()
+        b = cs.bits
+        r = cs.refs
+        return b == 0 and r == 0
 
-        return self.cell.is_null()
+    def is_null(self) -> bool:
+        return self.cell.is_null() or self.is_empty()
 
     def dump(self):
         """Recursively dump all cells as hex"""

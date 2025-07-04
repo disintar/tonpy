@@ -22,9 +22,28 @@ class Emulator:
         return self.emulator.emulate_transaction(shard_account.cell, message.cell, str(unixtime), str(lt),
                                                  1 if lt >= 3709412000000 else 0, force_uninit)
 
+    async def aemulate_transaction(self, shard_account: Cell, message: Cell, unixtime: int, lt: int,
+                                   force_uninit=False) -> bool:
+        """
+        Async function will be run in TON Scheduler
+
+        Use init_thread_scheduler to setup thread count in c++ sheduler
+
+        from tonpy.scheduler import init_thread_scheduler
+        init_thread_scheduler(30) # will run in 30 threads
+
+        It will not lock GIL for run, all real multiprocessing will go thrue C++ level
+        """
+        return await self.emulator.aemulate_transaction(shard_account.cell, message.cell, str(unixtime), str(lt),
+                                                       1 if lt >= 3709412000000 else 0, force_uninit)
+
     def emulate_tick_tock_transaction(self, shard_account: Cell, is_tock: bool, unixtime: int, lt: int) -> bool:
         return self.emulator.emulate_tick_tock_transaction(shard_account.cell, is_tock, str(unixtime), str(lt),
                                                            1 if lt >= 3709412000000 else 0)
+
+    async def aemulate_tick_tock_transaction(self, shard_account: Cell, is_tock: bool, unixtime: int, lt: int) -> bool:
+        return await self.emulator.aemulate_tick_tock_transaction(shard_account.cell, is_tock, str(unixtime), str(lt),
+                                                                 1 if lt >= 3709412000000 else 0)
 
     def set_prev_blocks_info(self, prev_blocks_info: Union[Tuple[List[BlockId], BlockId], Tuple[List, List]]):
         if len(prev_blocks_info) > 0 and len(prev_blocks_info[0]) > 0 and isinstance(prev_blocks_info[0][0], BlockId):

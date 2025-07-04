@@ -58,7 +58,7 @@ class ABIInterfaceInstance:
         # can't do gether because of diffrent stack
         for getter in self.getters:
             try:
-                tmp = await getter.parse_getters(tvm, tlb_sources)
+                tmp = await getter.aparse_getters(tvm, tlb_sources)
 
                 for i in tmp:
                     result[f"{self.dton_parse_prefix}{i}"] = tmp[i]

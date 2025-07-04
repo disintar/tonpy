@@ -41,16 +41,17 @@ def add_tlb(tlb_text: str,
         for i, j in zip(range(len(tlb_text_t)), tlb_text_t):
             print(i, ": ", j)
 
-    exec(tlb_text, globals(), locals())
+    env = {}
+    exec(tlb_text, globals(), env)
 
     # Write new classes to imported globals
-    for i in locals()['tlb_classes']:
+    for i in env['tlb_classes']:
         if debug:
             print("Found class: ", i)
-        imported_globals[i] = locals()[i]
-        globals()[i] = locals()[i]
+        imported_globals[i] = env[i]
+        globals()[i] = env[i]
 
-    exec(constants, globals(), locals())
+    exec(constants, globals(), env)
 
 
 def process_file(filepath: str, out_path: str = None) -> None:

@@ -5,18 +5,6 @@ from typing import Union, List, Optional
 from tonpy.libs.python_ton import PyTVM, method_name_to_id as py_method_name_to_id
 from tonpy.types import Cell, Stack, StackEntry, VmDict
 from tonpy.tvm.c7 import StepInfo, C7
-import asyncio
-import functools
-
-
-def make_async(method):
-    @functools.wraps(method)
-    async def wrapper(self, *args, **kwargs):
-        loop = asyncio.get_running_loop()
-        return await loop.run_in_executor(None, functools.partial(method, self, *args, **kwargs))
-
-    return wrapper
-
 
 def method_name_to_id(method_name: str):
     return py_method_name_to_id(method_name)
@@ -104,11 +92,17 @@ class TVM:
             return st
         return st.unpack_rec()
 
-    # @make_async
-    # def arun_vm(self):
-    #     return self.tvm.run_vm()
-
     async def arun(self, unpack_stack=True, allow_non_success=False):
+        """
+        Async function will be run in TON Scheduler
+
+        Use init_thread_scheduler to setup thread count in c++ sheduler
+
+        from tonpy.scheduler import init_thread_scheduler
+        init_thread_scheduler(30) # will run in 30 threads
+
+        It will not lock GIL for run, all real multiprocessing will go thrue C++ level
+        """
         st = Stack(prev_stack=await self.tvm.arun_vm())
 
         if allow_non_success is False:
