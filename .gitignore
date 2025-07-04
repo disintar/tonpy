@@ -232,3 +232,5 @@ fabric.properties
 .idea/caches/build_file_checksums.ser
 playground/.ipynb_checkpoints
 playground/private/*
+
+.vscode

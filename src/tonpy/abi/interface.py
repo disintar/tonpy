@@ -48,6 +48,7 @@ class ABIInterfaceInstance:
 
             except Exception as e:
                 logger.warning(f"Can't parse {self.name}, (getter: {getter.method_name}): {e} {traceback.format_exc()}")
+                return {} # abi should work completely, with a result in each getter
 
         return result
 
@@ -64,6 +65,7 @@ class ABIInterfaceInstance:
 
             except Exception as e:
                 logger.warning(f"Can't parse {self.name}, (getter: {getter.method_name}): {e} {traceback.format_exc()}")
+                return {} # abi should work completely, with a result in each getter
 
         return result
 
