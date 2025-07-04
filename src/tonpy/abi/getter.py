@@ -1,6 +1,7 @@
 from traceback import format_exc
 
 from tonpy import StackEntry, add_tlb, Address, CellSlice
+from tonpy.abi.getter_cache import getter_cache
 from tonpy.tvm import TVM
 from loguru import logger
 
@@ -287,8 +288,11 @@ class ABIGetterInstance:
         elif self.labels.get('skipLive', False):
             return {}
 
-        tvm.set_stack([self.method_id])
-        stack = tvm.run(allow_non_success=True, unpack_stack=False)
+        stack = getter_cache.get((tvm.code_hash, tvm.data_hash, self.method_id)) # TODO: support args
+        if not stack:
+            tvm.set_stack([self.method_id])
+            stack = tvm.run(allow_non_success=True, unpack_stack=False)
+            getter_cache.set((tvm.code_hash, tvm.data_hash, self.method_id), stack)
 
         if self.result_length_strict_check:
             assert len(stack) == len(self.method_result)
@@ -317,8 +321,11 @@ class ABIGetterInstance:
         elif self.labels.get('skipLive', False):
             return {}
 
-        tvm.set_stack([self.method_id])
-        stack = await tvm.arun(allow_non_success=True, unpack_stack=False)
+        stack = getter_cache.get((tvm.code_hash, tvm.data_hash, self.method_id)) # TODO: support args
+        if not stack:
+            tvm.set_stack([self.method_id])
+            stack = await tvm.arun(allow_non_success=True, unpack_stack=False)
+            getter_cache.set((tvm.code_hash, tvm.data_hash, self.method_id), stack)
 
         if self.result_length_strict_check:
             assert len(stack) == len(self.method_result)
