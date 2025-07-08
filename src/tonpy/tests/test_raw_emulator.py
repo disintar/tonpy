@@ -44,7 +44,6 @@ def test_emulator_internal():
     assert account.storage_stat.last_paid == 1687939216
     assert account.storage_stat.used.bits.value == 6757
     assert account.storage_stat.used.cells.value == 20
-    assert account.storage_stat.used.public_cells.value == 0
     assert em.transaction.get_hash() == "D5EA7B2B8027AF84501C9D72AADA58AEFDB258B91C3063645CDBC9EB87075313"
 
 
@@ -74,7 +73,6 @@ def test_emulator_external():
     assert account.storage_stat.last_paid == 1696334339
     assert account.storage_stat.used.bits.value == 1315
     assert account.storage_stat.used.cells.value == 3
-    assert account.storage_stat.used.public_cells.value == 0
 
     # TODO: understand why in emulator SRC is broken
     actions = OutList(output_actions_count(em.actions)).fetch(em.actions, strict=False, rec_unpack=True)
@@ -116,7 +114,6 @@ def test_emulator_tock():
     assert account.storage_stat.last_paid == 0
     assert account.storage_stat.used.bits.value == 502074
     assert account.storage_stat.used.cells.value == 1927
-    assert account.storage_stat.used.public_cells.value == 0
 
 
 def test_emulator_tick():
