@@ -265,7 +265,6 @@ jobs:
     needs:
       #      - buildVirtualLinux
       - build
-      - buildMacOs39
 
     steps:
       - uses: actions/checkout@v4
