@@ -30,12 +30,15 @@ if TYPE_CHECKING:
     from tonpy.autogen.block import Block, BlockInfo
 
 
-def base64_to_hex(b):
+def base64_to_hex(b) -> str:
+    """Decode base64 string into a lowercase hex string."""
     return b64decode(b).hex()
 
 
 class Bits256:
+    """Helper container for 256-bit values returned by the native client."""
     def to_hex(self) -> str:
+        """Return the value as a hex string."""
         pass
 
 
@@ -161,6 +164,10 @@ def get_block_info(virt_blk_root) -> "BlockInfo":
 
 
 class RRLiteClient:
+    """Round-robin LiteClient wrapper for resilient RPC access.
+
+    It cycles through a provided lite-server list on failures, with optional logging.
+    """
     def __init__(self, servers: list,
                  timeout: int = 1,
                  num_try: int = 5,
@@ -293,6 +300,10 @@ class RRLiteClient:
 
 
 class LiteClient:
+    """High-level LiteClient facade.
+
+    Provides both direct single-server and round-robin multi-server modes.
+    """
     def __init__(self, host: Union[str, int] = None,
                  port: int = None,
                  pubkey: PublicKey = None,
@@ -306,17 +317,19 @@ class LiteClient:
                  loglevel: int = 0,
                  logprefix: str = ''):
         """
-
-        :param host:
-        :param port:
-        :param pubkey:
-        :param pubkey_hex:
-        :param pubkey_base64:
-        :param threads:
-        :param timeout:
-        :param mode:
-            - ordinary
-            - roundrobin
+        Args:
+            host: Lite server host or IPv4 int.
+            port: Lite server port.
+            pubkey: PublicKey instance.
+            pubkey_hex: Public key as hex string.
+            pubkey_base64: Public key encoded in base64.
+            timeout: Network timeout.
+            threads: Worker threads for native client.
+            mode: 'ordinary' or 'roundrobin'.
+            my_rr_servers: Custom list of servers for round-robin mode.
+            num_try: Number of retries per request in RR mode.
+            loglevel: Logging verbosity level.
+            logprefix: Prefix for log messages.
         """
 
         self.loglevel = loglevel

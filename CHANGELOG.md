@@ -1,6 +1,18 @@
+# Roadmap
+
+- dABI update with events
+- SmartContract class
+  - Getters / liteserver API
+  - Compile from source
+  - Publish to liteserver
+- Blockchain Emulator
+  - With tests on SmartContracts and events
+- TOLK compiler support
+- Async support for LiteClient / BlockScanner(?)
+
 # Changelog
 
-## [0.11.0] - 2025-08-16
+## [0.1.3] - 2025-08-16
 
 ### Added
 - Async/await support in TVM and Emulator for highly concurrent workflows (see tests: `test_tvm_async.py`, `test_emulator_async.py`).

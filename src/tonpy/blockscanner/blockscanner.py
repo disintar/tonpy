@@ -41,6 +41,14 @@ if typing.TYPE_CHECKING:
 
 
 def convert_account_blocks_to_txs(account_blocks_all):
+    """Convert raw account_blocks VmDict to a mapping of account->list of transactions.
+
+    Args:
+        account_blocks_all: Cell with account blocks dictionary.
+
+    Returns:
+        dict: Mapping account address (int) to list of tx info dicts with keys: tx, lt, now, account, is_tock.
+    """
     block_txs = {}
 
     r: CellSlice = account_blocks_all.begin_parse()
@@ -93,6 +101,16 @@ def convert_account_blocks_to_txs(account_blocks_all):
 def process_subscriptions(data,
                           tx_subscriptions: "CustomSubscription" = None,
                           account_subscriptions: "CustomAccountSubscription" = None):
+    """Filter or process transactions against provided subscriptions.
+
+    Args:
+        data: Tuple of (block_dict, account_state_cell or None, txs_per_account).
+        tx_subscriptions: Subscription to filter transactions by predicate.
+        account_subscriptions: Subscription for account-based processing (not yet implemented).
+
+    Returns:
+        List of [block_id, tx_cell] pairs when account_state is None.
+    """
     block, account_state, txs = data
 
     # todo: get 1 tx, get account and pass over account_subscriptions
@@ -109,6 +127,15 @@ def process_subscriptions(data,
 
 
 def get_mega_libs(dton_key, num_try=100):
+    """Fetch the mega_libs list from dton.io public API with retries.
+
+    Args:
+        dton_key: Reserved for future API auth (not used at the moment).
+        num_try: Number of retry attempts.
+
+    Returns:
+        dict | list: API response data if successful.
+    """
     cur = 0
 
     while cur < num_try:
@@ -127,6 +154,17 @@ def get_mega_libs(dton_key, num_try=100):
 
 
 def process_block(block, lc, emulate_before_output, tx_subscriptions):
+    """Load and filter transactions for a given block, optionally emulating state.
+
+    Args:
+        block: Dict with block metadata and optionally pre-extracted account_blocks.
+        lc: LiteClient instance.
+        emulate_before_output: If True, load previous account states for emulation.
+        tx_subscriptions: Optional subscription filter for transactions.
+
+    Returns:
+        list: List of (block_dict, account_state_cell_or_none, txs_for_account) triples.
+    """
     block_txs = {}
 
     if block['account_blocks'] is not None:
@@ -483,6 +521,11 @@ def process_mc_blocks(seqnos, lcparams, loglevel, parse_txs_over_ls):
 
 
 class BlockScanner(Thread):
+    """Concurrent block scanner for TON blockchain.
+
+    Loads masterchain and shardchain blocks, optionally filters/emulates transactions, and emits results
+    to a queue or a user-provided callback.
+    """
     def __init__(self,
                  lcparams: dict,
                  start_from: int = None,
@@ -802,6 +845,7 @@ class BlockScanner(Thread):
         return txs_data
 
     def load_historical(self):
+        """Load historical data from start_from to load_to using chunked processing."""
         stop = False
         start_from = self.start_from
         while not stop:
