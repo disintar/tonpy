@@ -127,31 +127,31 @@ jobs:
 
           # Windows x64
           - arch: x86_64
-            os: windows-2019
+            os: windows-2022
             python: "3.9"
             link: https://github.com/disintar/ton/releases/download/ton-cpython-39-x86_64-windows/
             file: python_ton.cp39-win_amd64.pyd
             fix_tag:
           - arch: x86_64
-            os: windows-2019
+            os: windows-2022
             python: "3.10"
             link: https://github.com/disintar/ton/releases/download/ton-cpython-310-x86_64-windows/
             file: python_ton.cp310-win_amd64.pyd
             fix_tag:
           - arch: x86_64
-            os: windows-2019
+            os: windows-2022
             python: "3.11"
             link: https://github.com/disintar/ton/releases/download/ton-cpython-311-x86_64-windows/
             file: python_ton.cp311-win_amd64.pyd
             fix_tag:
           - arch: x86_64
-            os: windows-2019
+            os: windows-2022
             python: "3.12"
             link: https://github.com/disintar/ton/releases/download/ton-cpython-312-x86_64-windows/
             file: python_ton.cp312-win_amd64.pyd
             fix_tag:
           - arch: x86_64
-            os: windows-2019
+            os: windows-2022
             python: "3.13"
             link: https://github.com/disintar/ton/releases/download/ton-cpython-313-x86_64-windows/
             file: python_ton.cp313-win_amd64.pyd
@@ -187,7 +187,7 @@ jobs:
           mv win/libcrypto-1_1-x64.dll ./src/tonpy/libs/
           mv MANIFEST.in MANIFEST_LINUX.in
           mv MANIFEST_WIN.in MANIFEST.in
-        if: matrix.os == 'windows-2019'
+        if: matrix.os == 'windows-2022'
 
       - name: Run tests
         run: |
