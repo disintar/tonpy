@@ -18,35 +18,36 @@ permissions:
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         include:
           # macOS x86_64
           - arch: x86_64
-            os: macos-latest
+            os: macos-13
             python: "3.8"
             link: https://github.com/disintar/ton/releases/download/ton-cpython-38-x86_64-darwin/
             file: python_ton.cpython-38-darwin.so
             fix_tag: x86_64
           - arch: x86_64
-            os: macos-latest
+            os: macos-13
             python: "3.10"
             link: https://github.com/disintar/ton/releases/download/ton-cpython-310-x86_64-darwin/
             file: python_ton.cpython-310-darwin.so
             fix_tag: x86_64
           - arch: x86_64
-            os: macos-latest
+            os: macos-13
             python: "3.11"
             link: https://github.com/disintar/ton/releases/download/ton-cpython-311-x86_64-darwin/
             file: python_ton.cpython-311-darwin.so
             fix_tag: x86_64
           - arch: x86_64
-            os: macos-latest
+            os: macos-13
             python: "3.12"
             link: https://github.com/disintar/ton/releases/download/ton-cpython-312-x86_64-darwin/
             file: python_ton.cpython-312-darwin.so
             fix_tag: x86_64
           - arch: x86_64
-            os: macos-latest
+            os: macos-13
             python: "3.13"
             link: https://github.com/disintar/ton/releases/download/ton-cpython-313-x86_64-darwin/
             file: python_ton.cpython-313-darwin.so
@@ -196,63 +197,6 @@ jobs:
         run: |
           python -m build --wheel --outdir dist/ .
           python fix_whl_name.py
-        env:
-          TAG_FIX: ${{ matrix.fix_tag }}
-      - name: Store the binary wheel
-        uses: actions/upload-artifact@v4
-        with:
-          name: python-package-distributions
-          path: dist
-
-  buildMacOs39:
-    strategy:
-      matrix:
-        include:
-          - arch: x86_64
-            os: macos-latest
-            python: "3.9"
-            link: https://github.com/disintar/ton/releases/download/ton-cpython-39-x86_64-darwin/
-            file: python_ton.cpython-39-darwin.so
-            fix_tag: x86_64
-
-          - arch: aarch64
-            os: macos-15
-            python: "3.9"
-            link: https://github.com/disintar/ton/releases/download/ton-cpython-39-aarch64-darwin/
-            file: python_ton.cpython-39-darwin.so
-            fix_tag: arm64
-
-    runs-on: ${{ matrix.os }}
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install python3.9
-        run: |
-          /opt/homebrew/bin/brew install python@3.9
-        if: matrix.os == 'macOS'
-
-      - name: Install python3.9
-        run: |
-          brew install python@3.9
-        if: matrix.os == 'macos-latest'
-
-      - name: Install deps
-        run: |
-          python3.9 -m pip install -r built_requirements.txt
-          python3.9 -m pip install -r requirements.txt
-
-      - name: Download prebuilt
-        run: |
-          curl -Lo ./src/tonpy/libs/${{ matrix.file }} ${{ matrix.link }}${{ matrix.file }}
-
-      - name: Run tests
-        run: |
-          python3.9 -m pytest
-
-      - name: Build wheel
-        run: |
-          python3.9 -m build --wheel --outdir dist/ .
-          python3.9 fix_whl_name.py
         env:
           TAG_FIX: ${{ matrix.fix_tag }}
       - name: Store the binary wheel
