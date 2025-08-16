@@ -67,27 +67,27 @@ jobs:
             file: python_ton.cpython-313-x86_64-linux-gnu.so
             fix_tag: manylinux2014_x86_64
 
-          # Legacy Linux x86_64 (kuber) kept
+          # Legacy Linux x86_64 (arc-runner-set) kept
           - arch: x86_64
-            os: kuber
+            os: arc-runner-set
             python: "3.8"
             link: https://github.com/disintar/ton/releases/download/ton-cpython-38-x86_64-linux/
             file: python_ton.cpython-38-x86_64-linux-gnu.so
             fix_tag: manylinux2014_x86_64
           - arch: x86_64
-            os: kuber
+            os: arc-runner-set
             python: "3.9"
             link: https://github.com/disintar/ton/releases/download/ton-cpython-39-x86_64-linux/
             file: python_ton.cpython-39-x86_64-linux-gnu.so
             fix_tag: manylinux2014_x86_64
           - arch: x86_64
-            os: kuber
+            os: arc-runner-set
             python: "3.10"
             link: https://github.com/disintar/ton/releases/download/ton-cpython-310-x86_64-linux/
             file: python_ton.cpython-310-x86_64-linux-gnu.so
             fix_tag: manylinux2014_x86_64
           - arch: x86_64
-            os: kuber
+            os: arc-runner-set
             python: "3.11"
             link: https://github.com/disintar/ton/releases/download/ton-cpython-311-x86_64-linux/
             file: python_ton.cpython-311-x86_64-linux-gnu.so
@@ -176,7 +176,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y curl
-        if: matrix.os == 'kuber'
+        if: matrix.os == 'arc-runner-set'
 
       - name: Download prebuilt
         run: |
@@ -199,10 +199,11 @@ jobs:
           python fix_whl_name.py
         env:
           TAG_FIX: ${{ matrix.fix_tag }}
+
       - name: Store the binary wheel
         uses: actions/upload-artifact@v4
         with:
-          name: python-package-distributions
+          name: python-package-distributions-${{ github.run_id }}-${{ matrix.arch }}-${{ matrix.python }}
           path: dist
 
   #  buildVirtualLinux:
@@ -261,7 +262,7 @@ jobs:
 
   deploy:
     name: Publish 🐍📦 to PyPI
-    runs-on: kuber
+    runs-on: arc-runner-set
     needs:
       #      - buildVirtualLinux
       - build
@@ -273,10 +274,18 @@ jobs:
           python-version: "3.11"
         env:
           USER: tvorogme
-      - name: Download all the dists
-        uses: actions/download-artifact@v2
+      - name: Merge artifacts
+        uses: actions/upload-artifact/merge@v4
+        if: always()
         with:
-          name: python-package-distributions
+          name: python-package-distributions-${{ github.run_id }}
+          pattern: python-package-distributions-${{ github.run_id }}-*
+          delete-merged: true
+
+      - name: Download all the dists
+        uses: actions/download-artifact@v4
+        with:
+          name: python-package-distributions-${{ github.run_id }}
           path: dist/
 
       - name: Install deps
