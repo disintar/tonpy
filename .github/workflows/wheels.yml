@@ -21,12 +21,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # macOS x86_64
           - arch: x86_64
             os: macos-13
-            python: "3.8"
-            link: https://github.com/disintar/ton/releases/download/ton-cpython-38-x86_64-darwin/
-            file: python_ton.cpython-38-darwin.so
+            python: "3.9"
+            link: https://github.com/disintar/ton/releases/download/ton-cpython-39-x86_64-darwin/
+            file: python_ton.cpython-39-darwin.so
             fix_tag: x86_64
           - arch: x86_64
             os: macos-13
@@ -70,12 +69,6 @@ jobs:
           # Legacy Linux x86_64 (arc-runner-set) kept
           - arch: x86_64
             os: arc-runner-set
-            python: "3.8"
-            link: https://github.com/disintar/ton/releases/download/ton-cpython-38-x86_64-linux/
-            file: python_ton.cpython-38-x86_64-linux-gnu.so
-            fix_tag: manylinux2014_x86_64
-          - arch: x86_64
-            os: arc-runner-set
             python: "3.9"
             link: https://github.com/disintar/ton/releases/download/ton-cpython-39-x86_64-linux/
             file: python_ton.cpython-39-x86_64-linux-gnu.so
@@ -96,9 +89,9 @@ jobs:
           # macOS arm64
           - arch: aarch64
             os: macos-15
-            python: "3.8"
-            link: https://github.com/disintar/ton/releases/download/ton-cpython-38-aarch64-darwin/
-            file: python_ton.cpython-38-darwin.so
+            python: "3.9"
+            link: https://github.com/disintar/ton/releases/download/ton-cpython-39-aarch64-darwin/
+            file: python_ton.cpython-39-darwin.so
             fix_tag: arm64
           - arch: aarch64
             os: macos-15
@@ -203,7 +196,7 @@ jobs:
       - name: Store the binary wheel
         uses: actions/upload-artifact@v4
         with:
-          name: python-package-distributions-${{ github.run_id }}-${{ matrix.arch }}-${{ matrix.python }}
+          name: python-package-distributions-${{ github.run_id }}-${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.python }}
           path: dist
 
   #  buildVirtualLinux:
