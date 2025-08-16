@@ -113,17 +113,15 @@ def get_mega_libs(dton_key, num_try=100):
 
     while cur < num_try:
         try:
-            query = '''query{mega_libs_cell}'''
-
-            if dton_key is not None:
-                url = f"https://dton.io/{dton_key}/graphql"
+            url = "https://dton.io/api/v2/mega_libs"
+            response = requests.get(url)
+            json_response = response.json()
+            if json_response.get("success"):
+                return json_response.get("data")
             else:
-                url = f"https://dton.io/graphql"
-
-            response = requests.post(url, json={'query': query})
-            return response.json()['data']['mega_libs_cell']
+                raise Exception(f"API returned unsuccessful response: {json_response}")
         except Exception as e:
-            logger.error(f"Can't get dton.io/graphql: {e}, {tb.format_exc()}")
+            logger.error(f"Can't get mega_libs from API: {e}, {tb.format_exc()}")
             sleep(0.1)
             cur += 1
 

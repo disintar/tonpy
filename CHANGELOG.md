@@ -1,9 +1,9 @@
-## v2
+## 0.11
 
 - Slow operation now don't lock GIL, so it can be run in threads
 - Smart-contract address class added
 - Mnemonic / (ED25519) PublicKey / (ED25519) PrivateKey classes added
-- Merge testnet on commit:
+- Support async/await in TVM / Emulator
 - Allow disassemble libs (root cell & PUSREF*)
 - Allow large (>256 bits) keys in VmDict (lookup, set, etc.)
 - Add LiteClient
