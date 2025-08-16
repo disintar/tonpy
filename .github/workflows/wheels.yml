@@ -23,12 +23,6 @@ jobs:
         include:
           - arch: x86_64
             os: macos-13
-            python: "3.9"
-            link: https://github.com/disintar/ton/releases/download/ton-cpython-39-x86_64-darwin/
-            file: python_ton.cpython-39-darwin.so
-            fix_tag: x86_64
-          - arch: x86_64
-            os: macos-13
             python: "3.10"
             link: https://github.com/disintar/ton/releases/download/ton-cpython-310-x86_64-darwin/
             file: python_ton.cpython-310-darwin.so
@@ -66,13 +60,7 @@ jobs:
             file: python_ton.cpython-313-x86_64-linux-gnu.so
             fix_tag: manylinux2014_x86_64
 
-          # Legacy Linux x86_64 (arc-runner-set) kept
-          - arch: x86_64
-            os: arc-runner-set
-            python: "3.9"
-            link: https://github.com/disintar/ton/releases/download/ton-cpython-39-x86_64-linux/
-            file: python_ton.cpython-39-x86_64-linux-gnu.so
-            fix_tag: manylinux2014_x86_64
+          # Legacy Linux x86_64
           - arch: x86_64
             os: arc-runner-set
             python: "3.10"
@@ -87,12 +75,6 @@ jobs:
             fix_tag: manylinux2014_x86_64
 
           # macOS arm64
-          - arch: aarch64
-            os: macos-15
-            python: "3.9"
-            link: https://github.com/disintar/ton/releases/download/ton-cpython-39-aarch64-darwin/
-            file: python_ton.cpython-39-darwin.so
-            fix_tag: arm64
           - arch: aarch64
             os: macos-15
             python: "3.10"
@@ -119,12 +101,6 @@ jobs:
             fix_tag: arm64
 
           # Windows x64
-          - arch: x86_64
-            os: windows-2022
-            python: "3.9"
-            link: https://github.com/disintar/ton/releases/download/ton-cpython-39-x86_64-windows/
-            file: python_ton.cp39-win_amd64.pyd
-            fix_tag:
           - arch: x86_64
             os: windows-2022
             python: "3.10"
