@@ -1,7 +1,11 @@
 # Copyright (c) 2023 Disintar LLP Licensed under the Apache License Version 2.0
+import hashlib
+import json
 
 from tonpy.libs.python_ton import PyStackEntry, PyStack, make_tuple, deserialize_stack_entry, deserialize_stack, \
     PyContinuation
+
+from tonpy.types.address import Address
 from tonpy.types import Cell, CellSlice, CellBuilder
 from typing import Union, Iterable, List
 from enum import Enum
@@ -60,6 +64,8 @@ class StackEntry:
             self.entry = StackEntry.create_tuple(value).entry
         elif isinstance(value, Continuation):
             self.entry = PyStackEntry(continuation=value)
+        elif isinstance(value, Address):
+            self.entry = PyStackEntry(cell_slice=value.to_cs().cell_slice)
         else:
             raise ValueError(f"Type {type(value)} is not supported")
 
@@ -73,8 +79,27 @@ class StackEntry:
     def as_cell_slice(self):
         return CellSlice(self.entry.as_cell_slice())
 
-    def as_int(self):
-        return int(self.entry.as_int())
+    def as_int(self, int_type=None):
+        me = int(self.entry.as_int())
+
+        if int_type is None:
+            return me
+
+        if (-1 * 2 ** (int_type - 1)) <= me <= (2 ** (int_type - 1) - 1):
+            return me
+        else:
+            raise OverflowError(f"Cannot convert {me} to Int{int_type}")
+
+    def as_uint(self, uint_type=None):
+        me = int(self.entry.as_int())
+
+        if uint_type is None:
+            return me
+
+        if 0 <= me <= 2 ** uint_type - 1:
+            return me
+        else:
+            raise OverflowError(f"Cannot convert {me} to UInt{uint_type}")
 
     def as_cont(self):
         return Continuation(self.entry.as_cont())
@@ -87,6 +112,26 @@ class StackEntry:
 
     def as_cell_builder(self):
         return CellBuilder(self.entry.as_cell_builder())
+
+    def as_abi(self):
+        t = self.get_type()
+
+        if t is StackEntry.Type.t_null:
+            return {"type": "Null"}
+        elif t is StackEntry.Type.t_cell:
+            return {"type": "Cell"}
+        elif t is StackEntry.Type.t_slice:
+            return {"type": "Slice"}
+        elif t is StackEntry.Type.t_int:
+            return {"type": "Int"}
+        elif t is StackEntry.Type.t_builder:
+            return {"type": "Builder"}
+        elif t is StackEntry.Type.t_tuple:
+            return {"type": "Tuple", "items": [i.as_abi() for i in self.as_tuple()]}
+        elif t is StackEntry.Type.t_vmcont:
+            return {"type": "Continuation"}
+        else:
+            raise ValueError(f"Not supported {t}")
 
     def serialize(self, short_ints=True, continuations=True) -> Cell:
         mode = 0
@@ -208,6 +253,10 @@ class Stack:
 
     def pop(self) -> StackEntry:
         return StackEntry(entry=self.stack.pop())
+
+    def get_abi_hash(self):
+        abi_json = json.dumps({"stack": [i.as_abi() for i in self]}, separators=(',', ':'))
+        return hashlib.sha256(abi_json.encode('utf-8')).hexdigest().upper()
 
     @staticmethod
     def deserialize(value: CellSlice) -> "Stack":

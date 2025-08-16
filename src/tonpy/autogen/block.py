@@ -8290,6 +8290,259 @@ class IhrPendingInfo(TLBComplex):
 tlb_classes.append("IhrPendingInfo")
 
 
+# class for type `AccountDispatchQueue`
+class AccountDispatchQueue(TLBComplex):
+    class Tag(Enum):
+        cons1 = 0
+
+    cons_len_exact = 0
+    cons_tag = [0]
+
+
+    def __init__(self):
+        super().__init__()
+
+        self.tag_to_class = {AccountDispatchQueue.Tag.cons1: AccountDispatchQueue.Record}
+
+    def get_tag(self, cs: CellSlice) -> Optional["AccountDispatchQueue.Tag"]:
+        return AccountDispatchQueue.Tag(0)
+
+
+    class Record(RecordBase):
+        def get_tag_enum(self):
+            return AccountDispatchQueue.Tag.cons1
+
+        def get_tag(self):
+            return AccountDispatchQueue.cons_tag[self.get_tag_enum().value]
+
+        def get_tag_len(self):
+            return AccountDispatchQueue.cons_len_exact[self.get_tag_enum().value] if isinstance(AccountDispatchQueue.cons_len_exact, list) else AccountDispatchQueue.cons_len_exact
+
+        def get_type_class(self):
+            return AccountDispatchQueue
+
+        # messages : HashmapE 64 EnqueuedMsg
+        messages: "CellSlice" = None
+        # count : uint48
+        count: "int" = None
+
+        def __init__(self, messages: "CellSlice" = None, count: "int" = None):
+            super().__init__()
+            self.field_names = []
+            self.messages = messages    
+            self.field_names.append("messages")
+            self.count = count    
+            self.field_names.append("count")
+
+        def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
+            try:
+                self.messages = TLBComplex.constants["t_HashmapE_64_EnqueuedMsg"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.count = cs.load_uint(48)                
+                if strict:
+                    for i in self.field_names:
+                        if i not in self.conditional_fields:
+                            assert getattr(self, i) is not None, f'Field {i} is None'
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
+                return False
+            return True
+
+        def cell_unpack(self, cell_ref: Cell, rec_unpack: bool = False, strict: bool = True) -> bool:
+            try:
+                if cell_ref.is_null():
+                    return False
+                cs = cell_ref.begin_parse()
+                return self.unpack(cs) and cs.empty_ext()
+
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
+                return False
+            return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_HashmapE_64_EnqueuedMsg"].store_from(cb, self.messages)
+            cb.store_uint(self.count, 48)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
+    def always_special(self):
+        return False
+
+
+tlb_classes.append("AccountDispatchQueue")
+
+
+# class for type `DispatchQueue`
+class DispatchQueue(TLBComplex):
+    class Tag(Enum):
+        cons1 = 0
+
+    cons_len_exact = 0
+    cons_tag = [0]
+
+
+    def __init__(self):
+        super().__init__()
+
+        self.tag_to_class = {DispatchQueue.Tag.cons1: DispatchQueue.Record}
+
+    def get_tag(self, cs: CellSlice) -> Optional["DispatchQueue.Tag"]:
+        return DispatchQueue.Tag(0)
+
+
+    class Record(RecordBase):
+        def get_tag_enum(self):
+            return DispatchQueue.Tag.cons1
+
+        def get_tag(self):
+            return DispatchQueue.cons_tag[self.get_tag_enum().value]
+
+        def get_tag_len(self):
+            return DispatchQueue.cons_len_exact[self.get_tag_enum().value] if isinstance(DispatchQueue.cons_len_exact, list) else DispatchQueue.cons_len_exact
+
+        def get_type_class(self):
+            return DispatchQueue
+
+        # HashmapAugE 256 AccountDispatchQueue uint64
+        x: "CellSlice" = None
+
+        def __init__(self, x: "CellSlice" = None):
+            super().__init__()
+            self.field_names = []
+            self.x = x    
+            self.field_names.append("x")
+
+        def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
+            try:
+                self.x = TLBComplex.constants["t_HashmapAugE_256_AccountDispatchQueue_uint64"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
+                if strict:
+                    for i in self.field_names:
+                        if i not in self.conditional_fields:
+                            assert getattr(self, i) is not None, f'Field {i} is None'
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
+                return False
+            return True
+
+        def cell_unpack(self, cell_ref: Cell, rec_unpack: bool = False, strict: bool = True) -> bool:
+            try:
+                if cell_ref.is_null():
+                    return False
+                cs = cell_ref.begin_parse()
+                return self.unpack(cs) and cs.empty_ext()
+
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
+                return False
+            return True
+
+        def pack(self, cb: CellBuilder):
+            TLBComplex.constants["t_HashmapAugE_256_AccountDispatchQueue_uint64"].store_from(cb, self.x)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
+    def always_special(self):
+        return False
+
+
+tlb_classes.append("DispatchQueue")
+
+
+# class for type `OutMsgQueueExtra`
+class OutMsgQueueExtra(TLBComplex):
+    class Tag(Enum):
+        out_msg_queue_extra = 0
+
+    cons_len_exact = 4
+    cons_tag = [0]
+
+
+    def __init__(self):
+        super().__init__()
+
+        self.tag_to_class = {OutMsgQueueExtra.Tag.out_msg_queue_extra: OutMsgQueueExtra.Record}
+
+    def get_tag(self, cs: CellSlice) -> Optional["OutMsgQueueExtra.Tag"]:
+        return OutMsgQueueExtra.Tag(0)
+
+
+    class Record(RecordBase):
+        def get_tag_enum(self):
+            return OutMsgQueueExtra.Tag.out_msg_queue_extra
+
+        def get_tag(self):
+            return OutMsgQueueExtra.cons_tag[self.get_tag_enum().value]
+
+        def get_tag_len(self):
+            return OutMsgQueueExtra.cons_len_exact[self.get_tag_enum().value] if isinstance(OutMsgQueueExtra.cons_len_exact, list) else OutMsgQueueExtra.cons_len_exact
+
+        def get_type_class(self):
+            return OutMsgQueueExtra
+
+        # dispatch_queue : DispatchQueue
+        dispatch_queue: "CellSlice" = None
+        # out_queue_size : Maybe uint48
+        out_queue_size: "CellSlice" = None
+
+        def __init__(self, dispatch_queue: "CellSlice" = None, out_queue_size: "CellSlice" = None):
+            super().__init__()
+            self.field_names = []
+            self.dispatch_queue = dispatch_queue    
+            self.field_names.append("dispatch_queue")
+            self.out_queue_size = out_queue_size    
+            self.field_names.append("out_queue_size")
+
+        def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
+            try:
+                assert cs.load_uint(4) == 0, 'Cons tag check failed'
+
+                self.dispatch_queue = TLBComplex.constants["t_DispatchQueue"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.out_queue_size = TLBComplex.constants["t_Maybe_uint48"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
+                if strict:
+                    for i in self.field_names:
+                        if i not in self.conditional_fields:
+                            assert getattr(self, i) is not None, f'Field {i} is None'
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
+                return False
+            return True
+
+        def cell_unpack(self, cell_ref: Cell, rec_unpack: bool = False, strict: bool = True) -> bool:
+            try:
+                if cell_ref.is_null():
+                    return False
+                cs = cell_ref.begin_parse()
+                return self.unpack(cs) and cs.empty_ext()
+
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
+                return False
+            return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 4)
+
+            TLBComplex.constants["t_DispatchQueue"].store_from(cb, self.dispatch_queue)
+            TLBComplex.constants["t_Maybe_uint48"].store_from(cb, self.out_queue_size)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
+    def always_special(self):
+        return False
+
+
+tlb_classes.append("OutMsgQueueExtra")
+
+
 # class for type `OutMsgQueueInfo`
 class OutMsgQueueInfo(TLBComplex):
     class Tag(Enum):
@@ -8325,24 +8578,24 @@ class OutMsgQueueInfo(TLBComplex):
         out_queue: "CellSlice" = None
         # proc_info : ProcessedInfo
         proc_info: "CellSlice" = None
-        # ihr_pending : IhrPendingInfo
-        ihr_pending: "CellSlice" = None
+        # extra : Maybe OutMsgQueueExtra
+        extra: "CellSlice" = None
 
-        def __init__(self, out_queue: "CellSlice" = None, proc_info: "CellSlice" = None, ihr_pending: "CellSlice" = None):
+        def __init__(self, out_queue: "CellSlice" = None, proc_info: "CellSlice" = None, extra: "CellSlice" = None):
             super().__init__()
             self.field_names = []
             self.out_queue = out_queue    
             self.field_names.append("out_queue")
             self.proc_info = proc_info    
             self.field_names.append("proc_info")
-            self.ihr_pending = ihr_pending    
-            self.field_names.append("ihr_pending")
+            self.extra = extra    
+            self.field_names.append("extra")
 
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
                 self.out_queue = TLBComplex.constants["t_OutMsgQueue"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.proc_info = TLBComplex.constants["t_ProcessedInfo"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
-                self.ihr_pending = TLBComplex.constants["t_IhrPendingInfo"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
+                self.extra = TLBComplex.constants["t_Maybe_OutMsgQueueExtra"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
@@ -8365,7 +8618,7 @@ class OutMsgQueueInfo(TLBComplex):
         def pack(self, cb: CellBuilder):
             TLBComplex.constants["t_OutMsgQueue"].store_from(cb, self.out_queue)
             TLBComplex.constants["t_ProcessedInfo"].store_from(cb, self.proc_info)
-            TLBComplex.constants["t_IhrPendingInfo"].store_from(cb, self.ihr_pending)            
+            TLBComplex.constants["t_Maybe_OutMsgQueueExtra"].store_from(cb, self.extra)            
 
 
 
@@ -8379,6 +8632,140 @@ class OutMsgQueueInfo(TLBComplex):
 
 
 tlb_classes.append("OutMsgQueueInfo")
+
+
+# class for type `StorageExtraInfo`
+class StorageExtraInfo(TLBComplex):
+    class Tag(Enum):
+        storage_extra_none = 0
+        storage_extra_info = 1
+
+    cons_len_exact = 3
+    cons_tag = [0, 1]
+
+
+    def __init__(self):
+        super().__init__()
+
+        self.tag_to_class = {StorageExtraInfo.Tag.storage_extra_none: StorageExtraInfo.Record_storage_extra_none, StorageExtraInfo.Tag.storage_extra_info: StorageExtraInfo.Record_storage_extra_info}
+
+    def get_tag(self, cs: CellSlice) -> Optional["StorageExtraInfo.Tag"]:
+        return StorageExtraInfo.Tag(int(cs.bselect(3, 3)))
+
+
+    class Record_storage_extra_none(RecordBase):
+        def get_tag_enum(self):
+            return StorageExtraInfo.Tag.storage_extra_none
+
+        def get_tag(self):
+            return StorageExtraInfo.cons_tag[self.get_tag_enum().value]
+
+        def get_tag_len(self):
+            return StorageExtraInfo.cons_len_exact[self.get_tag_enum().value] if isinstance(StorageExtraInfo.cons_len_exact, list) else StorageExtraInfo.cons_len_exact
+
+        def get_type_class(self):
+            return StorageExtraInfo
+
+
+        def __init__(self):
+            super().__init__()
+        def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
+            try:
+                assert cs.load_uint(3) == 0, 'Cons tag check failed'
+                
+                if strict:
+                    for i in self.field_names:
+                        if i not in self.conditional_fields:
+                            assert getattr(self, i) is not None, f'Field {i} is None'
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
+                return False
+            return True
+
+        def cell_unpack(self, cell_ref: Cell, rec_unpack: bool = False, strict: bool = True) -> bool:
+            try:
+                if cell_ref.is_null():
+                    return False
+                cs = cell_ref.begin_parse()
+                return self.unpack(cs) and cs.empty_ext()
+
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
+                return False
+            return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(0, 3)
+            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
+    class Record_storage_extra_info(RecordBase):
+        def get_tag_enum(self):
+            return StorageExtraInfo.Tag.storage_extra_info
+
+        def get_tag(self):
+            return StorageExtraInfo.cons_tag[self.get_tag_enum().value]
+
+        def get_tag_len(self):
+            return StorageExtraInfo.cons_len_exact[self.get_tag_enum().value] if isinstance(StorageExtraInfo.cons_len_exact, list) else StorageExtraInfo.cons_len_exact
+
+        def get_type_class(self):
+            return StorageExtraInfo
+
+        # dict_hash : uint256
+        dict_hash: "int" = None
+
+        def __init__(self, dict_hash: "int" = None):
+            super().__init__()
+            self.field_names = []
+            self.dict_hash = dict_hash    
+            self.field_names.append("dict_hash")
+
+        def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
+            try:
+                assert cs.load_uint(3) == 1, 'Cons tag check failed'
+
+                self.dict_hash = cs.load_uint(256)                
+                if strict:
+                    for i in self.field_names:
+                        if i not in self.conditional_fields:
+                            assert getattr(self, i) is not None, f'Field {i} is None'
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
+                return False
+            return True
+
+        def cell_unpack(self, cell_ref: Cell, rec_unpack: bool = False, strict: bool = True) -> bool:
+            try:
+                if cell_ref.is_null():
+                    return False
+                cs = cell_ref.begin_parse()
+                return self.unpack(cs) and cs.empty_ext()
+
+            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
+                return False
+            return True
+
+        def pack(self, cb: CellBuilder):
+            cb.store_uint(1, 3)
+
+            cb.store_uint(self.dict_hash, 256)            
+
+
+
+        def cell_pack(self):
+            cb = CellBuilder()
+            self.pack(cb)
+            return cb.end_cell()
+
+    def always_special(self):
+        return False
+
+
+tlb_classes.append("StorageExtraInfo")
 
 
 # class for type `StorageUsed`
@@ -8411,97 +8798,6 @@ class StorageUsed(TLBComplex):
 
         def get_type_class(self):
             return StorageUsed
-
-        # cells : VarUInteger 7
-        cells: "CellSlice" = None
-        # bits : VarUInteger 7
-        bits: "CellSlice" = None
-        # public_cells : VarUInteger 7
-        public_cells: "CellSlice" = None
-
-        def __init__(self, cells: "CellSlice" = None, bits: "CellSlice" = None, public_cells: "CellSlice" = None):
-            super().__init__()
-            self.field_names = []
-            self.cells = cells    
-            self.field_names.append("cells")
-            self.bits = bits    
-            self.field_names.append("bits")
-            self.public_cells = public_cells    
-            self.field_names.append("public_cells")
-
-        def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
-            try:
-                self.cells = TLBComplex.constants["t_VarUInteger_7"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
-                self.bits = TLBComplex.constants["t_VarUInteger_7"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
-                self.public_cells = TLBComplex.constants["t_VarUInteger_7"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
-                if strict:
-                    for i in self.field_names:
-                        if i not in self.conditional_fields:
-                            assert getattr(self, i) is not None, f'Field {i} is None'
-            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
-                return False
-            return True
-
-        def cell_unpack(self, cell_ref: Cell, rec_unpack: bool = False, strict: bool = True) -> bool:
-            try:
-                if cell_ref.is_null():
-                    return False
-                cs = cell_ref.begin_parse()
-                return self.unpack(cs) and cs.empty_ext()
-
-            except (RuntimeError, KeyError, ValueError, AssertionError, IndexError):
-                return False
-            return True
-
-        def pack(self, cb: CellBuilder):
-            TLBComplex.constants["t_VarUInteger_7"].store_from(cb, self.cells)
-            TLBComplex.constants["t_VarUInteger_7"].store_from(cb, self.bits)
-            TLBComplex.constants["t_VarUInteger_7"].store_from(cb, self.public_cells)            
-
-
-
-        def cell_pack(self):
-            cb = CellBuilder()
-            self.pack(cb)
-            return cb.end_cell()
-
-    def always_special(self):
-        return False
-
-
-tlb_classes.append("StorageUsed")
-
-
-# class for type `StorageUsedShort`
-class StorageUsedShort(TLBComplex):
-    class Tag(Enum):
-        storage_used_short = 0
-
-    cons_len_exact = 0
-    cons_tag = [0]
-
-
-    def __init__(self):
-        super().__init__()
-
-        self.tag_to_class = {StorageUsedShort.Tag.storage_used_short: StorageUsedShort.Record}
-
-    def get_tag(self, cs: CellSlice) -> Optional["StorageUsedShort.Tag"]:
-        return StorageUsedShort.Tag(0)
-
-
-    class Record(RecordBase):
-        def get_tag_enum(self):
-            return StorageUsedShort.Tag.storage_used_short
-
-        def get_tag(self):
-            return StorageUsedShort.cons_tag[self.get_tag_enum().value]
-
-        def get_tag_len(self):
-            return StorageUsedShort.cons_len_exact[self.get_tag_enum().value] if isinstance(StorageUsedShort.cons_len_exact, list) else StorageUsedShort.cons_len_exact
-
-        def get_type_class(self):
-            return StorageUsedShort
 
         # cells : VarUInteger 7
         cells: "CellSlice" = None
@@ -8554,7 +8850,7 @@ class StorageUsedShort(TLBComplex):
         return False
 
 
-tlb_classes.append("StorageUsedShort")
+tlb_classes.append("StorageUsed")
 
 
 # class for type `StorageInfo`
@@ -8590,16 +8886,20 @@ class StorageInfo(TLBComplex):
 
         # used : StorageUsed
         used: "CellSlice" = None
+        # storage_extra : StorageExtraInfo
+        storage_extra: "CellSlice" = None
         # last_paid : uint32
         last_paid: "int" = None
         # due_payment : Maybe Grams
         due_payment: "CellSlice" = None
 
-        def __init__(self, used: "CellSlice" = None, last_paid: "int" = None, due_payment: "CellSlice" = None):
+        def __init__(self, used: "CellSlice" = None, storage_extra: "CellSlice" = None, last_paid: "int" = None, due_payment: "CellSlice" = None):
             super().__init__()
             self.field_names = []
             self.used = used    
             self.field_names.append("used")
+            self.storage_extra = storage_extra    
+            self.field_names.append("storage_extra")
             self.last_paid = last_paid    
             self.field_names.append("last_paid")
             self.due_payment = due_payment    
@@ -8608,6 +8908,7 @@ class StorageInfo(TLBComplex):
         def unpack(self, cs: CellSlice, rec_unpack: bool = False, strict: bool = True) -> bool:
             try:
                 self.used = TLBComplex.constants["t_StorageUsed"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.storage_extra = TLBComplex.constants["t_StorageExtraInfo"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.last_paid = cs.load_uint(32)
                 self.due_payment = TLBComplex.constants["t_Maybe_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
@@ -8631,6 +8932,7 @@ class StorageInfo(TLBComplex):
 
         def pack(self, cb: CellBuilder):
             TLBComplex.constants["t_StorageUsed"].store_from(cb, self.used)
+            TLBComplex.constants["t_StorageExtraInfo"].store_from(cb, self.storage_extra)
             cb.store_uint(self.last_paid, 32)
             TLBComplex.constants["t_Maybe_Grams"].store_from(cb, self.due_payment)            
 
@@ -11279,7 +11581,7 @@ class TrActionPhase(TLBComplex):
         msgs_created: "int" = None
         # action_list_hash : bits256
         action_list_hash: "bitstring.BitArray" = None
-        # tot_msg_size : StorageUsedShort
+        # tot_msg_size : StorageUsed
         tot_msg_size: "CellSlice" = None
 
         def __init__(self, success: "bool" = None, valid: "bool" = None, no_funds: "bool" = None, status_change: "Enum" = None, total_fwd_fees: "CellSlice" = None, total_action_fees: "CellSlice" = None, result_code: "int" = None, result_arg: "CellSlice" = None, tot_actions: "int" = None, spec_actions: "int" = None, skipped_actions: "int" = None, msgs_created: "int" = None, action_list_hash: "bitstring.BitArray" = None, tot_msg_size: "CellSlice" = None):
@@ -11329,7 +11631,7 @@ class TrActionPhase(TLBComplex):
                 self.skipped_actions = cs.load_uint(16)
                 self.msgs_created = cs.load_uint(16)
                 self.action_list_hash = cs.load_bitstring(256)
-                self.tot_msg_size = TLBComplex.constants["t_StorageUsedShort"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
+                self.tot_msg_size = TLBComplex.constants["t_StorageUsed"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
@@ -11363,7 +11665,7 @@ class TrActionPhase(TLBComplex):
             cb.store_uint(self.skipped_actions, 16)
             cb.store_uint(self.msgs_created, 16)
             cb.store_bitstring_chk(self.action_list_hash, 256)
-            TLBComplex.constants["t_StorageUsedShort"].store_from(cb, self.tot_msg_size)            
+            TLBComplex.constants["t_StorageUsed"].store_from(cb, self.tot_msg_size)            
 
 
 
@@ -11462,7 +11764,7 @@ class TrBouncePhase(TLBComplex):
         def get_type_class(self):
             return TrBouncePhase
 
-        # msg_size : StorageUsedShort
+        # msg_size : StorageUsed
         msg_size: "CellSlice" = None
         # req_fwd_fees : Grams
         req_fwd_fees: "CellSlice" = None
@@ -11479,7 +11781,7 @@ class TrBouncePhase(TLBComplex):
             try:
                 assert cs.load_uint(2) == 1, 'Cons tag check failed'
 
-                self.msg_size = TLBComplex.constants["t_StorageUsedShort"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.msg_size = TLBComplex.constants["t_StorageUsed"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.req_fwd_fees = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
                     for i in self.field_names:
@@ -11503,7 +11805,7 @@ class TrBouncePhase(TLBComplex):
         def pack(self, cb: CellBuilder):
             cb.store_uint(1, 2)
 
-            TLBComplex.constants["t_StorageUsedShort"].store_from(cb, self.msg_size)
+            TLBComplex.constants["t_StorageUsed"].store_from(cb, self.msg_size)
             TLBComplex.constants["t_Grams"].store_from(cb, self.req_fwd_fees)            
 
 
@@ -11526,7 +11828,7 @@ class TrBouncePhase(TLBComplex):
         def get_type_class(self):
             return TrBouncePhase
 
-        # msg_size : StorageUsedShort
+        # msg_size : StorageUsed
         msg_size: "CellSlice" = None
         # msg_fees : Grams
         msg_fees: "CellSlice" = None
@@ -11547,7 +11849,7 @@ class TrBouncePhase(TLBComplex):
             try:
                 assert cs.load_uint(1) == 1, 'Cons tag check failed'
 
-                self.msg_size = TLBComplex.constants["t_StorageUsedShort"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
+                self.msg_size = TLBComplex.constants["t_StorageUsed"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.msg_fees = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.fwd_fees = TLBComplex.constants["t_Grams"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)                
                 if strict:
@@ -11572,7 +11874,7 @@ class TrBouncePhase(TLBComplex):
         def pack(self, cb: CellBuilder):
             cb.store_uint(1, 1)
 
-            TLBComplex.constants["t_StorageUsedShort"].store_from(cb, self.msg_size)
+            TLBComplex.constants["t_StorageUsed"].store_from(cb, self.msg_size)
             TLBComplex.constants["t_Grams"].store_from(cb, self.msg_fees)
             TLBComplex.constants["t_Grams"].store_from(cb, self.fwd_fees)            
 
@@ -14776,8 +15078,8 @@ class BlockExtra(TLBComplex):
 tlb_classes.append("BlockExtra")
 
 
-# class for auxiliary type `TYPE_1658`
-class TYPE_1658(TLBComplex):
+# class for auxiliary type `TYPE_1661`
+class TYPE_1661(TLBComplex):
     class Tag(Enum):
         cons1 = 0
 
@@ -14788,24 +15090,24 @@ class TYPE_1658(TLBComplex):
     def __init__(self):
         super().__init__()
 
-        self.tag_to_class = {TYPE_1658.Tag.cons1: TYPE_1658.Record}
+        self.tag_to_class = {TYPE_1661.Tag.cons1: TYPE_1661.Record}
 
-    def get_tag(self, cs: CellSlice) -> Optional["TYPE_1658.Tag"]:
-        return TYPE_1658.Tag(0)
+    def get_tag(self, cs: CellSlice) -> Optional["TYPE_1661.Tag"]:
+        return TYPE_1661.Tag(0)
 
 
     class Record(RecordBase):
         def get_tag_enum(self):
-            return TYPE_1658.Tag.cons1
+            return TYPE_1661.Tag.cons1
 
         def get_tag(self):
-            return TYPE_1658.cons_tag[self.get_tag_enum().value]
+            return TYPE_1661.cons_tag[self.get_tag_enum().value]
 
         def get_tag_len(self):
-            return TYPE_1658.cons_len_exact[self.get_tag_enum().value] if isinstance(TYPE_1658.cons_len_exact, list) else TYPE_1658.cons_len_exact
+            return TYPE_1661.cons_len_exact[self.get_tag_enum().value] if isinstance(TYPE_1661.cons_len_exact, list) else TYPE_1661.cons_len_exact
 
         def get_type_class(self):
-            return TYPE_1658
+            return TYPE_1661
 
         # from_prev_blk : CurrencyCollection
         from_prev_blk: "CellSlice" = None
@@ -14870,11 +15172,11 @@ class TYPE_1658(TLBComplex):
         return False
 
 
-tlb_classes.append("TYPE_1658")
+tlb_classes.append("TYPE_1661")
 
 
-# class for auxiliary type `TYPE_1659`
-class TYPE_1659(TLBComplex):
+# class for auxiliary type `TYPE_1662`
+class TYPE_1662(TLBComplex):
     class Tag(Enum):
         cons1 = 0
 
@@ -14885,24 +15187,24 @@ class TYPE_1659(TLBComplex):
     def __init__(self):
         super().__init__()
 
-        self.tag_to_class = {TYPE_1659.Tag.cons1: TYPE_1659.Record}
+        self.tag_to_class = {TYPE_1662.Tag.cons1: TYPE_1662.Record}
 
-    def get_tag(self, cs: CellSlice) -> Optional["TYPE_1659.Tag"]:
-        return TYPE_1659.Tag(0)
+    def get_tag(self, cs: CellSlice) -> Optional["TYPE_1662.Tag"]:
+        return TYPE_1662.Tag(0)
 
 
     class Record(RecordBase):
         def get_tag_enum(self):
-            return TYPE_1659.Tag.cons1
+            return TYPE_1662.Tag.cons1
 
         def get_tag(self):
-            return TYPE_1659.cons_tag[self.get_tag_enum().value]
+            return TYPE_1662.cons_tag[self.get_tag_enum().value]
 
         def get_tag_len(self):
-            return TYPE_1659.cons_len_exact[self.get_tag_enum().value] if isinstance(TYPE_1659.cons_len_exact, list) else TYPE_1659.cons_len_exact
+            return TYPE_1662.cons_len_exact[self.get_tag_enum().value] if isinstance(TYPE_1662.cons_len_exact, list) else TYPE_1662.cons_len_exact
 
         def get_type_class(self):
-            return TYPE_1659
+            return TYPE_1662
 
         # fees_imported : CurrencyCollection
         fees_imported: "CellSlice" = None
@@ -14967,7 +15269,7 @@ class TYPE_1659(TLBComplex):
         return False
 
 
-tlb_classes.append("TYPE_1659")
+tlb_classes.append("TYPE_1662")
 
 
 # class for type `ValueFlow`
@@ -15003,13 +15305,13 @@ class ValueFlow(TLBComplex):
             return ValueFlow
 
         # ^[$_ from_prev_blk:CurrencyCollection to_next_blk:CurrencyCollection imported:CurrencyCollection exported:CurrencyCollection ]
-        r1: "TYPE_1658.Record" = None
+        r1: "TYPE_1661.Record" = None
         # fees_collected : CurrencyCollection
         fees_collected: "CellSlice" = None
         # ^[$_ fees_imported:CurrencyCollection recovered:CurrencyCollection created:CurrencyCollection minted:CurrencyCollection ]
-        r2: "TYPE_1659.Record" = None
+        r2: "TYPE_1662.Record" = None
 
-        def __init__(self, r1: "TYPE_1658.Record" = None, fees_collected: "CellSlice" = None, r2: "TYPE_1659.Record" = None):
+        def __init__(self, r1: "TYPE_1661.Record" = None, fees_collected: "CellSlice" = None, r2: "TYPE_1662.Record" = None):
             super().__init__()
             self.field_names = []
             self.r1 = r1    
@@ -15023,9 +15325,9 @@ class ValueFlow(TLBComplex):
             try:
                 assert cs.load_uint(32) == 0xb8e48dfb, 'Cons tag check failed'
 
-                self.r1 = TLBComplex.constants["t_TYPE_1658"].fetch(cs.load_ref(), rec_unpack, strict)
+                self.r1 = TLBComplex.constants["t_TYPE_1661"].fetch(cs.load_ref(), rec_unpack, strict)
                 self.fees_collected = TLBComplex.constants["t_CurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
-                self.r2 = TLBComplex.constants["t_TYPE_1659"].fetch(cs.load_ref(), rec_unpack, strict)                
+                self.r2 = TLBComplex.constants["t_TYPE_1662"].fetch(cs.load_ref(), rec_unpack, strict)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
@@ -15073,15 +15375,15 @@ class ValueFlow(TLBComplex):
             return ValueFlow
 
         # ^[$_ from_prev_blk:CurrencyCollection to_next_blk:CurrencyCollection imported:CurrencyCollection exported:CurrencyCollection ]
-        r1: "TYPE_1658.Record" = None
+        r1: "TYPE_1661.Record" = None
         # fees_collected : CurrencyCollection
         fees_collected: "CellSlice" = None
         # burned : CurrencyCollection
         burned: "CellSlice" = None
         # ^[$_ fees_imported:CurrencyCollection recovered:CurrencyCollection created:CurrencyCollection minted:CurrencyCollection ]
-        r2: "TYPE_1659.Record" = None
+        r2: "TYPE_1662.Record" = None
 
-        def __init__(self, r1: "TYPE_1658.Record" = None, fees_collected: "CellSlice" = None, burned: "CellSlice" = None, r2: "TYPE_1659.Record" = None):
+        def __init__(self, r1: "TYPE_1661.Record" = None, fees_collected: "CellSlice" = None, burned: "CellSlice" = None, r2: "TYPE_1662.Record" = None):
             super().__init__()
             self.field_names = []
             self.r1 = r1    
@@ -15097,10 +15399,10 @@ class ValueFlow(TLBComplex):
             try:
                 assert cs.load_uint(32) == 0x3ebf98b7, 'Cons tag check failed'
 
-                self.r1 = TLBComplex.constants["t_TYPE_1658"].fetch(cs.load_ref(), rec_unpack, strict)
+                self.r1 = TLBComplex.constants["t_TYPE_1661"].fetch(cs.load_ref(), rec_unpack, strict)
                 self.fees_collected = TLBComplex.constants["t_CurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
                 self.burned = TLBComplex.constants["t_CurrencyCollection"].fetch(cs, rec_unpack=rec_unpack, strict=strict, load_ref=True)
-                self.r2 = TLBComplex.constants["t_TYPE_1659"].fetch(cs.load_ref(), rec_unpack, strict)                
+                self.r2 = TLBComplex.constants["t_TYPE_1662"].fetch(cs.load_ref(), rec_unpack, strict)                
                 if strict:
                     for i in self.field_names:
                         if i not in self.conditional_fields:
@@ -31819,9 +32121,12 @@ TLBComplex.constants["t_ProcessedUpto"] = ProcessedUpto()
 TLBComplex.constants["t_ProcessedInfo"] = ProcessedInfo()
 TLBComplex.constants["t_IhrPendingSince"] = IhrPendingSince()
 TLBComplex.constants["t_IhrPendingInfo"] = IhrPendingInfo()
+TLBComplex.constants["t_AccountDispatchQueue"] = AccountDispatchQueue()
+TLBComplex.constants["t_DispatchQueue"] = DispatchQueue()
+TLBComplex.constants["t_OutMsgQueueExtra"] = OutMsgQueueExtra()
 TLBComplex.constants["t_OutMsgQueueInfo"] = OutMsgQueueInfo()
+TLBComplex.constants["t_StorageExtraInfo"] = StorageExtraInfo()
 TLBComplex.constants["t_StorageUsed"] = StorageUsed()
-TLBComplex.constants["t_StorageUsedShort"] = StorageUsedShort()
 TLBComplex.constants["t_StorageInfo"] = StorageInfo()
 TLBComplex.constants["t_Account"] = Account()
 TLBComplex.constants["t_AccountStorage"] = AccountStorage()
@@ -31859,8 +32164,8 @@ TLBComplex.constants["t_LibDescr"] = LibDescr()
 TLBComplex.constants["t_BlockInfo"] = BlockInfo()
 TLBComplex.constants["t_Block"] = Block()
 TLBComplex.constants["t_BlockExtra"] = BlockExtra()
-TLBComplex.constants["t_TYPE_1658"] = TYPE_1658()
-TLBComplex.constants["t_TYPE_1659"] = TYPE_1659()
+TLBComplex.constants["t_TYPE_1661"] = TYPE_1661()
+TLBComplex.constants["t_TYPE_1662"] = TYPE_1662()
 TLBComplex.constants["t_ValueFlow"] = ValueFlow()
 TLBComplex.constants["t_FutureSplitMerge"] = FutureSplitMerge()
 TLBComplex.constants["t_ShardDescr_aux"] = ShardDescr_aux()
@@ -31982,6 +32287,12 @@ TLBComplex.constants["t_HashmapAugE_256_OutMsg_CurrencyCollection"] = HashmapAug
 TLBComplex.constants["t_HashmapAugE_352_EnqueuedMsg_uint64"] = HashmapAugE(352, TLBComplex.constants["t_EnqueuedMsg"], TLBComplex.constants["t_uint64"])
 TLBComplex.constants["t_HashmapE_96_ProcessedUpto"] = HashmapE(96, TLBComplex.constants["t_ProcessedUpto"])
 TLBComplex.constants["t_HashmapE_320_IhrPendingSince"] = HashmapE(320, TLBComplex.constants["t_IhrPendingSince"])
+TLBComplex.constants["t_HashmapE_64_EnqueuedMsg"] = HashmapE(64, TLBComplex.constants["t_EnqueuedMsg"])
+TLBComplex.constants["t_uint48"] = UInt(48)
+TLBComplex.constants["t_HashmapAugE_256_AccountDispatchQueue_uint64"] = HashmapAugE(256, TLBComplex.constants["t_AccountDispatchQueue"], TLBComplex.constants["t_uint64"])
+TLBComplex.constants["t_Maybe_uint48"] = Maybe(TLBComplex.constants["t_uint48"])
+TLBComplex.constants["t_Maybe_OutMsgQueueExtra"] = Maybe(TLBComplex.constants["t_OutMsgQueueExtra"])
+TLBComplex.constants["t_uint256"] = UInt(256)
 TLBComplex.constants["t_VarUInteger_7"] = VarUInteger(7)
 TLBComplex.constants["t_Maybe_Grams"] = Maybe(TLBComplex.constants["t_Grams"])
 TLBComplex.constants["t_Ref_Account"] = RefT(TLBComplex.constants["t_Account"])
@@ -31989,7 +32300,7 @@ TLBComplex.constants["t_HashmapAugE_256_ShardAccount_DepthBalanceInfo"] = Hashma
 TLBComplex.constants["t_uint15"] = UInt(15)
 TLBComplex.constants["t_Maybe_Ref_Message_Any"] = Maybe(TLBComplex.constants["t_Ref_Message_Any"])
 TLBComplex.constants["t_HashmapE_15_Ref_Message_Any"] = HashmapE(15, TLBComplex.constants["t_Ref_Message_Any"])
-TLBComplex.constants["t_Ref_TYPE_1621"] = RefT(TLBComplex.constants["t_Transaction_aux"])
+TLBComplex.constants["t_Ref_TYPE_1624"] = RefT(TLBComplex.constants["t_Transaction_aux"])
 TLBComplex.constants["t_HASH_UPDATE_Account"] = HASH_UPDATE(TLBComplex.constants["t_Account"])
 TLBComplex.constants["t_Ref_HASH_UPDATE_Account"] = RefT(TLBComplex.constants["t_HASH_UPDATE_Account"])
 TLBComplex.constants["t_Ref_TransactionDescr"] = RefT(TLBComplex.constants["t_TransactionDescr"])
@@ -31999,7 +32310,7 @@ TLBComplex.constants["t_HashmapAugE_256_AccountBlock_CurrencyCollection"] = Hash
 TLBComplex.constants["t_VarUInteger_3"] = VarUInteger(3)
 TLBComplex.constants["t_Maybe_VarUInteger_3"] = Maybe(TLBComplex.constants["t_VarUInteger_3"])
 TLBComplex.constants["t_Maybe_int32"] = Maybe(TLBComplex.constants["t_int32"])
-TLBComplex.constants["t_Ref_TYPE_1633"] = RefT(TLBComplex.constants["t_TrComputePhase_aux"])
+TLBComplex.constants["t_Ref_TYPE_1636"] = RefT(TLBComplex.constants["t_TrComputePhase_aux"])
 TLBComplex.constants["t_Maybe_TrStoragePhase"] = Maybe(TLBComplex.constants["t_TrStoragePhase"])
 TLBComplex.constants["t_Maybe_TrCreditPhase"] = Maybe(TLBComplex.constants["t_TrCreditPhase"])
 TLBComplex.constants["t_Ref_TrActionPhase"] = RefT(TLBComplex.constants["t_TrActionPhase"])
@@ -32016,7 +32327,7 @@ TLBComplex.constants["t_Ref_OutMsgQueueInfo"] = RefT(TLBComplex.constants["t_Out
 TLBComplex.constants["t_Ref_ShardAccounts"] = RefT(TLBComplex.constants["t_ShardAccounts"])
 TLBComplex.constants["t_HashmapE_256_LibDescr"] = HashmapE(256, TLBComplex.constants["t_LibDescr"])
 TLBComplex.constants["t_Maybe_BlkMasterInfo"] = Maybe(TLBComplex.constants["t_BlkMasterInfo"])
-TLBComplex.constants["t_Ref_TYPE_1647"] = RefT(TLBComplex.constants["t_ShardStateUnsplit_aux"])
+TLBComplex.constants["t_Ref_TYPE_1650"] = RefT(TLBComplex.constants["t_ShardStateUnsplit_aux"])
 TLBComplex.constants["t_Ref_McStateExtra"] = RefT(TLBComplex.constants["t_McStateExtra"])
 TLBComplex.constants["t_Maybe_Ref_McStateExtra"] = Maybe(TLBComplex.constants["t_Ref_McStateExtra"])
 TLBComplex.constants["t_Ref_ShardStateUnsplit"] = RefT(TLBComplex.constants["t_ShardStateUnsplit"])
@@ -32035,10 +32346,10 @@ TLBComplex.constants["t_Ref_OutMsgDescr"] = RefT(TLBComplex.constants["t_OutMsgD
 TLBComplex.constants["t_Ref_ShardAccountBlocks"] = RefT(TLBComplex.constants["t_ShardAccountBlocks"])
 TLBComplex.constants["t_Ref_McBlockExtra"] = RefT(TLBComplex.constants["t_McBlockExtra"])
 TLBComplex.constants["t_Maybe_Ref_McBlockExtra"] = Maybe(TLBComplex.constants["t_Ref_McBlockExtra"])
-TLBComplex.constants["t_Ref_TYPE_1658"] = RefT(TLBComplex.constants["t_TYPE_1658"])
-TLBComplex.constants["t_Ref_TYPE_1659"] = RefT(TLBComplex.constants["t_TYPE_1659"])
+TLBComplex.constants["t_Ref_TYPE_1661"] = RefT(TLBComplex.constants["t_TYPE_1661"])
+TLBComplex.constants["t_Ref_TYPE_1662"] = RefT(TLBComplex.constants["t_TYPE_1662"])
 TLBComplex.constants["t_natwidth_3"] = NatWidth(3)
-TLBComplex.constants["t_Ref_TYPE_1663"] = RefT(TLBComplex.constants["t_ShardDescr_aux"])
+TLBComplex.constants["t_Ref_TYPE_1666"] = RefT(TLBComplex.constants["t_ShardDescr_aux"])
 TLBComplex.constants["t_BinTree_ShardDescr"] = BinTree(TLBComplex.constants["t_ShardDescr"])
 TLBComplex.constants["t_Ref_BinTree_ShardDescr"] = RefT(TLBComplex.constants["t_BinTree_ShardDescr"])
 TLBComplex.constants["t_HashmapE_32_Ref_BinTree_ShardDescr"] = HashmapE(32, TLBComplex.constants["t_Ref_BinTree_ShardDescr"])
@@ -32050,18 +32361,17 @@ TLBComplex.constants["t_HashmapE_256_CreatorStats"] = HashmapE(256, TLBComplex.c
 TLBComplex.constants["t_HashmapAugE_256_CreatorStats_uint32"] = HashmapAugE(256, TLBComplex.constants["t_CreatorStats"], TLBComplex.constants["t_uint32"])
 TLBComplex.constants["t_natwidth_16"] = NatWidth(16)
 TLBComplex.constants["t_Maybe_ExtBlkRef"] = Maybe(TLBComplex.constants["t_ExtBlkRef"])
-TLBComplex.constants["t_Ref_TYPE_1677"] = RefT(TLBComplex.constants["t_McStateExtra_aux"])
+TLBComplex.constants["t_Ref_TYPE_1680"] = RefT(TLBComplex.constants["t_McStateExtra_aux"])
 TLBComplex.constants["t_Ref_SignedCertificate"] = RefT(TLBComplex.constants["t_SignedCertificate"])
 TLBComplex.constants["t_HashmapE_16_CryptoSignaturePair"] = HashmapE(16, TLBComplex.constants["t_CryptoSignaturePair"])
 TLBComplex.constants["t_Maybe_Ref_InMsg"] = Maybe(TLBComplex.constants["t_Ref_InMsg"])
-TLBComplex.constants["t_Ref_TYPE_1685"] = RefT(TLBComplex.constants["t_McBlockExtra_aux"])
+TLBComplex.constants["t_Ref_TYPE_1688"] = RefT(TLBComplex.constants["t_McBlockExtra_aux"])
 TLBComplex.constants["t_Hashmap_16_ValidatorDescr"] = Hashmap(16, TLBComplex.constants["t_ValidatorDescr"])
 TLBComplex.constants["t_HashmapE_16_ValidatorDescr"] = HashmapE(16, TLBComplex.constants["t_ValidatorDescr"])
 TLBComplex.constants["t_Maybe_bits256"] = Maybe(TLBComplex.constants["t_bits256"])
 TLBComplex.constants["t_Hashmap_32_TrueT"] = Hashmap(32, TLBComplex.constants["t_TrueT"])
 TLBComplex.constants["t_uint8"] = UInt(8)
 TLBComplex.constants["t_Ref_ConfigProposalSetup"] = RefT(TLBComplex.constants["t_ConfigProposalSetup"])
-TLBComplex.constants["t_uint256"] = UInt(256)
 TLBComplex.constants["t_Maybe_uint256"] = Maybe(TLBComplex.constants["t_uint256"])
 TLBComplex.constants["t_Ref_ConfigProposal"] = RefT(TLBComplex.constants["t_ConfigProposal"])
 TLBComplex.constants["t_HashmapE_16_uint32"] = HashmapE(16, TLBComplex.constants["t_uint32"])
@@ -32095,7 +32405,7 @@ TLBComplex.constants["t_natleq_4"] = NatLeq(4)
 TLBComplex.constants["t_Ref_VmStackValue"] = RefT(TLBComplex.constants["t_VmStackValue"])
 TLBComplex.constants["t_natwidth_24"] = NatWidth(24)
 TLBComplex.constants["t_HashmapE_4_VmStackValue"] = HashmapE(4, TLBComplex.constants["t_VmStackValue"])
-TLBComplex.constants["t_Ref_TYPE_1732"] = RefT(TLBComplex.constants["t_VmGasLimits_aux"])
+TLBComplex.constants["t_Ref_TYPE_1735"] = RefT(TLBComplex.constants["t_VmGasLimits_aux"])
 TLBComplex.constants["t_HashmapE_256_Ref_Cell"] = HashmapE(256, TLBComplex.constants["t_RefCell"])
 TLBComplex.constants["t_uint13"] = UInt(13)
 TLBComplex.constants["t_Maybe_uint13"] = Maybe(TLBComplex.constants["t_uint13"])

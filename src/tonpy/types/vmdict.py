@@ -1,7 +1,6 @@
 # Copyright (c) 2023 Disintar LLP Licensed under the Apache License Version 2.0
 
 from typing import Union, Iterable, Optional, Tuple, Callable
-import warnings
 
 from tonpy.libs.python_ton import PyDict, PyCellSlice, PyAugmentationCheckData
 
@@ -115,7 +114,8 @@ class VmDict:
     def __init__(self, key_len: int,
                  signed: bool = False,
                  cell_root: Union[Union[str, Cell], CellSlice] = None,
-                 aug: AugmentedData = None):
+                 aug: AugmentedData = None,
+                 py_dict: PyDict = None):
         """
         Wrapper of HashmapE (dictionary type of TON)  |br|
 
@@ -127,12 +127,17 @@ class VmDict:
         :return:
         """
 
-        if key_len > 256:
-            if not (key_len == 257 and signed):
-                warnings.warn("Key len larger than 256 for unsigned / 257 for signed supports only in `.map` method")
-
         self.key_len = key_len
         self.signed = signed
+
+        if py_dict is not None:
+            self.dict = py_dict
+            if aug is None:
+                self.is_augmented = False
+            else:
+                self.aug = aug
+                self.is_augmented = True
+            return
 
         if cell_root is not None:
             cs = cell_root
@@ -162,31 +167,6 @@ class VmDict:
                 raise ValueError(f"Signed is false, but key < 0")
         return signed
 
-    def set(self, key: int, value: CellSlice, mode: str = "set", signed: bool = None) -> "VmDict":
-        """
-        Add / Set / Replace ``key`` as ``key_len`` and ``signed`` bits to value ``value``  |br|
-
-        - Set: sets the value associated with ``key_len``-bit key ``key`` in VmDict to value ``value``
-
-        - Add: sets the value associated with key ``key`` to ``value``, but only if ``key`` is not already present in VmDict
-
-        - Replace: sets the value of ``key`` to ``value`` only if the key ``key`` was already present in VmDict
-
-        :param key: Integer to be stored as key
-        :param value: CellSlice to be stored
-        :param mode: "set" / "replace" / "add"
-        :param signed: Signed
-        :return: Updated self
-        """
-        test_value_len(key, self.key_len)
-        signed = self._process_sgnd(key, signed)
-
-        if not isinstance(value, CellSlice):
-            raise ValueError(f"CellSlice needed")
-
-        self.dict.set_str(str(key), value.cell_slice, mode, 0, signed)
-        return self
-
     def is_empty(self) -> bool:
         """If dict contains no keys - it's empty"""
         return self.dict.is_empty()
@@ -208,6 +188,10 @@ class VmDict:
         :param signed: Fetch keys as signed or not
         :return: Founded key and value
         """
+
+        if (self.signed and self.key_len > 256) or self.key_len > 257:
+            raise NotImplementedError("Use .map instead")
+
         test_value_len(key, self.key_len)
         signed = self._process_sgnd(key, signed)
 
@@ -229,6 +213,10 @@ class VmDict:
         :param signed: Fetch keys as signed or not
         :return: Key and CellSlice that stored in key
         """
+
+        if (self.signed and self.key_len > 256) or self.key_len > 257:
+            raise NotImplementedError("Use .map instead")
+
         signed = self._process_sgnd(signed=signed)
 
         key, value = self.dict.get_minmax_key(fetch_max, invert_first, 0, signed)
@@ -249,8 +237,57 @@ class VmDict:
         :return: Key and Cell that stored in key
         """
 
+        if (self.signed and self.key_len > 256) or self.key_len > 257:
+            raise NotImplementedError("Use .map instead")
+
         key, value = self.dict.get_minmax_key_ref(fetch_max, inver_first, 0, signed)
         return int(key), Cell(value)
+
+    def set_keycs(self, key: CellSlice, value: CellSlice, mode: str = "set"):
+        if not isinstance(value, CellSlice):
+            raise ValueError(f"CellSlice needed")
+
+        self.dict.set_keycs(key.cell_slice, value.cell_slice, mode, 0)
+        return self
+
+    def set(self, key: Union[int, CellSlice], value: CellSlice, mode: str = "set", signed: bool = None) -> "VmDict":
+        """
+        Add / Set / Replace ``key`` as ``key_len`` and ``signed`` bits to value ``value``  |br|
+
+        - Set: sets the value associated with ``key_len``-bit key ``key`` in VmDict to value ``value``
+
+        - Add: sets the value associated with key ``key`` to ``value``, but only if ``key`` is not already present in VmDict
+
+        - Replace: sets the value of ``key`` to ``value`` only if the key ``key`` was already present in VmDict
+
+        :param key: Integer to be stored as key
+        :param value: CellSlice to be stored
+        :param mode: "set" / "replace" / "add"
+        :param signed: Signed
+        :return: Updated self
+        """
+        if isinstance(key, int):
+            test_value_len(key, self.key_len)
+            signed = self._process_sgnd(key, signed)
+
+            if (self.signed and self.key_len > 256) or self.key_len > 257:
+                key = CellBuilder().store_bitstring(bin(key)[2:].zfill(self.key_len)).end_cell().begin_parse()
+
+        if isinstance(key, CellSlice):
+            return self.set_keycs(key, value, mode)
+
+        if not isinstance(value, CellSlice):
+            raise ValueError(f"CellSlice needed")
+
+        self.dict.set_str(str(key), value.cell_slice, mode, 0, signed)
+        return self
+
+    def set_ref_keycs(self, key: CellSlice, value: Cell, mode: str = "set"):
+        if not isinstance(value, Cell):
+            raise ValueError(f"CellSlice needed")
+
+        self.dict.set_ref_keycs(key.cell_slice, value.cell, mode, 0)
+        return self
 
     def set_ref(self, key: int, value: Cell, mode: str = "set", signed: bool = None) -> "VmDict":
         """
@@ -262,14 +299,27 @@ class VmDict:
         :param signed: Signed
         :return: Updated self
         """
+        if isinstance(key, int):
+            test_value_len(key, self.key_len)
+            signed = self._process_sgnd(key, signed)
 
-        test_value_len(key, self.key_len)
-        signed = self._process_sgnd(key, signed)
+            if (self.signed and self.key_len > 256) or self.key_len > 257:
+                key = CellBuilder().store_bitstring(bin(key)[2:].zfill(self.key_len)).end_cell().begin_parse()
+
+        if isinstance(key, CellSlice):
+            return self.set_ref_keycs(key, value, mode)
 
         if not isinstance(value, Cell):
             raise ValueError(f"Only Cell accepted as value")
 
         self.dict.set_ref_str(str(key), value.cell, mode, 0, signed)
+        return self
+
+    def set_builder_keycs(self, key: CellSlice, value: CellBuilder, mode: str = "set"):
+        if not isinstance(value, CellBuilder):
+            raise ValueError(f"CellSlice needed")
+
+        self.dict.set_builder_keycs(key.cell_slice, value.builder, mode, 0)
         return self
 
     def set_builder(self, key: int, value: CellBuilder, mode: str = "set", signed: bool = None) -> "VmDict":
@@ -283,8 +333,15 @@ class VmDict:
         :return: Updated self
         """
 
-        test_value_len(key, self.key_len)
-        signed = self._process_sgnd(key, signed)
+        if isinstance(key, int):
+            test_value_len(key, self.key_len)
+            signed = self._process_sgnd(key, signed)
+
+            if (self.signed and self.key_len > 256) or self.key_len > 257:
+                key = CellBuilder().store_bitstring(bin(key)[2:].zfill(self.key_len)).end_cell().begin_parse()
+
+        if isinstance(key, CellSlice):
+            return self.set_builder_keycs(key, value, mode)
 
         if not isinstance(value, CellBuilder):
             raise ValueError(f"CellBuilder needed")
@@ -292,7 +349,14 @@ class VmDict:
         self.dict.set_builder_str(str(key), value.builder, mode, 0, signed)
         return self
 
-    def lookup(self, key: int, signed: bool = None) -> Union[CellSlice, DataWithExtra]:
+    def lookup_keycs(self, key: CellSlice) -> Union[CellSlice, DataWithExtra]:
+        cs = CellSlice(self.dict.lookup_keycs(key.cell_slice, 0))
+        if self.is_augmented:
+            return DataWithExtra(cs, self.aug)
+        else:
+            return cs
+
+    def lookup(self, key: Union[int, CellSlice], signed: bool = None) -> Union[CellSlice, DataWithExtra]:
         """
         Fetch CellSlice stored in ``key``  |br|
 
@@ -300,8 +364,15 @@ class VmDict:
         :param signed: Signed
         :return: CellSlice that stored by key
         """
-        test_value_len(key, self.key_len)
-        signed = self._process_sgnd(key, signed)
+        if isinstance(key, int):
+            test_value_len(key, self.key_len)
+            signed = self._process_sgnd(key, signed)
+
+            if (self.signed and self.key_len > 256) or self.key_len > 257:
+                key = CellBuilder().store_bitstring(bin(key)[2:].zfill(self.key_len)).end_cell().begin_parse()
+
+        if isinstance(key, CellSlice):
+            return self.lookup_keycs(key)
 
         cs = CellSlice(self.dict.lookup_str(str(key), 0, signed))
         if self.is_augmented:
@@ -309,7 +380,14 @@ class VmDict:
         else:
             return cs
 
-    def lookup_delete(self, key: int, signed: bool = None) -> Union[CellSlice, DataWithExtra]:
+    def lookup_delete_keycs(self, key: CellSlice) -> Union[CellSlice, DataWithExtra]:
+        cs = CellSlice(self.dict.lookup_keycs_delete(key.cell_slice, 0))
+        if self.is_augmented:
+            return DataWithExtra(cs, self.aug)
+        else:
+            return cs
+
+    def lookup_delete(self, key: Union[int, CellSlice], signed: bool = None) -> Union[CellSlice, DataWithExtra]:
         """
         Same as lookup, but delete ``(key, value)`` from VmDict  |br|
 
@@ -317,15 +395,26 @@ class VmDict:
         :param signed: Signed
         :return: CellSlice that stored by key
         """
-        test_value_len(key, self.key_len)
-        signed = self._process_sgnd(key, signed)
+        if isinstance(key, int):
+            test_value_len(key, self.key_len)
+            signed = self._process_sgnd(key, signed)
+
+            if (self.signed and self.key_len > 256) or self.key_len > 257:
+                key = CellBuilder().store_bitstring(bin(key)[2:].zfill(self.key_len)).end_cell().begin_parse()
+
+        if isinstance(key, CellSlice):
+            return self.lookup_delete_keycs(key)
+
         cs = CellSlice(self.dict.lookup_delete_str(str(key), 0, signed))
         if self.is_augmented:
             return DataWithExtra(cs, self.aug)
         else:
             return cs
 
-    def lookup_ref(self, key, signed: bool = None) -> Cell:
+    def lookup_ref_keycs(self, key: CellSlice) -> Cell:
+        return Cell(self.dict.lookup_keycs_ref(key.cell_slice, 0))
+
+    def lookup_ref(self, key: Union[int, CellSlice], signed: bool = None) -> Cell:
         """
         Same as lookup, but fetch ref stored by ``set_ref``  |br|
 
@@ -333,12 +422,23 @@ class VmDict:
         :param signed: Signed
         :return: Cell that stored by key
         """
-        test_value_len(key, self.key_len)
-        signed = self._process_sgnd(key, signed)
+        if isinstance(key, int):
+            test_value_len(key, self.key_len)
+            signed = self._process_sgnd(key, signed)
+
+            if (self.signed and self.key_len > 256) or self.key_len > 257:
+                key = CellBuilder().store_bitstring(bin(key)[2:].zfill(self.key_len)).end_cell().begin_parse()
+
+        if isinstance(key, CellSlice):
+            return self.lookup_ref_keycs(key)
 
         return Cell(self.dict.lookup_ref_str(str(key), 0, signed))
 
-    def lookup_delete_ref(self, key: int, signed: bool = None) -> Cell:
+    def lookup_delete_ref_keycs(self, key: CellSlice) -> Cell:
+        return Cell(self.dict.lookup_keycs_delete_ref(key.cell_slice, 0))
+
+
+    def lookup_delete_ref(self, key: Union[int, CellSlice], signed: bool = None) -> Cell:
         """
         Same as ```lookup_delete`` but delete the ref stored by ``set_ref``  |br|
 
@@ -346,13 +446,23 @@ class VmDict:
         :param signed: Signed
         :return: Cell that stored by key
         """
-        test_value_len(key, self.key_len)
-        signed = self._process_sgnd(key, signed)
+        if isinstance(key, int):
+            test_value_len(key, self.key_len)
+            signed = self._process_sgnd(key, signed)
+
+            if (self.signed and self.key_len > 256) or self.key_len > 257:
+                key = CellBuilder().store_bitstring(bin(key)[2:].zfill(self.key_len)).end_cell().begin_parse()
+
+        if isinstance(key, CellSlice):
+            return self.lookup_delete_ref_keycs(key)
 
         return Cell(self.dict.lookup_delete_ref_str(str(key), 0, signed))
 
     def get_iter(self, direction=False) -> Iterable[tuple[int, CellSlice]]:
         """Simple dict iterator"""
+
+        if (self.signed and self.key_len > 256) or self.key_len > 257:
+            raise NotImplementedError("Use .map instead")
 
         key, value = self.get_minmax_key(direction)
         yield key, value
@@ -370,7 +480,12 @@ class VmDict:
         tmp_f = lambda key, value: f(CellSlice(key), CellSlice(value))
         self.dict.map(tmp_f)
 
-    def __setitem__(self, key: Union[int, str], value: Union[Union[Union[str, CellSlice], Cell], CellBuilder]):
+    def combine_with(self, dict2: "VmDict"):
+        """Combine two dictionaries"""
+
+        self.dict.combine_with(dict2.dict)
+
+    def __setitem__(self, key: Union[int, str, CellSlice], value: Union[Union[Union[str, CellSlice], Cell], CellBuilder]):
         if isinstance(key, str):
             key = convert_str_to_int(key)
 
@@ -386,7 +501,7 @@ class VmDict:
         elif isinstance(value, CellBuilder):
             self.set_builder(key, value)
 
-    def __getitem__(self, key: Union[int, str]):
+    def __getitem__(self, key: Union[int, str, CellSlice]):
         if isinstance(key, str):
             key = convert_str_to_int(key)
 

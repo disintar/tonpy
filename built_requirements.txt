@@ -1,4 +1,3 @@
-setuptools
-build
+setuptools==68.0.0
+build==1.2.1
 twine
-pytest

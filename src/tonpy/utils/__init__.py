@@ -1,3 +1,8 @@
 # Copyright (c) 2023 Disintar LLP Licensed under the Apache License Version 2.0
 
-from tonpy.utils.token import parse_token_data
+import struct
+import socket
+
+
+def ip2int(addr: str):
+    return struct.unpack("!i", socket.inet_aton(addr))[0]

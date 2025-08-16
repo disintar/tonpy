@@ -1,7 +1,10 @@
 # Copyright (c) 2023 Disintar LLP Licensed under the Apache License Version 2.0
+from multiprocessing import Pool
 
+from tonpy import VmDict
 from tonpy.fift.disasm import disassembler
 from tonpy.types.cell import Cell
+from tonpy.data_for_tests.emulator_data import tx as test_tx
 
 test1 = """IF:<{
   PUSHINT 123456789
@@ -64,7 +67,7 @@ DICTIGETJMPZ {
     LDGRAMS
     DROP
     PUSHINT 3
-    MULRSHIFT 1
+    MULRSHIFT# 1
     TUPLE 0
     XCHG2 s0, s4
     TPUSH
@@ -3098,7 +3101,7 @@ DICTIGETJMPZ {
     PUSHINT 11000000
     SWAP
     PUSHINT 3
-    MULRSHIFT 1
+    MULRSHIFT# 1
     ADD
     PUSHINT 50000000
     ADD
@@ -5374,3 +5377,1290 @@ def test_disassembler_3_str():
     rest = disassembler(code)
     assert rest == test3
 
+
+def test_disassembler_root_lib():
+    from tonpy.fift.fift import convert_assembler
+    from tonpy import CellBuilder, CellSlice
+
+    cell_code = convert_assembler("""<{ 228 PUSHINT }>c""")
+    code_hash = int(cell_code.get_hash(), 16)
+
+    vmlibs = VmDict(256)
+    vmlibs.set_ref(code_hash, cell_code)
+
+    lib_cell = CellBuilder() \
+        .store_uint(CellSlice.SpecialType.Library.value, 8) \
+        .store_uint(code_hash, 256) \
+        .end_cell(special=True)
+
+    assert disassembler(lib_cell,
+                        vmlibs) == "// LIB: 961254B41350A116E5DC3166307071F29DA1F3A286A144350289ACBE1A64C459 \nPUSHINT 228\n"
+
+
+def test_disassembler_pushref():
+    from tonpy.fift.fift import convert_assembler
+    from tonpy import CellBuilder, CellSlice
+    cell_code = convert_assembler("""<{ 228 PUSHINT }>c""")
+    code_hash = int(cell_code.get_hash(), 16)
+
+    vmlibs = VmDict(256)
+    vmlibs.set_ref(code_hash, cell_code)
+
+    answer = disassembler(convert_assembler("""<{
+       <b 2 8 u, 67879315136173602162010959444987239046790589850178600389566119814235502724185 256 u, b>spec PUSHREFSLICE
+    }>c"""), vmlibs)
+    assert answer == """// LIB: 961254B41350A116E5DC3166307071F29DA1F3A286A144350289ACBE1A64C459 
+    PUSHINT 228
+PUSHREFSLICE (38ABEB05B69354A7B9B5C3439EE680731263C9837A722799AA5A89FE1AF0C18B)
+"""
+
+
+def test_disassembler_dario():
+    vmlibs = VmDict(256, False, cell_root=Cell(test_tx['libs']))
+    answer = disassembler(Cell('te6ccuEBAgEALQAUWgEO/wCI0O0e2AEIQgJPAXEnLCFbi/j+6sRqhXaIpLZfT+YfgihjH2J9DtqdAD/u1jE='),
+                          vmlibs)
+    assert answer == """SETCP 0
+// LIB: 4F0171272C215B8BF8FEEAC46A857688A4B65F4FE61F8228631F627D0EDA9D00 
+    SETCP 0
+    DICTPUSHCONST 19, (xC_)
+    DICTIGETJMPZ {
+      0 => <{
+        DUP
+        SEMPTY
+        IFJMP:<{
+          BLKDROP 4
+        }>
+        OVER
+        CTOS
+        LDU 4
+        PUSHINT 0
+        XCHG s0, s2
+        PUSHINT 1
+        AND
+        IF:<{
+          NIP
+          PUSHINT -1
+          XCHG s0, s2
+          PUSHINT 32
+          SDSKIPFIRST
+          ROTREV
+        }>
+        LDMSGADDR
+        LDMSGADDR
+        NIP
+        LDGRAMS
+        NIP
+        PUSHINT 1
+        SDSKIPFIRST
+        LDGRAMS
+        NIP
+        LDGRAMS
+        DROP
+        PUSHINT 3
+        MULRSHIFT# 1
+        XCHG s0, s3
+        LDU 32
+        LDU 64
+        XCHG s4, s8
+        XCHG s3, s7
+        XCHG s5, s6
+        XCHG3 s5, s0, s4
+        XCHG3 s3, s1, s3
+        TUPLE 9
+        SETGLOB 1
+        GETGLOB 1
+        INDEX 0
+        IFRET
+        GETGLOB 1
+        INDEX 1
+        PUSHINT 0
+        SWAP
+        REWRITESTDADDR
+        DROP
+        SWAP
+        EQUAL
+        THROWIFNOT 85
+        CALL:<{
+          PUSH c4
+          CTOS
+          LDGRAMS
+          SWAP
+          SETGLOB 2
+          LDMSGADDR
+          SWAP
+          SETGLOB 3
+          LDREF
+          SWAP
+          SETGLOB 4
+          LDREF
+          SWAP
+          SETGLOB 5
+          ENDS
+        }>
+        GETGLOB 1
+        INDEX 1
+        GETGLOB 3
+        SDEQ
+        IFJMP:<{
+          GETGLOB 1
+          INDEX 7
+          GETGLOB 1
+          INDEX 3
+          PUSHINT 51966817
+          EQUAL
+          IF:<{
+            GETGLOB 1
+            INDEX 6
+            GETGLOB 1
+            INDEX 2
+            MULINT 3
+            PUSHINT 10000000
+            ADD
+            PUSHINT 10000000
+            ADD
+            PUSHINT 10000000
+            ADD
+            PUSHINT 10000000
+            ADD
+            GREATER
+            THROWIFNOT 83
+            LDMSGADDR
+            LDGRAMS
+            LDMSGADDR
+            DROP
+            PUSH s2
+            PUSHINT 0
+            SWAP
+            REWRITESTDADDR
+            DROP
+            SWAP
+            EQUAL
+            OVER
+            PUSHINT 0
+            SWAP
+            REWRITESTDADDR
+            DROP
+            SWAP
+            EQUAL
+            AND
+            THROWIFNOT 85
+            MYADDR
+            GETGLOB 5
+            XCHG s2, s4
+            NEWC
+            PUSHINT 0
+            STGRAMS
+            XCHG2 s0, s3
+            STSLICER
+            SWAP
+            STSLICER
+            STREF
+            ENDC
+            GETGLOB 5
+            SWAP
+            PUSHNULL
+            PUSHNULL
+            TUPLE 4
+            GETGLOB 2
+            PUSH s2
+            ADD
+            SETGLOB 2
+            CALL:<{
+              GETGLOB 5
+              GETGLOB 4
+              NEWC
+              GETGLOB 2
+              STGRAMS
+              GETGLOB 3
+              STSLICER
+              STREF
+              STREF
+              ENDC
+              POP c4
+            }>
+            PUSHINT 10000000
+            CALL:<{
+              GETGLOB 1
+              INDEX 5
+              GETGLOB 1
+              INDEX 6
+              SUB
+              SWAP
+              MAX
+              PUSHINT 0
+              RAWRESERVE
+            }>
+            PUSHINT 0
+            TUCK
+            CALL:<{
+              OVER
+              UNTUPLE 4
+              DUP
+              ISNULL
+              IF:<{
+                2DROP
+                XCHG s0, s3
+                CALL:<{
+                  UNTUPLE 4
+                  OVER
+                  ISNULL
+                  IF:<{
+                    NIP
+                    PUSHINT 0
+                    DUP
+                    NEWC
+                    STU 2
+                    PUXC s4, s(-1)
+                    STDICT
+                    PUXC s3, s(-1)
+                    STDICT
+                    STU 1
+                    ENDC
+                    SWAP
+                  }>
+                  XCHG3 s3, s3, s0
+                  PUXC s3, s(-1)
+                  TUPLE 4
+                  SWAP
+                }>
+                NIP
+                DUP
+                HASHCU
+                PUSHINT 4
+                NEWC
+                STU 3
+                XCHG s1, s4
+                STI 8
+                XCHG s1, s3
+                STU 256
+                ENDC
+                CTOS
+                XCHG3 s0, s1, s3
+              }>ELSE<{
+                POP s4
+                POP s4
+              }>
+              BLKSWAP 1, 3
+              PUSH s3
+              TUPLE 4
+              SWAP
+            }>
+            SWAP
+            CALL:<{
+              UNTUPLE 4
+              OVER
+              ISNULL
+              IF:<{
+                NIP
+                PUSHINT 0
+                DUP
+                NEWC
+                STU 2
+                PUXC s4, s(-1)
+                STDICT
+                PUXC s3, s(-1)
+                STDICT
+                STU 1
+                ENDC
+                SWAP
+              }>
+              XCHG3 s3, s3, s0
+              PUXC s3, s(-1)
+              TUPLE 4
+              SWAP
+            }>
+            NIP
+            XCHG2 s3, s4
+            PUSHINT 4019741354
+            GETGLOB 1
+            INDEX 4
+            SWAP
+            NEWC
+            STU 32
+            STU 64
+            ROT
+            STGRAMS
+            SWAP
+            STSLICER
+            ENDC
+            XCHG s1, s3
+            PUSHPOW2 7
+            CALL:<{
+              PUSHINT 7
+              PUSHINT 24
+              NEWC
+              STU 6
+              XCHG2 s0, s5
+              STSLICER
+              XCHG2 s0, s5
+              STGRAMS
+              XCHG s1, s3
+              STU 108
+              STREF
+              STREF
+              ENDC
+              SWAP
+              SENDRAWMSG
+            }>
+          }>ELSE<{
+            GETGLOB 1
+            INDEX 3
+            PUSHINT 3571363899
+            EQUAL
+            IFJMP:<{
+              LDMSGADDR
+              DROP
+              DUP
+              PUSHINT 0
+              SWAP
+              REWRITESTDADDR
+              DROP
+              SWAP
+              EQUAL
+              THROWIFNOT 85
+              SETGLOB 3
+              CALL:<{
+                GETGLOB 5
+                GETGLOB 4
+                NEWC
+                GETGLOB 2
+                STGRAMS
+                GETGLOB 3
+                STSLICER
+                STREF
+                STREF
+                ENDC
+                POP c4
+              }>
+              PUSHINT 10000000
+              CALL:<{
+                GETGLOB 1
+                INDEX 5
+                GETGLOB 1
+                INDEX 6
+                SUB
+                SWAP
+                MAX
+                PUSHINT 0
+                RAWRESERVE
+              }>
+              PUSHINT 0
+              GETGLOB 3
+              PUSHPOW2 7
+              PUSHINT 3576854235
+              ROTREV
+              CALL:<{
+                GETGLOB 1
+                INDEX 4
+                PUSHINT 0
+                PUSHINT 16
+                NEWC
+                STU 6
+                XCHG2 s0, s4
+                STSLICER
+                XCHG2 s0, s5
+                STGRAMS
+                XCHG s1, s2
+                STU 107
+                XCHG s1, s2
+                STU 32
+                XCHG s1, s2
+                STU 64
+                ENDC
+                SWAP
+                SENDRAWMSG
+              }>
+            }>
+            GETGLOB 1
+            INDEX 3
+            PUSHINT 247632384
+            EQUAL
+            IFJMP:<{
+              LDREF
+              DROP
+              SETGLOB 4
+              CALL:<{
+                GETGLOB 5
+                GETGLOB 4
+                NEWC
+                GETGLOB 2
+                STGRAMS
+                GETGLOB 3
+                STSLICER
+                STREF
+                STREF
+                ENDC
+                POP c4
+              }>
+              PUSHINT 10000000
+              CALL:<{
+                GETGLOB 1
+                INDEX 5
+                GETGLOB 1
+                INDEX 6
+                SUB
+                SWAP
+                MAX
+                PUSHINT 0
+                RAWRESERVE
+              }>
+              PUSHINT 0
+              GETGLOB 3
+              PUSHPOW2 7
+              PUSHINT 3576854235
+              ROTREV
+              CALL:<{
+                GETGLOB 1
+                INDEX 4
+                PUSHINT 0
+                PUSHINT 16
+                NEWC
+                STU 6
+                XCHG2 s0, s4
+                STSLICER
+                XCHG2 s0, s5
+                STGRAMS
+                XCHG s1, s2
+                STU 107
+                XCHG s1, s2
+                STU 32
+                XCHG s1, s2
+                STU 64
+                ENDC
+                SWAP
+                SENDRAWMSG
+              }>
+            }>
+            DROP
+            PUSHPOW2DEC 16
+            THROWANY
+          }>
+        }>
+        GETGLOB 1
+        INDEX 7
+        GETGLOB 1
+        INDEX 3
+        PUSHINT 745978227
+        EQUAL
+        IF:<{
+          GETGLOB 1
+          INDEX 6
+          GETGLOB 1
+          INDEX 2
+          LSHIFT 1
+          PUSHINT 10000000
+          ADD
+          PUSHINT 10000000
+          ADD
+          GREATER
+          THROWIFNOT 83
+          LDMSGADDR
+          LDU 1
+          DROP
+          IF:<{
+            NEWC
+            OVER
+            STSLICER
+            ENDC
+          }>ELSE<{
+            PUSHNULL
+          }>
+          OVER
+          PUSHINT 0
+          SWAP
+          REWRITESTDADDR
+          DROP
+          SWAP
+          EQUAL
+          BLKDROP2 1, 2
+          DROP
+          PUSHINT 10000000
+          CALL:<{
+            GETGLOB 1
+            INDEX 5
+            GETGLOB 1
+            INDEX 6
+            SUB
+            SWAP
+            MAX
+            PUSHINT 0
+            RAWRESERVE
+          }>
+          PUSHINT 0
+          GETGLOB 1
+          INDEX 1
+          PUSHINT 3513996288
+          GETGLOB 1
+          INDEX 4
+          SWAP
+          NEWC
+          STU 32
+          STU 64
+          XCHG s1, s3
+          STDICT
+          XCHG s1, s2
+          PUSHPOW2 7
+          CALL:<{
+            PUSHINT 0
+            PUSHINT 24
+            NEWC
+            STU 6
+            XCHG2 s0, s4
+            STSLICER
+            XCHG2 s0, s4
+            STGRAMS
+            XCHG s1, s2
+            STU 107
+            SWAP
+            STBR
+            ENDC
+            SWAP
+            SENDRAWMSG
+          }>
+          PUSHINT -1
+        }>ELSE<{
+          DROP
+          PUSHINT 0
+        }>
+        IFRET
+        GETGLOB 1
+        INDEX 7
+        GETGLOB 1
+        INDEX 3
+        PUSHINT 2078119902
+        EQUAL
+        IF:<{
+          LDGRAMS
+          LDMSGADDR
+          LDMSGADDR
+          DROP
+          MYADDR
+          GETGLOB 5
+          XCHG s2, s3
+          NEWC
+          PUSHINT 0
+          STGRAMS
+          XCHG2 s0, s3
+          STSLICER
+          SWAP
+          STSLICER
+          STREF
+          ENDC
+          GETGLOB 5
+          SWAP
+          PUSHNULL
+          PUSHNULL
+          TUPLE 4
+          PUSHINT 0
+          CALL:<{
+            OVER
+            UNTUPLE 4
+            DUP
+            ISNULL
+            IF:<{
+              2DROP
+              XCHG s0, s3
+              CALL:<{
+                UNTUPLE 4
+                OVER
+                ISNULL
+                IF:<{
+                  NIP
+                  PUSHINT 0
+                  DUP
+                  NEWC
+                  STU 2
+                  PUXC s4, s(-1)
+                  STDICT
+                  PUXC s3, s(-1)
+                  STDICT
+                  STU 1
+                  ENDC
+                  SWAP
+                }>
+                XCHG3 s3, s3, s0
+                PUXC s3, s(-1)
+                TUPLE 4
+                SWAP
+              }>
+              NIP
+              DUP
+              HASHCU
+              PUSHINT 4
+              NEWC
+              STU 3
+              XCHG s1, s4
+              STI 8
+              XCHG s1, s3
+              STU 256
+              ENDC
+              CTOS
+              XCHG3 s0, s1, s3
+            }>ELSE<{
+              POP s4
+              POP s4
+            }>
+            BLKSWAP 1, 3
+            PUSH s3
+            TUPLE 4
+            SWAP
+          }>
+          NIP
+          GETGLOB 1
+          INDEX 1
+          SDEQ
+          THROWIFNOT 401
+          DUP
+          PLDU 2
+          NEQINT 0
+          IF:<{
+            PUSHINT 0
+            SWAP
+            PUSHINT 66
+            PUSHINT 3576854235
+            ROTREV
+            CALL:<{
+              GETGLOB 1
+              INDEX 4
+              PUSHINT 0
+              PUSHINT 16
+              NEWC
+              STU 6
+              XCHG2 s0, s4
+              STSLICER
+              XCHG2 s0, s5
+              STGRAMS
+              XCHG s1, s2
+              STU 107
+              XCHG s1, s2
+              STU 32
+              XCHG s1, s2
+              STU 64
+              ENDC
+              SWAP
+              SENDRAWMSG
+            }>
+          }>ELSE<{
+            DROP
+          }>
+          GETGLOB 2
+          SWAP
+          SUB
+          SETGLOB 2
+          CALL:<{
+            GETGLOB 5
+            GETGLOB 4
+            NEWC
+            GETGLOB 2
+            STGRAMS
+            GETGLOB 3
+            STSLICER
+            STREF
+            STREF
+            ENDC
+            POP c4
+          }>
+          PUSHINT -1
+        }>ELSE<{
+          DROP
+          PUSHINT 0
+        }>
+        IFRET
+        PUSHPOW2DEC 16
+        THROWANY
+      }>
+      24 => <{
+        NEWC
+        OVER
+        LESSINT 0
+        IF:<{
+          PUSHSLICE x{2D}
+          STSLICER
+          SWAP
+          NEGATE
+          SWAP
+        }>
+        PUSHINT 0
+        DUP
+        PUSHINT 1
+        UNTIL:<{
+          XCHG s0, s4
+          PUSHINT 10
+          DIVMOD
+          ADDINT 48
+          PUSH s5
+          MUL
+          XCHG s1, s2
+          ADD
+          XCHG s0, s4
+          LSHIFT 8
+          XCHG s0, s2
+          INC
+          OVER
+          EQINT 0
+          XCHG3 s5, s3, s0
+        }>
+        DROP
+        POP s3
+        LSHIFT 3
+        STUX
+        ENDC
+        CTOS
+      }>
+      59 => <{
+        DUP
+        PUSHINT 1000000000000000000
+        LESS
+        IFJMP:<{
+          PUSHINT 1000000000000000000
+          PUXC s0, s1
+          MULDIV
+          CALLDICT 59
+          NEGATE
+        }>
+        PUSHINT 0
+        OVER
+        PUSHINT 2158111692681982714103749998457715264521539211273193359375
+        LSHIFT 54
+        GEQ
+        IF:<{
+          DROP
+          PUSHINT 565736031566425676606013439595699310302734375
+          LSHIFT 36
+          DIV
+          PUSHINT 3814697265625
+          LSHIFT 25
+        }>
+        OVER
+        PUSHINT 185821923041689899054467678070068359375
+        LSHIFT 25
+        GEQ
+        IF:<{
+          SWAP
+          PUSHINT 6235149080811616882910000000
+          DIV
+          SWAP
+          PUSHINT 3814697265625
+          LSHIFT 24
+          ADD
+        }>
+        MULINT 100
+        SWAP
+        MULINT 100
+        DUP
+        PUSHINT 7896296018268069516100000000000000
+        GEQ
+        IF:<{
+          PUSHINT 100000000000000000000
+          PUSHINT 7896296018268069516100000000000000
+          MULDIV
+          SWAP
+          PUSHINT 95367431640625
+          LSHIFT 25
+          ADD
+          SWAP
+        }>
+        DUP
+        PUSHINT 888611052050787263676000000
+        GEQ
+        IF:<{
+          PUSHINT 100000000000000000000
+          PUSHINT 888611052050787263676000000
+          MULDIV
+          SWAP
+          PUSHINT 95367431640625
+          LSHIFT 24
+          ADD
+          SWAP
+        }>
+        DUP
+        PUSHINT 298095798704172827474000
+        GEQ
+        IF:<{
+          PUSHINT 100000000000000000000
+          PUSHINT 298095798704172827474000
+          MULDIV
+          SWAP
+          PUSHINT 95367431640625
+          LSHIFT 23
+          ADD
+          SWAP
+        }>
+        DUP
+        PUSHINT 5459815003314423907810
+        GEQ
+        IF:<{
+          PUSHINT 100000000000000000000
+          PUSHINT 5459815003314423907810
+          MULDIV
+          SWAP
+          PUSHINT 400000000000000000000
+          ADD
+          SWAP
+        }>
+        DUP
+        PUSHINT 738905609893065022723
+        GEQ
+        IF:<{
+          PUSHINT 100000000000000000000
+          PUSHINT 738905609893065022723
+          MULDIV
+          SWAP
+          PUSHINT 200000000000000000000
+          ADD
+          SWAP
+        }>
+        DUP
+        PUSHINT 271828182845904523536
+        GEQ
+        IF:<{
+          PUSHINT 100000000000000000000
+          PUSHINT 271828182845904523536
+          MULDIV
+          SWAP
+          PUSHINT 100000000000000000000
+          ADD
+          SWAP
+        }>
+        DUP
+        PUSHINT 164872127070012814685
+        GEQ
+        IF:<{
+          PUSHINT 100000000000000000000
+          PUSHINT 164872127070012814685
+          MULDIV
+          SWAP
+          PUSHINT 50000000000000000000
+          ADD
+          SWAP
+        }>
+        DUP
+        PUSHINT 128402541668774148407
+        GEQ
+        IF:<{
+          PUSHINT 100000000000000000000
+          PUSHINT 128402541668774148407
+          MULDIV
+          SWAP
+          PUSHINT 25000000000000000000
+          ADD
+          SWAP
+        }>
+        DUP
+        PUSHINT 113314845306682631683
+        GEQ
+        IF:<{
+          PUSHINT 100000000000000000000
+          PUSHINT 113314845306682631683
+          MULDIV
+          SWAP
+          PUSHINT 12500000000000000000
+          ADD
+          SWAP
+        }>
+        DUP
+        PUSHINT 106449445891785942956
+        GEQ
+        IF:<{
+          PUSHINT 100000000000000000000
+          PUSHINT 106449445891785942956
+          MULDIV
+          SWAP
+          PUSHINT 6250000000000000000
+          ADD
+          SWAP
+        }>
+        DUP
+        PUSHINT 100000000000000000000
+        SUB
+        PUSHINT 100000000000000000000
+        XCPU s2, s2
+        ADD
+        XCHG s1, s2
+        MULDIV
+        PUSH2 s0, s0
+        PUSHINT 100000000000000000000
+        MULDIV
+        2DUP
+        PUSHINT 100000000000000000000
+        MULDIV
+        DUP
+        PUSHINT 3
+        DIV
+        XCHG s1, s3
+        ADD
+        XCPU s2, s1
+        PUSHINT 100000000000000000000
+        MULDIV
+        DUP
+        PUSHINT 5
+        DIV
+        XCHG s1, s3
+        ADD
+        XCPU s2, s1
+        PUSHINT 100000000000000000000
+        MULDIV
+        DUP
+        PUSHINT 7
+        DIV
+        XCHG s1, s3
+        ADD
+        XCPU s2, s1
+        PUSHINT 100000000000000000000
+        MULDIV
+        DUP
+        PUSHINT 9
+        DIV
+        XCHG s1, s3
+        ADD
+        ROTREV
+        PUSHINT 100000000000000000000
+        MULDIV
+        PUSHINT 11
+        DIV
+        ADD
+        LSHIFT 1
+        ADD
+        PUSHINT 100
+        DIV
+      }>
+      71 => <{
+        DUP
+        PUSHINT 1000000000000000000
+        EQUAL
+        IFJMP:<{
+          DROP
+          PUSHINT 2718281828459045235
+        }>
+        PUSHINT 50004
+        OVER
+        PUSHINT -41000000000000000000
+        GEQ
+        PUSH s2
+        PUSHINT 130000000000000000000
+        LEQ
+        AND
+        THROWANYIFNOT
+        DUP
+        LESSINT 0
+        IFJMP:<{
+          PUSHINT 1000000000000000000
+          PUXC s0, s1
+          NEGATE
+          CALLDICT 71
+          XCHG s1, s2
+          MULDIV
+        }>
+        DUP
+        PUSHINT 3814697265625
+        LSHIFT 25
+        GEQ
+        IF:<{
+          PUSHINT 3814697265625
+          LSHIFT 25
+          SUB
+          PUSHINT 565736031566425676606013439595699310302734375
+          LSHIFT 36
+        }>ELSE<{
+          DUP
+          PUSHINT 3814697265625
+          LSHIFT 24
+          GEQ
+          IF:<{
+            PUSHINT 3814697265625
+            LSHIFT 24
+            SUB
+            PUSHINT 6235149080811616882910000000
+          }>ELSE<{
+            PUSHINT 1
+          }>
+        }>
+        SWAP
+        MULINT 100
+        PUSHINT 100000000000000000000
+        OVER
+        PUSHINT 95367431640625
+        LSHIFT 25
+        GEQ
+        IF:<{
+          DROP
+          PUSHINT 95367431640625
+          LSHIFT 25
+          SUB
+          PUSHINT 7896296018268069516100000000000000
+        }>
+        OVER
+        PUSHINT 95367431640625
+        LSHIFT 24
+        GEQ
+        IF:<{
+          SWAP
+          PUSHINT 95367431640625
+          LSHIFT 24
+          SUB
+          SWAP
+          PUSHINT 888611052050787263676000000
+          PUSHINT 100000000000000000000
+          MULDIV
+        }>
+        OVER
+        PUSHINT 95367431640625
+        LSHIFT 23
+        GEQ
+        IF:<{
+          SWAP
+          PUSHINT 95367431640625
+          LSHIFT 23
+          SUB
+          SWAP
+          PUSHINT 298095798704172827474000
+          PUSHINT 100000000000000000000
+          MULDIV
+        }>
+        OVER
+        PUSHINT 400000000000000000000
+        GEQ
+        IF:<{
+          SWAP
+          PUSHINT 400000000000000000000
+          SUB
+          SWAP
+          PUSHINT 5459815003314423907810
+          PUSHINT 100000000000000000000
+          MULDIV
+        }>
+        OVER
+        PUSHINT 200000000000000000000
+        GEQ
+        IF:<{
+          SWAP
+          PUSHINT 200000000000000000000
+          SUB
+          SWAP
+          PUSHINT 738905609893065022723
+          PUSHINT 100000000000000000000
+          MULDIV
+        }>
+        OVER
+        PUSHINT 100000000000000000000
+        GEQ
+        IF:<{
+          SWAP
+          PUSHINT 100000000000000000000
+          SUB
+          SWAP
+          PUSHINT 271828182845904523536
+          PUSHINT 100000000000000000000
+          MULDIV
+        }>
+        OVER
+        PUSHINT 50000000000000000000
+        GEQ
+        IF:<{
+          SWAP
+          PUSHINT 50000000000000000000
+          SUB
+          SWAP
+          PUSHINT 164872127070012814685
+          PUSHINT 100000000000000000000
+          MULDIV
+        }>
+        OVER
+        PUSHINT 25000000000000000000
+        GEQ
+        IF:<{
+          SWAP
+          PUSHINT 25000000000000000000
+          SUB
+          SWAP
+          PUSHINT 128402541668774148407
+          PUSHINT 100000000000000000000
+          MULDIV
+        }>
+        OVER
+        PUSHINT 100000000000000000000
+        OVER
+        ADD
+        XCPU s1, s3
+        PUSHINT 200000000000000000000
+        MULDIV
+        TUCK
+        ADD
+        XCPU s1, s3
+        PUSHINT 300000000000000000000
+        MULDIV
+        TUCK
+        ADD
+        XCPU s1, s3
+        PUSHINT 400000000000000000000
+        MULDIV
+        TUCK
+        ADD
+        XCPU s1, s3
+        PUSHINT 500000000000000000000
+        MULDIV
+        TUCK
+        ADD
+        XCPU s1, s3
+        PUSHINT 600000000000000000000
+        MULDIV
+        TUCK
+        ADD
+        XCPU s1, s3
+        PUSHINT 700000000000000000000
+        MULDIV
+        TUCK
+        ADD
+        XCPU s1, s3
+        PUSHINT 95367431640625
+        LSHIFT 23
+        MULDIV
+        TUCK
+        ADD
+        XCPU s1, s3
+        PUSHINT 900000000000000000000
+        MULDIV
+        TUCK
+        ADD
+        XCPU s1, s3
+        PUSHINT 1000000000000000000000
+        MULDIV
+        TUCK
+        ADD
+        XCPU s1, s3
+        PUSHINT 1100000000000000000000
+        MULDIV
+        TUCK
+        ADD
+        XCHG s0, s3
+        PUSHINT 1200000000000000000000
+        MULDIV
+        XCHG s1, s2
+        ADD
+        PUSHINT 100000000000000000000
+        MULDIV
+        SWAP
+        PUSHINT 100
+        MULDIV
+      }>
+      103289 => <{
+        CALL:<{
+          PUSH c4
+          CTOS
+          LDGRAMS
+          SWAP
+          SETGLOB 2
+          LDMSGADDR
+          SWAP
+          SETGLOB 3
+          LDREF
+          SWAP
+          SETGLOB 4
+          LDREF
+          SWAP
+          SETGLOB 5
+          ENDS
+        }>
+        MYADDR
+        GETGLOB 5
+        NEWC
+        PUSHINT 0
+        STGRAMS
+        XCHG2 s0, s3
+        STSLICER
+        SWAP
+        STSLICER
+        STREF
+        ENDC
+        GETGLOB 5
+        SWAP
+        PUSHNULL
+        PUSHNULL
+        TUPLE 4
+        PUSHINT 0
+        CALL:<{
+          OVER
+          UNTUPLE 4
+          DUP
+          ISNULL
+          IF:<{
+            2DROP
+            XCHG s0, s3
+            CALL:<{
+              UNTUPLE 4
+              OVER
+              ISNULL
+              IF:<{
+                NIP
+                PUSHINT 0
+                DUP
+                NEWC
+                STU 2
+                PUXC s4, s(-1)
+                STDICT
+                PUXC s3, s(-1)
+                STDICT
+                STU 1
+                ENDC
+                SWAP
+              }>
+              XCHG3 s3, s3, s0
+              PUXC s3, s(-1)
+              TUPLE 4
+              SWAP
+            }>
+            NIP
+            DUP
+            HASHCU
+            PUSHINT 4
+            NEWC
+            STU 3
+            XCHG s1, s4
+            STI 8
+            XCHG s1, s3
+            STU 256
+            ENDC
+            CTOS
+            XCHG3 s0, s1, s3
+          }>ELSE<{
+            POP s4
+            POP s4
+          }>
+          BLKSWAP 1, 3
+          PUSH s3
+          TUPLE 4
+          SWAP
+        }>
+        NIP
+      }>
+      106029 => <{
+        CALL:<{
+          PUSH c4
+          CTOS
+          LDGRAMS
+          SWAP
+          SETGLOB 2
+          LDMSGADDR
+          SWAP
+          SETGLOB 3
+          LDREF
+          SWAP
+          SETGLOB 4
+          LDREF
+          SWAP
+          SETGLOB 5
+          ENDS
+        }>
+        GETGLOB 2
+        PUSHINT -1
+        GETGLOB 3
+        GETGLOB 4
+        GETGLOB 5
+      }>
+    }
+    THROWARG 11
+PUSHREF (0B71035B074A86584DD538A0805AE1E110224DE7701E30391AA677ED672F9BB2)
+CTOS
+BLESS
+EXECUTE
+"""

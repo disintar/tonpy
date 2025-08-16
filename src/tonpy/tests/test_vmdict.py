@@ -15,6 +15,26 @@ from tonpy.types.cellbuilder import CellBuilder, CellSlice, Cell
 from tonpy.data_for_tests.dict_test_boc import config_44, reveal_dict_boc
 
 
+def test_large_key_map():
+    vmdict = VmDict(264, False)
+
+    vmdict.set_builder_keycs(
+        CellBuilder().store_uint(5, 8).store_bitstring('0' * 256).end_cell().begin_parse(),
+        CellBuilder().store_bitstring('1' * 512)
+    )
+
+    def f(x, y):
+        assert x.bits == 264
+        assert y.bits == 512
+        assert x.load_uint(8) == 5
+        assert x.load_uint(256) == 0
+        assert y.to_bitstring() == '1' * 512
+
+        return True
+
+    vmdict.map(f)
+
+
 def test_vm_dict_from_boc():
     keys = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
             29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55,
@@ -147,7 +167,7 @@ def test_vm_dict_signed():
 
 
 def test_vm_dict_large():
-    d = VmDict(257, True)
+    d = VmDict(256, True)
 
     cb = CellBuilder()
     main_cell = CellBuilder()
@@ -675,3 +695,7 @@ def test_large_key_map():
                                  '-1:ED2CBA0B988BDAA12C4A5F5B177E51D93B54C7CD2F91515214BB1FA04FAEF290',
                                  '-1:EF03AC917E6B763F85079F196B4146457019CABB1F262F678CA8182978C14FA2',
                                  '-1:FC3D252D2B2FD4F8964348D50DA8DE5C56C9FD39126A4BDDCBE8344CF476ECA1']
+
+
+if __name__ == '__main__':
+    test_vm_dict_large()

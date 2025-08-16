@@ -1,8 +1,11 @@
 # Copyright (c) 2023 Disintar LLP Licensed under the Apache License Version 2.0
 
 from tonpy.libs.python_ton import PyEmulator
-from tonpy.types import VmDict, Cell, CellSlice
-from typing import Union
+
+from tonpy.types.stack import Stack, StackEntry
+from tonpy.types import VmDict, Cell, CellSlice, begin_cell
+from tonpy.types.blockid import BlockId
+from typing import Union, Tuple, List
 
 
 class Emulator:
@@ -14,17 +17,46 @@ class Emulator:
 
         self.emulator: PyEmulator = PyEmulator(config)
 
-    def emulate_transaction(self, shard_account: Cell, message: Cell, unixtime: int, lt: int) -> bool:
+    def emulate_transaction(self, shard_account: Cell, message: Cell, unixtime: int, lt: int,
+                            force_uninit=False) -> bool:
         return self.emulator.emulate_transaction(shard_account.cell, message.cell, str(unixtime), str(lt),
-                                                 1 if lt >= 3709412000000 else 0)
+                                                 1 if lt >= 3709412000000 else 0, force_uninit)
+
+    async def aemulate_transaction(self, shard_account: Cell, message: Cell, unixtime: int, lt: int,
+                                   force_uninit=False) -> bool:
+        """
+        Async function will be run in TON Scheduler
+
+        Use init_thread_scheduler to setup thread count in c++ sheduler
+
+        from tonpy.scheduler import init_thread_scheduler
+        init_thread_scheduler(30) # will run in 30 threads
+
+        It will not lock GIL for run, all real multiprocessing will go thrue C++ level
+        """
+        return await self.emulator.aemulate_transaction(shard_account.cell, message.cell, str(unixtime), str(lt),
+                                                       1 if lt >= 3709412000000 else 0, force_uninit)
 
     def emulate_tick_tock_transaction(self, shard_account: Cell, is_tock: bool, unixtime: int, lt: int) -> bool:
         return self.emulator.emulate_tick_tock_transaction(shard_account.cell, is_tock, str(unixtime), str(lt),
                                                            1 if lt >= 3709412000000 else 0)
 
+    async def aemulate_tick_tock_transaction(self, shard_account: Cell, is_tock: bool, unixtime: int, lt: int) -> bool:
+        return await self.emulator.aemulate_tick_tock_transaction(shard_account.cell, is_tock, str(unixtime), str(lt),
+                                                                 1 if lt >= 3709412000000 else 0)
+
+    def set_prev_blocks_info(self, prev_blocks_info: Union[Tuple[List[BlockId], BlockId], Tuple[List, List]]):
+        if len(prev_blocks_info) > 0 and len(prev_blocks_info[0]) > 0 and isinstance(prev_blocks_info[0][0], BlockId):
+            prev_blocks_info[0] = [i.to_data() for i in prev_blocks_info[0]]
+
+        if isinstance(prev_blocks_info[1], BlockId):
+            prev_blocks_info[1] = prev_blocks_info[1].to_data()
+
+        self.emulator.set_prev_blocks_info(StackEntry(value=prev_blocks_info).entry)
+
     def set_rand_seed(self, seed: Union[int, hex]) -> None:
         if isinstance(seed, int):
-            seed = hex(seed)[2:].upper()
+            seed = hex(seed)[2:].upper().zfill(64)
 
         self.emulator.set_rand_seed(seed)
 
@@ -32,7 +64,7 @@ class Emulator:
         self.emulator.set_ignore_chksig(flag)
 
     def set_libs(self, libs: VmDict) -> None:
-        self.emulator.set_libs(libs.get_cell())
+        self.emulator.set_libs(libs.get_cell().cell)
 
     def set_debug_enabled(self, flag: bool) -> None:
         self.emulator.set_debug_enabled(flag)
@@ -67,3 +99,11 @@ class Emulator:
             return c.begin_parse()
         else:
             return c
+
+
+if __name__ == "__main__":
+    cfg = VmDict(32)
+    cfg.set_builder(0, begin_cell())
+
+    em = Emulator(cfg)
+    em.set_prev_blocks_info([[0], 0])

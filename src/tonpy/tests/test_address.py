@@ -2,6 +2,7 @@
 
 from tonpy.types.address import Address
 import pickle as pck
+from tonpy.types.cellbuilder import CellBuilder
 
 
 def helper(a: Address):
@@ -37,3 +38,10 @@ def test_address_string_fail():
         Address("LOLKEK")
     except RuntimeError:
         pass
+
+
+def test_addr_none():
+    cb = CellBuilder()
+    cb.store_uint(0, 64)
+    a = cb.end_cell().begin_parse().load_address()
+    print(a)

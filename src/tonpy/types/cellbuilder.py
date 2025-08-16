@@ -418,3 +418,7 @@ class CellBuilder:
         r = self.refs
 
         return f"<CellBuilder [{b}] bits, [{r}] refs, [{self.get_hash()}] hash>"
+
+
+def begin_cell():
+    return CellBuilder()

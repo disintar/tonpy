@@ -1,3 +1,9 @@
 loguru
 pytest
 bitstring
+orjson
+tqdm
+requests
+cytoolz
+asgiref
+pytest-asyncio

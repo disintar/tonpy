@@ -2,9 +2,9 @@ name: DEV Wheels & Tests & PyPi
 
 on:
   push:
-    branches: [ main ]
+    branches: [ dev ]
   pull_request:
-    branches: [ main ]
+    branches: [ dev ]
   workflow_dispatch:
   workflow_call:
 
@@ -20,17 +20,52 @@ jobs:
     strategy:
       matrix:
         include:
+          - arch: aarch64
+            os: macos-15
+            python: "3.13"
+            link: https://github.com/disintar/ton/releases/download/ton-cpython-313-aarch64-darwin/
+            file: python_ton.cpython-313-darwin.so
+            fix_tag: arm64
+
+          - arch: aarch64
+            os: macos-15
+            python: "3.10"
+            link: https://github.com/disintar/ton/releases/download/ton-cpython-310-aarch64-darwin/
+            file: python_ton.cpython-310-darwin.so
+            fix_tag: arm64
+
+          - arch: aarch64
+            os: macos-15
+            python: "3.12"
+            link: https://github.com/disintar/ton/releases/download/ton-cpython-312-aarch64-darwin/
+            file: python_ton.cpython-312-darwin.so
+            fix_tag: arm64
+
           - arch: x86_64
-            os: Linux
-            python: "3.9"
-            link: https://github.com/disintar/ton/releases/download/ton-cpython-39-x86_64-linux/
-            file: python_ton.cpython-39-x86_64-linux-gnu.so
+            os: arc-runner-set
+            python: "3.13"
+            link: https://github.com/disintar/ton/releases/download/ton-cpython-313-x86_64-linux/
+            file: python_ton.cpython-313-x86_64-linux-gnu.so
+            fix_tag: manylinux2014_x86_64
+
+          - arch: x86_64
+            os: arc-runner-set
+            python: "3.12"
+            link: https://github.com/disintar/ton/releases/download/ton-cpython-312-x86_64-linux/
+            file: python_ton.cpython-312-x86_64-linux-gnu.so
+            fix_tag: manylinux2014_x86_64
+
+          - arch: x86_64
+            os: arc-runner-set
+            python: "3.10"
+            link: https://github.com/disintar/ton/releases/download/ton-cpython-310-x86_64-linux/
+            file: python_ton.cpython-310-x86_64-linux-gnu.so
             fix_tag: manylinux2014_x86_64
 
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python }}
@@ -42,6 +77,12 @@ jobs:
           python -m pip install -r built_requirements.txt
           python -m pip install -r requirements.txt
 
+      - name: Install deps linux
+        run: |
+          sudo apt update
+          sudo apt install -y curl
+        if: matrix.os == 'kuber'
+
       - name: Download prebuilt
         run: |
           curl -Lo ./src/tonpy/libs/${{ matrix.file }} ${{ matrix.link }}${{ matrix.file }}
@@ -52,30 +93,43 @@ jobs:
 
       - name: Build wheel
         run: |
-          python -m build --wheel --outdir dist/ .
+          python -m build --verbose --wheel --outdir dist/ .
           python fix_whl_name.py
         env:
           TAG_FIX: ${{ matrix.fix_tag }}
           DEV_PYPI: true
       - name: Store the binary wheel
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
-          name: python-package-distributions
+          name: python-package-distributions-${{ github.run_id }}-${{ matrix.arch }}-${{ matrix.python }}
           path: dist
 
   deploy:
     name: Publish DEV 🐍📦 to PyPI
-    runs-on: Linux
+    runs-on: arc-runner-set
     needs:
       - build
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+        env:
+          USER: tvorogme
+
+      - name: Merge coverage
+        uses: actions/upload-artifact/merge@v4
+        if: always()
+        with:
+          name: python-package-distributions-${{ github.run_id }}
+          pattern: python-package-distributions-${{ github.run_id }}-*
+          delete-merged: true
 
       - name: Download all the dists
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
-          name: python-package-distributions
+          name: python-package-distributions-${{ github.run_id }}
           path: dist/
 
       - name: Install deps

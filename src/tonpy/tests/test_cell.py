@@ -99,3 +99,14 @@ def test_repr():
     print(c)
     assert str(
         c) == "<Cell [21] bits, [0] refs, [235CBBDDDA3C8397468C806412A211BD2672C6188D9728C62DD48B3DEED02BA6] hash>"
+
+
+def test_get_depth():
+    empty_cell = Cell("te6ccgEBAQEAAgAAAA==")
+    assert empty_cell.get_depth() == 0
+
+    cell = Cell('te6ccgEBBgEAHAACA884AQUCAccCBAIBzwMDAAEgAAOhBgAFsFcg')
+    assert cell.get_depth() == 3
+
+    cell = Cell("te6ccgEBBgEAHQACA8+4AQECASACAgIBIAMDAgEgBAQCASAFBQABIA==")
+    assert cell.get_depth() == 5

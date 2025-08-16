@@ -1,11 +1,10 @@
 # Copyright (c) 2023 Disintar LLP Licensed under the Apache License Version 2.0
 
-from pathlib import Path
 import os
-
-from tonpy.libs.python_ton import PyFift
+from pathlib import Path
 
 from tonpy import Cell
+from tonpy.libs.python_ton import PyFift
 from tonpy.types import Stack
 
 libs_root = Path(__file__).parents[0]
@@ -48,3 +47,4 @@ def convert_assembler(assembler_code: str) -> Cell:
     f.add_lib("Asm.fif")
     f.run(assembler_code)
     return f.last()
+
