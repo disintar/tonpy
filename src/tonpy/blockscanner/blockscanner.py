@@ -526,6 +526,7 @@ class BlockScanner(Thread):
     Loads masterchain and shardchain blocks, optionally filters/emulates transactions, and emits results
     to a queue or a user-provided callback.
     """
+
     def __init__(self,
                  lcparams: dict,
                  start_from: int = None,
@@ -764,10 +765,34 @@ class BlockScanner(Thread):
                 for i in range(last_mc - 16, last_mc):
                     to_load_masters.append(i)
 
+                prev_block_100 = int(last_mc - last_mc % 100)
+                to_load_by_100 = []
+                while len(to_load_by_100) < 16:
+                    to_load_by_100.append(prev_block_100)
+                    if prev_block_100 == 100:
+                        break
+
+                    prev_block_100 -= 100
+
+                to_load_masters.extend(to_load_by_100)
+
             for s in shards_data:
-                for i in range(s['master'] - 15, s['master'] + 1):
+                last_mc = s['master']
+                prev_block_100 = int(last_mc - last_mc % 100)
+                to_load_by_100 = []
+
+                for i in range(last_mc - 15, last_mc + 1):
                     if i not in known_mcs:
                         to_load_masters.append(i)
+
+                while len(to_load_by_100) < 16:
+                    to_load_by_100.append(prev_block_100)
+                    if prev_block_100 == 100:
+                        break
+
+                    prev_block_100 -= 100
+
+                to_load_masters.extend(to_load_by_100)
 
             to_load_masters = list(set(to_load_masters))
 
@@ -781,13 +806,26 @@ class BlockScanner(Thread):
 
             for x in mc_data:
                 prev_blocks = []
+                prev_blocks_100 = []
+
+                for i in range(x['block_id'].id.seqno - 16, x['block_id'].id.seqno):
+                    prev_blocks.append(known_mcs[i].to_data())
+
+                prev_100_seqno = int(x['block_id'].id.seqno - x['block_id'].id.seqno % 100)
+                while len(prev_blocks_100) < 16:
+                    prev_blocks_100.append(known_mcs[prev_100_seqno].to_data())
+                    if prev_100_seqno == 100:
+                        break
+                    prev_100_seqno -= 100
 
                 for i in range(x['block_id'].id.seqno - 16, x['block_id'].id.seqno):
                     prev_blocks.append(known_mcs[i].to_data())
 
                 prev_blocks = list(reversed(prev_blocks))
                 key = self.known_key_blocks[x['prev_key_block_seqno']]
-                x['prev_block_data'] = [prev_blocks, key['blk_id'].to_data()]
+                x['prev_block_data'] = [prev_blocks_100,
+                                        prev_blocks,
+                                        key['blk_id'].to_data()]
                 x['prev_block_left'] = known_mcs[i]
                 x['prev_block_right'] = None
                 x['key_block'] = key
@@ -803,11 +841,19 @@ class BlockScanner(Thread):
                     i['prev_block_data'] = known_prev_block_data[i['master']]
                 else:
                     prev_blocks = []
+                    prev_blocks_100 = []
                     for j in range(i['master'] - 16, i['master']):
                         prev_blocks.append(known_mcs[j].to_data())
 
+                    prev_100_seqno = int(i['master'] - i['master'] % 100)
+                    while len(prev_blocks_100) < 16:
+                        prev_blocks_100.append(known_mcs[prev_100_seqno].to_data())
+                        if prev_100_seqno == 100:
+                            break
+                        prev_100_seqno -= 100
+
                     prev_blocks = list(reversed(prev_blocks))
-                    i['prev_block_data'] = [prev_blocks, key['blk_id'].to_data()]
+                    i['prev_block_data'] = [prev_blocks_100, prev_blocks, key['blk_id'].to_data()]
                     known_prev_block_data[i['master']] = i['prev_block_data']
 
                 i['master'] -= 1
