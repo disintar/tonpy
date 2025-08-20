@@ -805,9 +805,7 @@ class BlockScanner(Thread):
             known_prev_block_data = {}
 
             for x in mc_data:
-                prev_blocks = [
-                    x['block_id'].to_data_nullabe_hashes()
-                ]
+                prev_blocks = []
                 prev_blocks_100 = []
 
                 for i in range(x['block_id'].id.seqno - 16, x['block_id'].id.seqno):
@@ -842,9 +840,7 @@ class BlockScanner(Thread):
                 if i['master'] in known_prev_block_data:
                     i['prev_block_data'] = known_prev_block_data[i['master']]
                 else:
-                    prev_blocks = [
-                        i['master'].to_data_nullabe_hashes()
-                    ]
+                    prev_blocks = []
                     prev_blocks_100 = []
                     for j in range(i['master'] - 16, i['master']):
                         prev_blocks.append(known_mcs[j].to_data())
