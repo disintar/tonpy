@@ -177,7 +177,7 @@ def test_tag_with_aug():
     assert F_record.get_tag(CellBuilder().store_bitstring("011").begin_parse()) == F_record.Tag.test1
 
 
-def test_enum():
+def enum():
     # TODO: fix
     # language=tl-b
     tlb_text = """
@@ -241,6 +241,13 @@ def test_enum():
     assert D_record.fetch_enum(cb.begin_parse()) == D_record.cons_tag[1] == int('101', 2)
 
 
+def test_enum():
+    enum()
+
+def test_enum_multi():
+    for i in range(100):
+        enum()
+
 def test_special():
     # language=tl-b
     tlb_text = """
@@ -292,4 +299,3 @@ def test_records():
     assert test_record.b == empty_cell
     assert test_record.a == empty_cs
     assert test_record.cell_pack().get_hash() == '9E31F51F54F392AB927D2124E8209C9E1ADF2C28FB0A677DC3C82FFC790150FE'
-
