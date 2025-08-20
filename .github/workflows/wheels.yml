@@ -18,35 +18,29 @@ permissions:
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         include:
-          # macOS x86_64
           - arch: x86_64
-            os: macos-latest
-            python: "3.8"
-            link: https://github.com/disintar/ton/releases/download/ton-cpython-38-x86_64-darwin/
-            file: python_ton.cpython-38-darwin.so
-            fix_tag: x86_64
-          - arch: x86_64
-            os: macos-latest
+            os: macos-13
             python: "3.10"
             link: https://github.com/disintar/ton/releases/download/ton-cpython-310-x86_64-darwin/
             file: python_ton.cpython-310-darwin.so
             fix_tag: x86_64
           - arch: x86_64
-            os: macos-latest
+            os: macos-13
             python: "3.11"
             link: https://github.com/disintar/ton/releases/download/ton-cpython-311-x86_64-darwin/
             file: python_ton.cpython-311-darwin.so
             fix_tag: x86_64
           - arch: x86_64
-            os: macos-latest
+            os: macos-13
             python: "3.12"
             link: https://github.com/disintar/ton/releases/download/ton-cpython-312-x86_64-darwin/
             file: python_ton.cpython-312-darwin.so
             fix_tag: x86_64
           - arch: x86_64
-            os: macos-latest
+            os: macos-13
             python: "3.13"
             link: https://github.com/disintar/ton/releases/download/ton-cpython-313-x86_64-darwin/
             file: python_ton.cpython-313-darwin.so
@@ -66,39 +60,21 @@ jobs:
             file: python_ton.cpython-313-x86_64-linux-gnu.so
             fix_tag: manylinux2014_x86_64
 
-          # Legacy Linux x86_64 (kuber) kept
+          # Legacy Linux x86_64
           - arch: x86_64
-            os: kuber
-            python: "3.8"
-            link: https://github.com/disintar/ton/releases/download/ton-cpython-38-x86_64-linux/
-            file: python_ton.cpython-38-x86_64-linux-gnu.so
-            fix_tag: manylinux2014_x86_64
-          - arch: x86_64
-            os: kuber
-            python: "3.9"
-            link: https://github.com/disintar/ton/releases/download/ton-cpython-39-x86_64-linux/
-            file: python_ton.cpython-39-x86_64-linux-gnu.so
-            fix_tag: manylinux2014_x86_64
-          - arch: x86_64
-            os: kuber
+            os: arc-runner-set
             python: "3.10"
             link: https://github.com/disintar/ton/releases/download/ton-cpython-310-x86_64-linux/
             file: python_ton.cpython-310-x86_64-linux-gnu.so
             fix_tag: manylinux2014_x86_64
           - arch: x86_64
-            os: kuber
+            os: arc-runner-set
             python: "3.11"
             link: https://github.com/disintar/ton/releases/download/ton-cpython-311-x86_64-linux/
             file: python_ton.cpython-311-x86_64-linux-gnu.so
             fix_tag: manylinux2014_x86_64
 
           # macOS arm64
-          - arch: aarch64
-            os: macos-15
-            python: "3.8"
-            link: https://github.com/disintar/ton/releases/download/ton-cpython-38-aarch64-darwin/
-            file: python_ton.cpython-38-darwin.so
-            fix_tag: arm64
           - arch: aarch64
             os: macos-15
             python: "3.10"
@@ -126,31 +102,25 @@ jobs:
 
           # Windows x64
           - arch: x86_64
-            os: windows-2019
-            python: "3.9"
-            link: https://github.com/disintar/ton/releases/download/ton-cpython-39-x86_64-windows/
-            file: python_ton.cp39-win_amd64.pyd
-            fix_tag:
-          - arch: x86_64
-            os: windows-2019
+            os: windows-2022
             python: "3.10"
             link: https://github.com/disintar/ton/releases/download/ton-cpython-310-x86_64-windows/
             file: python_ton.cp310-win_amd64.pyd
             fix_tag:
           - arch: x86_64
-            os: windows-2019
+            os: windows-2022
             python: "3.11"
             link: https://github.com/disintar/ton/releases/download/ton-cpython-311-x86_64-windows/
             file: python_ton.cp311-win_amd64.pyd
             fix_tag:
           - arch: x86_64
-            os: windows-2019
+            os: windows-2022
             python: "3.12"
             link: https://github.com/disintar/ton/releases/download/ton-cpython-312-x86_64-windows/
             file: python_ton.cp312-win_amd64.pyd
             fix_tag:
           - arch: x86_64
-            os: windows-2019
+            os: windows-2022
             python: "3.13"
             link: https://github.com/disintar/ton/releases/download/ton-cpython-313-x86_64-windows/
             file: python_ton.cp313-win_amd64.pyd
@@ -175,7 +145,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y curl
-        if: matrix.os == 'kuber'
+        if: matrix.os == 'arc-runner-set'
 
       - name: Download prebuilt
         run: |
@@ -186,7 +156,7 @@ jobs:
           mv win/libcrypto-1_1-x64.dll ./src/tonpy/libs/
           mv MANIFEST.in MANIFEST_LINUX.in
           mv MANIFEST_WIN.in MANIFEST.in
-        if: matrix.os == 'windows-2019'
+        if: matrix.os == 'windows-2022'
 
       - name: Run tests
         run: |
@@ -198,67 +168,11 @@ jobs:
           python fix_whl_name.py
         env:
           TAG_FIX: ${{ matrix.fix_tag }}
+
       - name: Store the binary wheel
         uses: actions/upload-artifact@v4
         with:
-          name: python-package-distributions
-          path: dist
-
-  buildMacOs39:
-    strategy:
-      matrix:
-        include:
-          - arch: x86_64
-            os: macos-latest
-            python: "3.9"
-            link: https://github.com/disintar/ton/releases/download/ton-cpython-39-x86_64-darwin/
-            file: python_ton.cpython-39-darwin.so
-            fix_tag: x86_64
-
-          - arch: aarch64
-            os: macos-15
-            python: "3.9"
-            link: https://github.com/disintar/ton/releases/download/ton-cpython-39-aarch64-darwin/
-            file: python_ton.cpython-39-darwin.so
-            fix_tag: arm64
-
-    runs-on: ${{ matrix.os }}
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install python3.9
-        run: |
-          /opt/homebrew/bin/brew install python@3.9
-        if: matrix.os == 'macOS'
-
-      - name: Install python3.9
-        run: |
-          brew install python@3.9
-        if: matrix.os == 'macos-latest'
-
-      - name: Install deps
-        run: |
-          python3.9 -m pip install -r built_requirements.txt
-          python3.9 -m pip install -r requirements.txt
-
-      - name: Download prebuilt
-        run: |
-          curl -Lo ./src/tonpy/libs/${{ matrix.file }} ${{ matrix.link }}${{ matrix.file }}
-
-      - name: Run tests
-        run: |
-          python3.9 -m pytest
-
-      - name: Build wheel
-        run: |
-          python3.9 -m build --wheel --outdir dist/ .
-          python3.9 fix_whl_name.py
-        env:
-          TAG_FIX: ${{ matrix.fix_tag }}
-      - name: Store the binary wheel
-        uses: actions/upload-artifact@v4
-        with:
-          name: python-package-distributions
+          name: python-package-distributions-${{ github.run_id }}-${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.python }}
           path: dist
 
   #  buildVirtualLinux:
@@ -317,11 +231,10 @@ jobs:
 
   deploy:
     name: Publish 🐍📦 to PyPI
-    runs-on: kuber
+    runs-on: arc-runner-set
     needs:
       #      - buildVirtualLinux
       - build
-      - buildMacOs39
 
     steps:
       - uses: actions/checkout@v4
@@ -330,10 +243,18 @@ jobs:
           python-version: "3.11"
         env:
           USER: tvorogme
-      - name: Download all the dists
-        uses: actions/download-artifact@v2
+      - name: Merge artifacts
+        uses: actions/upload-artifact/merge@v4
+        if: always()
         with:
-          name: python-package-distributions
+          name: python-package-distributions-${{ github.run_id }}
+          pattern: python-package-distributions-${{ github.run_id }}-*
+          delete-merged: true
+
+      - name: Download all the dists
+        uses: actions/download-artifact@v4
+        with:
+          name: python-package-distributions-${{ github.run_id }}
           path: dist/
 
       - name: Install deps
@@ -344,4 +265,4 @@ jobs:
           twine upload dist/*
         env:
           TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_MAIN_API_TOKEN }}
