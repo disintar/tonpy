@@ -55,6 +55,9 @@ class BlockId:
     def __eq__(self, other):
         return self.workchain == other.workchain and self.shard == other.shard and self.seqno == other.seqno
 
+    def to_data_nullabe_hashes(self):
+        return [self.id.workchain, self.id.shard, self.id.seqno, 0, 0]
+
 
 class BlockIdExt:
     __slots__ = ['id', 'file_hash', 'root_hash', 'blockidext']
