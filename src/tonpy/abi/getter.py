@@ -336,12 +336,12 @@ class ABIGetterInstance:
 
         if self.result_length_strict_check:
             if len(stack) != len(self.method_result):
-                return {}
+                return
 
         if self.result_strict_type_check:
             my_result_hash = stack.get_abi_hash()
             if my_result_hash != self.method_result_hash:
-                return {}
+                return
 
         tmp = {}
 
@@ -349,7 +349,7 @@ class ABIGetterInstance:
             if getter.required is not None:
                 stack_entry_value = stack_entry.as_int() if getter.type == "Int" else stack_entry.get().get_hash()
                 if stack_entry_value != getter.required:
-                    return {}
+                    return
 
             try:
                 tmp.update(getter.parse_stack_item(stack_entry, tlb_sources, force_all, tvm=tvm))
