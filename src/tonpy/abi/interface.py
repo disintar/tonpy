@@ -1,11 +1,10 @@
 from typing import List
 
-from tonpy import TVM, VmDict, Cell
+from tonpy import TVM
 from tonpy.abi.getter import ABIGetterInstance
 from loguru import logger
 import asyncio
 import traceback
-from libs import libs_data
 
 class ABIInterfaceInstance:
     def __init__(self, instance):
