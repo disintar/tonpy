@@ -299,18 +299,21 @@ class ABIGetterInstance:
             getter_cache.set((tvm.code_hash, tvm.data_hash, self.method_id), stack)
 
         if self.result_length_strict_check:
-            assert len(stack) == len(self.method_result)
+            if len(stack) != len(self.method_result):
+                return
 
         if self.result_strict_type_check:
             my_result_hash = stack.get_abi_hash()
-            assert my_result_hash == self.method_result_hash
+            if my_result_hash != self.method_result_hash:
+                return
 
         tmp = {}
 
         for getter, stack_entry in zip(self.method_result, stack):
             if getter.required is not None:
                 stack_entry_value = stack_entry.as_int() if getter.type == "Int" else stack_entry.get().get_hash()
-                assert stack_entry_value == getter.required
+                if stack_entry_value != getter.required:
+                    return
 
             try:
                 tmp.update(getter.parse_stack_item(stack_entry, tlb_sources, force_all, tvm=tvm))
@@ -332,18 +335,21 @@ class ABIGetterInstance:
             getter_cache.set((tvm.code_hash, tvm.data_hash, self.method_id), stack)
 
         if self.result_length_strict_check:
-            assert len(stack) == len(self.method_result)
+            if len(stack) != len(self.method_result):
+                return {}
 
         if self.result_strict_type_check:
             my_result_hash = stack.get_abi_hash()
-            assert my_result_hash == self.method_result_hash
+            if my_result_hash != self.method_result_hash:
+                return {}
 
         tmp = {}
 
         for getter, stack_entry in zip(self.method_result, stack):
             if getter.required is not None:
                 stack_entry_value = stack_entry.as_int() if getter.type == "Int" else stack_entry.get().get_hash()
-                assert stack_entry_value == getter.required
+                if stack_entry_value != getter.required:
+                    return {}
 
             try:
                 tmp.update(getter.parse_stack_item(stack_entry, tlb_sources, force_all, tvm=tvm))

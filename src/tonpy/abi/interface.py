@@ -1,10 +1,11 @@
 from typing import List
 
-from tonpy import TVM
+from tonpy import TVM, VmDict, Cell
 from tonpy.abi.getter import ABIGetterInstance
 from loguru import logger
 import asyncio
 import traceback
+from libs import libs_data
 
 class ABIInterfaceInstance:
     def __init__(self, instance):
@@ -43,6 +44,9 @@ class ABIInterfaceInstance:
             try:
                 tmp = getter.parse_getters(tvm, tlb_sources)
 
+                if tmp is None:
+                    return {}
+
                 for i in tmp:
                     result[f"{self.dton_parse_prefix}{i}"] = tmp[i]
 
@@ -59,6 +63,9 @@ class ABIInterfaceInstance:
         for getter in self.getters:
             try:
                 tmp = await getter.aparse_getters(tvm, tlb_sources)
+
+                if tmp is None:
+                    return {}
 
                 for i in tmp:
                     result[f"{self.dton_parse_prefix}{i}"] = tmp[i]
