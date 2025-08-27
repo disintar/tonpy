@@ -43,6 +43,9 @@ class ABIInterfaceInstance:
             try:
                 tmp = getter.parse_getters(tvm, tlb_sources)
 
+                if tmp is None:
+                    return {}
+
                 for i in tmp:
                     result[f"{self.dton_parse_prefix}{i}"] = tmp[i]
 
@@ -59,6 +62,9 @@ class ABIInterfaceInstance:
         for getter in self.getters:
             try:
                 tmp = await getter.aparse_getters(tvm, tlb_sources)
+
+                if tmp is None:
+                    return {}
 
                 for i in tmp:
                     result[f"{self.dton_parse_prefix}{i}"] = tmp[i]
