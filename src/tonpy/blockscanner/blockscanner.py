@@ -845,7 +845,7 @@ class BlockScanner(Thread):
                     for j in range(i['master'] - 16, i['master']):
                         prev_blocks.append(known_mcs[j].to_data())
 
-                    prev_100_seqno = int(i['master'] - i['master'] % 100)
+                    prev_100_seqno = int((i['master'] - 1) - (i['master'] - 1) % 100)
                     while len(prev_blocks_100) < 16:
                         prev_blocks_100.append(known_mcs[prev_100_seqno].to_data())
                         if prev_100_seqno == 100:
