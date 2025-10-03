@@ -33,6 +33,7 @@ class TVM:
                          enable_stack_dump)
         self.code_hash = code.get_hash()
         self.data_hash = data.get_hash() if data else None
+        self.original_data = data
         self.vm_steps_detailed: Optional[List[StepInfo]] = None
         self.enable_stack_dump = enable_stack_dump
         self.c7 = None
@@ -215,7 +216,7 @@ class TVM:
 
     @property
     def data(self) -> Cell:
-        return Cell(self.tvm.data)
+        return self.original_data
 
     @data.setter
     def data(self, value):
