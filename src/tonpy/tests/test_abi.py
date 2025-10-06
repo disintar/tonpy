@@ -147,3 +147,37 @@ def test_abi_required():
         [0, 76, 88, 81689, 82492, 87316, 103289, 106029]
     )
     assert set(getters["abi_interfaces"]) == {'stonfi_pool_v2_stableswap'}
+
+
+def test_abi_storage():
+    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'abi_test.json')) as f:
+        abi = ABIInstance(json.loads(f.read()))
+
+    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'abi_test_libs.txt')) as f:
+        libs = str(f.read())
+
+    tvm = TVM(
+        log_level=0,
+        code="te6ccuECEAEABN0AABoAJAEkAbwCsALGA2oEOASUBW8F3Aa5B7oIgAlYCboBFP8A9KQT9LzyyAsBAgEgAgMD9tL4kfJAIMcAkTDg1ywmVg6wPJvUgwjXGNRtbYEAi47M1ywi31hjTJuDCNcY1G1tbYEAjI6x1ywmLwVkHJhtbW1tbYEAjY6a1ywgD5wa7JzTP/oA+kD0BG2BAI7jDkZQRDDiRlBEMOIWFRRDMOID0YEAiyO64wKBAIwjugQFBgGS8iDHAJEw4NcsJlYOsDyZ1IMI1xjUgQCLjinXLCLfWGNMmYMI1xjUbYEAjI4S1ywmLwVkHJLyP+FtbW1agQCN4hRDMOIB0X/bPAsA8NcsI3brL4Sb0z/6APQEbW2BAI+OXdcsIjp8Nnya0z/0BG1tbYEAkI5D1ywmB/9xtJnTP9RtbW2BAJGOL9csJZz7i/Sa0z/0BG1tbYEAko4a1ywiO1bgZJLyAOHTP/pA0w/6QNMPVSKBAJPi4uIWFRRDMOIWFRRDMAEQXwOBAItw2zwLBJiOil8DbTOBAIxw2zzggQCNI7qOi18GbW1tgQCNcNs84IEAjiO6jp80W/iXUAO2CG1tbW0mbpFwkXPiEGcQVhBFEDRBMNs84IEAjyO6CwsJBwTCjpxfA/iXWLYIbW1tbSVukXCRc+IQVhBFEDRBMNs84IEAkCO6jpxfAzL4l21tbW0mbpFwkXPiEGcQVhBFEDRBMNs84IEAkSO6jpBfAzL4lxJtWG1tbVgDc9s84IEAklADugkJCQgCVI6bWzL4l21tbW0mbpFwkXPiEGcQVhBFEDRBMNs84PiXVBUFUFSBAJPbPAkJAdQ1JMAAkl8H4IEAk1AFuo4aXwPQ1ywiO1bgZPK/0z8x+kDTD/pA0w/RVSDfItcsBTGSXwbhgQH0WLYIFIEnEKmEI9csBTGSbCLjDSDCAI4YyM+FiBLOAfoCghB3P68wzwuKyz/JcvsA4F8DCgBqgROIUAO2CFIggScQqYRRIqEiwgCOG8jPhYgUzlj6AoIQdz+vMM8LiiPPCz/JcvsAAZJsIuIC1O1E0NMf1v/T//QE0YEAiya64wI4gQCMUAW64wI0NHB/jiZTBoMH9HxvpSCOFjMB1ws/+CO7mzJSF4MH9FswBn8C3gGSbCHis+YwjhqS+ADeAsjLHyHXS/JJgwe68onOy//0AMntVJJfBeIMDQH8NQfQgwjXGNTRghCMktviIfkAVBA6+RDyjtDXLCOqtIEU8r/TH9M/MfpAMdQx1NFSE7ox8qvQ0z/T/9EB+CO88qxTBIMH9A5voTHyWCX5AEB3+RDyjgPQ0h/TH9M/1NH4NRS68pT4I7zylSShIML/liCDB7nDAJFw4vKZUVVwDgDCghA+T+Y6JfkAVBB1+RDyjgTQ1ywjqrSBFPK/0x/TPzH6QDHUMdTRUhe6MfKrBNDTP9P/0SH4I7zymAKS+ADegwcByMs/A1Bm9EMCyMsfIddL8kmDB7ryic4Sy//0AMntVAHS1zbSAAHyWsgHgQDAvI4VBaZAAYBAcNc2MVAGzs+DFM5wzws/mAbOz4MVzhA04snQBMjLHyTXS/JJgwe68okUzhTL/xP0AMntVCHXOTBwlCHHALOK6IQHu/KR10rAAPKRAe1VlPgA+A/eDwBeAdcoIHYeQ2wg10nACPKRINdKwALykSKzkX+aINcdBscSwADDAOLyktdM1zkwAaQCJmp3",
+        data="te6ccuEBAQEARwCOAIkAAAAA+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB/Vo3U4OymH9txSCcs0Y397EY+KaCOAaGpbRVn6PlIdUB1In+t"
+    )
+    tvm.set_libs(VmDict(key_len=256, signed=False, cell_root=Cell(libs)))
+    storage = abi.parse_storage(tvm)
+    assert storage == {
+        'abi_interfaces': ['x1000_wallet'],
+        'abi_x1000_wallet_seqno_offset': 0,
+        'abi_x1000_wallet_seqno_bitmap': 'F800000000000000000000000000000000000000000000000000000000000000',
+        'abi_x1000_wallet_public_key': '7F568DD4E0ECA61FDB7148272CD18DFDEC463E29A08E01A1A96D1567E8F94875'
+    }
+    # parse getters also ok
+    storage = abi.parse_getters(tvm)
+    assert storage == {
+        'abi_interfaces': ['x1000_wallet'],
+        'abi_x1000_wallet_seqno_offset': 0,
+        'abi_x1000_wallet_seqno_bitmap': 'F800000000000000000000000000000000000000000000000000000000000000',
+        'abi_x1000_wallet_public_key': '7F568DD4E0ECA61FDB7148272CD18DFDEC463E29A08E01A1A96D1567E8F94875'
+    }
+
+
+if __name__ == "__main__":
+    test_abi_storage()
