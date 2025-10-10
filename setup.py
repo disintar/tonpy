@@ -31,7 +31,7 @@ except ImportError:
 
 setup(
     name="tonpy" if not IS_DEV else "tonpy-dev",
-    version="0.0.0.1.4c0" if not IS_DEV else "0.0.0.6.1a1",
+    version="0.0.0.1.4c0" if not IS_DEV else "0.0.0.6.2a1",
     author="Disintar LLP",
     author_email="andrey@head-labs.com",
     description="Types / API for TON blockchain",
