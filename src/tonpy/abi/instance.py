@@ -86,8 +86,10 @@ class ABIInstance:
 
             for parser in parsers:
                 data = parser.parse_getters(tvm, self.tlb_sources)
-                if data:
+                if isinstance(data, dict):
                     result['abi_interfaces'].append(parser.name)
+                    if 'extra_names' in parser.instance['labels']:
+                        result['abi_interfaces'].extend(parser.instance['labels']['extra_names'])
                     result.update(data)
 
         return result
@@ -104,8 +106,10 @@ class ABIInstance:
 
             for parser in parsers:
                 data = await parser.aparse_getters(tvm, self.tlb_sources)
-                if data:
+                if isinstance(data, dict):
                     result['abi_interfaces'].append(parser.name)
+                    if 'extra_names' in parser.instance['labels']:
+                        result['abi_interfaces'].extend(parser.instance['labels']['extra_names'])
                     result.update(data)
 
         return result
@@ -121,8 +125,10 @@ class ABIInstance:
 
             for parser in parsers:
                 data = parser.parse_getters(tvm, self.tlb_sources)
-                if data:
+                if isinstance(data, dict):
                     result['abi_interfaces'].append(parser.name)
+                    if 'extra_names' in parser.instance['labels']:
+                        result['abi_interfaces'].extend(parser.instance['labels']['extra_names'])
                     for key, value in data.items():
                         if key not in result:
                             result[key] = value
@@ -145,15 +151,19 @@ class ABIInstance:
             tvm = await get_tvm()
 
             for parser in parsers:
-                result['abi_interfaces'].append(parser.name)
-                for key, value in (await parser.aparse_getters(tvm, self.tlb_sources)).items():
-                    if key not in result:
-                        result[key] = value
-                    else:
-                        if result[key] is not None:
+                data = await parser.aparse_getters(tvm, self.tlb_sources)
+                if isinstance(data, dict):
+                    result['abi_interfaces'].append(parser.name)
+                    if 'extra_names' in parser.instance['labels']:
+                        result['abi_interfaces'].extend(parser.instance['labels']['extra_names'])
+                    for key, value in data.items():
+                        if key not in result:
                             result[key] = value
                         else:
-                            logger.warning(f"Got multiple not null answers for getter {key} in {parser.name}")
+                            if result[key] is not None:
+                                result[key] = value
+                            else:
+                                logger.warning(f"Got multiple not null answers for getter {key} in {parser.name}")
                 result.update()
 
         return result
