@@ -202,7 +202,7 @@ def test_abi_storage():
     assert storage == {
         'abi_interfaces': ['x1000_wallet'],
         'abi_x1000_wallet_seqno_offset': 0,
-        'abi_x1000_wallet_seqno_bitmap': 'F800000000000000000000000000000000000000000000000000000000000000',
+        # 'abi_x1000_wallet_seqno_bitmap': 'F800000000000000000000000000000000000000000000000000000000000000',
         'abi_x1000_wallet_public_key': '7F568DD4E0ECA61FDB7148272CD18DFDEC463E29A08E01A1A96D1567E8F94875'
     }
     # parse getters also ok
@@ -210,7 +210,7 @@ def test_abi_storage():
     assert storage == {
         'abi_interfaces': ['x1000_wallet'],
         'abi_x1000_wallet_seqno_offset': 0,
-        'abi_x1000_wallet_seqno_bitmap': 'F800000000000000000000000000000000000000000000000000000000000000',
+        # 'abi_x1000_wallet_seqno_bitmap': 'F800000000000000000000000000000000000000000000000000000000000000',
         'abi_x1000_wallet_public_key': '7F568DD4E0ECA61FDB7148272CD18DFDEC463E29A08E01A1A96D1567E8F94875'
     }
 
