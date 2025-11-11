@@ -61,14 +61,14 @@ class ABIInterfaceInstance:
                 tmp = getter.parse_getters(tvm, tlb_sources)
 
                 if tmp is None:
-                    return {}
+                    return None
 
                 for i in tmp:
                     result[f"{self.dton_parse_prefix}{i}"] = tmp[i]
 
             except Exception as e:
                 logger.warning(f"Can't parse {self.name}, (getter: {getter.method_name}): {e} {traceback.format_exc()}")
-                return {} # abi should work completely, with a result in each getter
+                return None # abi should work completely, with a result in each getter
 
         # parse storage too
         storage_parsed = self.parse_storage(tvm, tlb_sources)
@@ -86,14 +86,14 @@ class ABIInterfaceInstance:
                 tmp = await getter.aparse_getters(tvm, tlb_sources)
 
                 if tmp is None:
-                    return {}
+                    return None
 
                 for i in tmp:
                     result[f"{self.dton_parse_prefix}{i}"] = tmp[i]
 
             except Exception as e:
                 logger.warning(f"Can't parse {self.name}, (getter: {getter.method_name}): {e} {traceback.format_exc()}")
-                return {} # abi should work completely, with a result in each getter
+                return None # abi should work completely, with a result in each getter
 
         # parse storage too
         storage_parsed = self.parse_storage(tvm, tlb_sources)
