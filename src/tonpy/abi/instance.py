@@ -55,7 +55,7 @@ class ABIInstance:
 
         return clear_parsers
 
-    def get_parsers(self, code_hash: str, getters: List[int]) -> set[ABIInterfaceInstance]:
+    def get_parsers(self, code_hash: str, getters: List[int] | None) -> set[ABIInterfaceInstance]:
         parsers = set()
 
         if code_hash in self.by_code_hash and self.by_code_hash[code_hash]:
@@ -86,8 +86,10 @@ class ABIInstance:
 
             for parser in parsers:
                 data = parser.parse_getters(tvm, self.tlb_sources)
-                if data:
+                if isinstance(data, dict):
                     result['abi_interfaces'].append(parser.name)
+                    if 'extra_names' in parser.instance['labels']:
+                        result['abi_interfaces'].extend(parser.instance['labels']['extra_names'])
                     result.update(data)
 
         return result
@@ -104,8 +106,10 @@ class ABIInstance:
 
             for parser in parsers:
                 data = await parser.aparse_getters(tvm, self.tlb_sources)
-                if data:
+                if isinstance(data, dict):
                     result['abi_interfaces'].append(parser.name)
+                    if 'extra_names' in parser.instance['labels']:
+                        result['abi_interfaces'].extend(parser.instance['labels']['extra_names'])
                     result.update(data)
 
         return result
@@ -121,8 +125,10 @@ class ABIInstance:
 
             for parser in parsers:
                 data = parser.parse_getters(tvm, self.tlb_sources)
-                if data:
+                if isinstance(data, dict):
                     result['abi_interfaces'].append(parser.name)
+                    if 'extra_names' in parser.instance['labels']:
+                        result['abi_interfaces'].extend(parser.instance['labels']['extra_names'])
                     for key, value in data.items():
                         if key not in result:
                             result[key] = value
@@ -145,15 +151,56 @@ class ABIInstance:
             tvm = await get_tvm()
 
             for parser in parsers:
-                result['abi_interfaces'].append(parser.name)
-                for key, value in (await parser.aparse_getters(tvm, self.tlb_sources)).items():
-                    if key not in result:
-                        result[key] = value
-                    else:
-                        if result[key] is not None:
+                data = await parser.aparse_getters(tvm, self.tlb_sources)
+                if isinstance(data, dict):
+                    result['abi_interfaces'].append(parser.name)
+                    if 'extra_names' in parser.instance['labels']:
+                        result['abi_interfaces'].extend(parser.instance['labels']['extra_names'])
+                    for key, value in data.items():
+                        if key not in result:
                             result[key] = value
                         else:
-                            logger.warning(f"Got multiple not null answers for getter {key} in {parser.name}")
-                result.update()
+                            if result[key] is not None:
+                                result[key] = value
+                            else:
+                                logger.warning(f"Got multiple not null answers for getter {key} in {parser.name}")
+                    result.update()
 
+        return result
+
+    def parse_storage(self, tvm: TVM) -> dict:
+        parsers = self.get_parsers(tvm.code_hash, getters=None)
+        result = {}
+        if len(parsers) > 0:
+            result['abi_interfaces'] = []
+            for parser in parsers:
+                # Always record interface if it declares storage, even if parse yields no fields
+                if getattr(parser, 'storage', None):
+                    result['abi_interfaces'].append(parser.name)
+                data = parser.parse_storage(tvm, self.tlb_sources)
+                if data:
+                    result.update(data)
+        return result
+
+    def parse_storage_lazy(self, code_hash, get_tvm: Callable) -> dict:
+        parsers = self.get_parsers(code_hash, getters=None)
+        result = {}
+        if len(parsers) > 0:
+            result['abi_interfaces'] = []
+            tvm = get_tvm()
+            for parser in parsers:
+                # Always record interface if it declares storage, even if parse yields no fields
+                if getattr(parser, 'storage', None):
+                    result['abi_interfaces'].append(parser.name)
+                data = parser.parse_storage(tvm, self.tlb_sources)
+                if data:
+                    for key, value in data.items():
+                        if key not in result:
+                            result[key] = value
+                        else:
+                            if result[key] is not None:
+                                result[key] = value
+                            else:
+                                logger.warning(f"Got multiple not null answers for storage field {key} in {parser.name}")
+            result.update()
         return result
