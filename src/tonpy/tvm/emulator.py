@@ -81,6 +81,10 @@ class Emulator:
         return self.emulator.elapsed_time
 
     @property
+    def c5_status(self) -> List[str]:
+        return self.emulator.c5_status
+
+    @property
     def transaction(self, as_cs=True) -> Union[Cell, CellSlice]:
         c = Cell(self.emulator.transaction_cell)
 
@@ -99,8 +103,11 @@ class Emulator:
             return c
 
     @property
-    def actions(self, as_cs=True) -> Union[Cell, CellSlice]:
+    def actions(self, as_cs=True) -> Union[Cell, CellSlice, None]:
         c = Cell(self.emulator.actions_cell)
+
+        if c.is_null():
+            return None
 
         if as_cs:
             return c.begin_parse()
