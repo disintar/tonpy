@@ -37,6 +37,7 @@ class Cell:
 
     def begin_parse(self, allow_special=True) -> CellSlice:
         """Convert cell to CellSlice"""
+        assert not self.cell.is_null(), 'Cell must be not null'
 
         return CellSlice(load_as_cell_slice(self.cell, allow_special))
 

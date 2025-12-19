@@ -35,7 +35,7 @@ class Emulator:
         It will not lock GIL for run, all real multiprocessing will go thrue C++ level
         """
         return await self.emulator.aemulate_transaction(shard_account.cell, message.cell, str(unixtime), str(lt),
-                                                       1 if lt >= 3709412000000 else 0, force_uninit)
+                                                        1 if lt >= 3709412000000 else 0, force_uninit)
 
     def emulate_tick_tock_transaction(self, shard_account: Cell, is_tock: bool, unixtime: int, lt: int) -> bool:
         return self.emulator.emulate_tick_tock_transaction(shard_account.cell, is_tock, str(unixtime), str(lt),
@@ -43,7 +43,7 @@ class Emulator:
 
     async def aemulate_tick_tock_transaction(self, shard_account: Cell, is_tock: bool, unixtime: int, lt: int) -> bool:
         return await self.emulator.aemulate_tick_tock_transaction(shard_account.cell, is_tock, str(unixtime), str(lt),
-                                                                 1 if lt >= 3709412000000 else 0)
+                                                                  1 if lt >= 3709412000000 else 0)
 
     def set_prev_blocks_info(self, prev_blocks_info: Union[Tuple[List[BlockId], BlockId], Tuple[List, List]]):
         if len(prev_blocks_info) > 0 and len(prev_blocks_info[0]) > 0 and isinstance(prev_blocks_info[0][0], BlockId):
@@ -69,9 +69,20 @@ class Emulator:
     def set_debug_enabled(self, flag: bool) -> None:
         self.emulator.set_debug_enabled(flag)
 
+    def set_vm_verbosity_level(self, verbosity_level: int) -> None:
+        self.emulator.set_vm_verbosity_level(verbosity_level)
+
+    @property
+    def vm_log(self) -> str:
+        return self.emulator.vm_log
+
     @property
     def elapsed_time(self) -> int:
         return self.emulator.elapsed_time
+
+    @property
+    def c5_status(self) -> List[str]:
+        return self.emulator.c5_status
 
     @property
     def transaction(self, as_cs=True) -> Union[Cell, CellSlice]:
@@ -92,8 +103,11 @@ class Emulator:
             return c
 
     @property
-    def actions(self, as_cs=True) -> Union[Cell, CellSlice]:
+    def actions(self, as_cs=True) -> Union[Cell, CellSlice, None]:
         c = Cell(self.emulator.actions_cell)
+
+        if c.is_null():
+            return None
 
         if as_cs:
             return c.begin_parse()
